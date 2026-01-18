@@ -1,129 +1,128 @@
-# Lokale CI-Tests ohne Docker
+# Local CI Tests Without Docker
 
-Dieses Projekt enthält drei verschiedene Möglichkeiten, um die GitHub
-CI-Pipeline lokal auszuführen:
+This project includes three different ways to run the GitHub CI pipeline locally:
 
-## 🐍 Python-Skript (empfohlen)
+## 🐍 Python Script (Recommended)
 
-Am vollständigsten mit farbiger Ausgabe und detailliertem Fehler-Handling:
+Most comprehensive with colored output and detailed error handling:
 
 ```bash
 python3 test_ci.py
 ```
 
-**Vorteile:**
+**Benefits:**
 
-- Farbige, übersichtliche Ausgabe
-- Detaillierte Fehlerbehandlung
-- Funktioniert auf allen Plattformen (macOS, Linux, Windows)
-- Zeigt Build-Zeiten und Firmware-Größen
+- Colored, clear output
+- Detailed error handling
+- Works on all platforms (macOS, Linux, Windows)
+- Shows build times and firmware sizes
 
 ---
 
-## 🔨 Makefile (schnellste Variante)
+## 🔨 Makefile (Fastest Option)
 
-Bequeme Shortcuts für häufige Aufgaben:
+Convenient shortcuts for common tasks:
 
 ```bash
-# Alle Tests ausführen (validate + compile)
+# Run all tests (validate + compile)
 make test
 
-# Nur Validierung
+# Validation only
 make validate
 
-# Nur Kompilierung
+# Compilation only
 make compile
 
-# Firmware auf Gerät flashen
+# Flash firmware to device
 make flash
 
-# Logs vom Gerät anzeigen
+# Show device logs
 make monitor
 
-# Build-Verzeichnis aufräumen
+# Clean build directory
 make clean
 ```
 
-**Vorteile:**
+**Benefits:**
 
-- Sehr schnell und einfach zu nutzen
-- Direkt Flash- und Monitor-Befehle enthalten
-- Standard-Tool auf Unix-Systemen
+- Very fast and easy to use
+- Includes direct flash and monitor commands
+- Standard tool on Unix systems
 
 ---
 
-## 🐚 Bash-Skript
+## 🐚 Bash Script
 
-Alternative für Bash-Fans:
+Alternative for Bash enthusiasts:
 
 ```bash
 bash test_ci.sh
 ```
 
-**Vorteile:**
+**Benefits:**
 
-- Keine Python-Abhängigkeiten
-- Farbige Ausgabe
-- Fehlerbehandlung mit `set -e`
+- No Python dependencies
+- Colored output
+- Error handling with `set -e`
 
 ---
 
-## Voraussetzungen
+## Prerequisites
 
-Alle Skripte benötigen:
+All scripts require:
 
-- ESPHome CLI installiert und im PATH
-- Python 3.x (für Python-Skript)
-- Make (für Makefile, meist vorinstalliert)
+- ESPHome CLI installed and in PATH
+- Python 3.x (for Python script)
+- Make (for Makefile, usually pre-installed)
 
-### ESPHome installieren
+### Installing ESPHome
 
-Falls noch nicht vorhanden:
+If not already installed:
 
 ```bash
-# Via pip (empfohlen)
+# Via pip (recommended)
 python3 -m venv .venv
 source .venv/bin/activate
 pip install esphome
 
-# Oder via Homebrew (macOS)
+# Or via Homebrew (macOS)
 brew install esphome
 ```
 
 ---
 
-## Was wird getestet?
+## What Gets Tested?
 
-Alle Skripte führen die gleichen Tests aus:
+All scripts run the same tests:
 
-1. **Validierung**: Prüft beide YAML-Dateien auf Syntax-Fehler
+1. **Validation**: Checks both YAML files for syntax errors
    - `src/main.yaml`
    - `src/main.factory.yaml`
 
-2. **Kompilierung**: Baut die Firmware für beide Konfigurationen
-   - Erzeugt `.bin`-Dateien in `src/.esphome/build/`
-   - Zeigt Speichernutzung und Firmware-Größe
+2. **Compilation**: Builds firmware for both configurations
+   - Generates `.bin` files in `src/.esphome/build/`
+   - Shows memory usage and firmware size
 
 ---
 
-## Gerät flashen
+## Flashing Device
 
-Nach erfolgreicher Kompilierung:
+After successful compilation:
 
 ```bash
-# Via Makefile (schnellste Methode)
+# Via Makefile (fastest method)
 make flash
 
-# Oder manuell mit ESPHome
+# Or manually with ESPHome
 esphome upload src/main.factory.yaml --device /dev/cu.usbserial-110
 
-# Logs anzeigen
+# Show logs
 make monitor
-# oder
+# or
 esphome logs src/main.yaml --device /dev/cu.usbserial-110
 ```
 
-**Hinweis**: Das Gerät ist an `/dev/cu.usbserial-110` angeschlossen.
+**Note**: The device is connected at `/dev/cu.usbserial-110`.
 
 ---
 
@@ -131,73 +130,73 @@ esphome logs src/main.yaml --device /dev/cu.usbserial-110
 
 ### "esphome: command not found"
 
-ESPHome ist nicht im PATH. Aktiviere die Python-Umgebung:
+ESPHome is not in PATH. Activate the Python environment:
 
 ```bash
 source .venv/bin/activate
 ```
 
-### Validierung schlägt fehl
+### Validation Fails
 
-Prüfe die YAML-Syntax:
+Check YAML syntax:
 
 ```bash
 esphome config src/main.yaml
 ```
 
-### Kompilierung schlägt fehl
+### Compilation Fails
 
-- Stelle sicher, dass alle Pakete installiert sind
-- Prüfe die ESPHome-Version: `esphome version` (sollte 2025.12.7 sein)
-- Säubere Build-Cache: `make clean`
+- Ensure all packages are installed
+- Check ESPHome version: `esphome version` (should be 2025.12.7)
+- Clean build cache: `make clean`
 
-### Flash-Fehler
+### Flash Errors
 
-- Prüfe, ob das Gerät angeschlossen ist: `ls /dev/cu.*`
-- Ändere den Port im Makefile, falls anders
-- Reduziere die Baudrate: `--baud-rate 115200`
+- Check if device is connected: `ls /dev/cu.*`
+- Change the port in Makefile if different
+- Reduce baud rate: `--baud-rate 115200`
 
 ---
 
-## Vergleich mit GitHub CI
+## Comparison with GitHub CI
 
-Die lokalen Tests führen **exakt die gleichen Schritte** aus wie `.github/workflows/ci.yaml`:
+Local tests run **exactly the same steps** as `.github/workflows/ci.yaml`:
 
-| CI-Schritt | Lokales Äquivalent                |
+| CI Step    | Local Equivalent                  |
 | ---------- | --------------------------------- |
 | `validate` | `esphome config src/main.yaml`    |
 | `compile`  | `esphome compile src/main.yaml`   |
 
-**Einziger Unterschied**: GitHub CI testet mit `stable`, `beta` und `dev`
-ESPHome-Versionen. Lokal nutzen wir nur die installierte Version.
+**Only difference**: GitHub CI tests with `stable`, `beta`, and `dev`
+ESPHome versions. Locally we only use the installed version.
 
 ---
 
-## Entwickler-Workflow
+## Developer Workflow
 
 ```bash
-# 1. Code ändern
+# 1. Change code
 vim src/common/core.yaml
 
-# 2. Lokal testen
+# 2. Test locally
 make test
 
-# 3. Falls erfolgreich: Auf Gerät flashen
+# 3. If successful: Flash to device
 make flash
 
-# 4. Logs prüfen
+# 4. Check logs
 make monitor
 
 # 5. Commit & Push
 git add .
-git commit -m "Feature XY hinzugefügt"
+git commit -m "Added feature XY"
 git push
 ```
 
 ---
 
-## Weitere Informationen
+## Additional Information
 
-- **ESPHome-Docs**: [https://esphome.io](https://esphome.io)
-- **Projekt-README**: [README.md](README.md)
-- **Copilot-Instruktionen**: [.github/copilot-instructions.md](.github/copilot-instructions.md)
+- **ESPHome Docs**: [https://esphome.io](https://esphome.io)
+- **Project README**: [README.md](README.md)
+- **Copilot Instructions**: [.github/copilot-instructions.md](.github/copilot-instructions.md)
