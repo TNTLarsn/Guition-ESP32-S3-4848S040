@@ -7,19 +7,6 @@ substitutions:
   ha_switch_entity_id_5:       switch.shellypro3_ece334ed6054_output_1
   ha_switch_entity_id_6:       switch.shellypro3_ece334ed6054_output_2
 
-# mapping:
-#   - id: ha_entity_map
-#     from: int
-#     to: string
-#     entries:
-#       0: switch.shellypro3_ece334e98834_output_0
-#       1: switch.shellypro3_ece334e98834_output_1
-#       2: switch.shellypro3_ece334e98834_output_2
-#       3: switch.shellypro3_ece334ed6054_output_0
-#       4: switch.shellypro3_ece334ed6054_output_1
-#       5: switch.shellypro3_ece334ed6054_output_2
-
-
 # Display Interne Entitäten
 binary_sensor:
   - platform: homeassistant
