@@ -103,7 +103,7 @@ script:
     then:
       - lvgl.label.update:
           id: boot_synchronization_label
-          text: "Syncronisiere..."
+          text: "Synchronisiere..."
       - lvgl.label.update:
           id: boot_homeassistant_label
           text: "Verbinde Home Assistant..."
