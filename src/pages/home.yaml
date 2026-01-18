@@ -137,7 +137,7 @@ lvgl:
           - image:
               align: CENTER
               src: see_img
-          - obj: # a properly placed coontainer object for all these controls
+          - obj: # a properly placed container object for all these controls
               layout: # enable the GRID layout for the children widgets
                 type: GRID # split the rows and the columns proportionally
                 grid_columns: [FR(1), FR(1), FR(1)] # equal
