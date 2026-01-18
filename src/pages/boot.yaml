@@ -12,18 +12,20 @@ esphome:
 lvgl:
   top_layer:
     widgets:
-      - button:
+      - obj:
           id: loading_page
           bg_color: color_surface_dark
           shadow_opa: transp
           width: ${display_width}
           height: ${display_height}
+          outline_width: 0
+          border_width: 0
+          radius: 0
           widgets:
             - image:
                 y: 30
                 align: top_mid
                 src: ha_img
-
             - obj:
                 id: boot_homeassistant
                 y: 180
