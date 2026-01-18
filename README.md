@@ -203,4 +203,4 @@ Stelle sicher, dass deine ESPHome-Version mindestens 2025.12.7 ist.
 [publish-badge]: https://github.com/TNTLarsn/Guition-ESP32-S3-4848S040/actions/workflows/publish-firmware.yml/badge.svg
 <!-- markdownlint-disable-next-line MD013 -->
 [publish-workflow]: https://github.com/TNTLarsn/Guition-ESP32-S3-4848S040/actions/workflows/publish-firmware.yml
-[web-installer]: https://tntlarsn.github.io/Guition-ESP32-S3-4848S040/
+[web-installer]: https://TNTLarsn.github.io/Guition-ESP32-S3-4848S040/
