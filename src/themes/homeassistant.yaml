@@ -141,7 +141,7 @@ lvgl:
       shadow_width: 0
 
       # Track (background)
-      bg_color: color_success 
+      bg_color: color_success
       bg_opa: COVER
       checked:
         bg_color: color_secondary
