@@ -65,6 +65,7 @@ touchscreen:
           condition: lvgl.is_paused
           then:
             - logger.log: "LVGL resuming"
+            - switch.turn_off: switch_antiburn
             - lvgl.resume:
             - lvgl.widget.redraw:
             - light.turn_on: display_backlight
@@ -143,6 +144,26 @@ lvgl:
             text: "Display bereit"
             align: CENTER
 
+time:
+  - platform: sntp
+    id: sntp_time
+    timezone: "${timezone}"
+    servers:
+     - ntp0.ntp-servers.net
+     - ntp1.ntp-servers.net
+     - ntp2.ntp-servers.net
+    on_time:
+      - hours: 2,3,4,5
+        minutes: 5
+        seconds: 0
+        then:
+          - switch.turn_on: switch_antiburn
+      - hours: 2,3,4,5
+        minutes: 35
+        seconds: 0
+        then:
+          - switch.turn_off: switch_antiburn
+
 light:
   # Backlight
   - platform: monochromatic
@@ -181,6 +202,31 @@ number:
     max_value: 720
     step: 1
     mode: box
+
+# Antiburn Switch
+switch:
+  - platform: template
+    name: Bildschirmschoner
+    id: switch_antiburn
+    icon: mdi:television-shimmer
+    optimistic: true
+    entity_category: "config"
+    turn_on_action:
+      - logger.log: "Starting Bildschirmschoner"
+      - if:
+          condition: lvgl.is_paused
+          then:
+            - lvgl.resume:
+            - lvgl.widget.redraw:
+      - lvgl.pause:
+          show_snow: true
+    turn_off_action:
+      - logger.log: "Stopping Bildschirmschoner"
+      - if:
+          condition: lvgl.is_paused
+          then:
+            - lvgl.resume:
+            - lvgl.widget.redraw:
 
 logger:
   level: debug
