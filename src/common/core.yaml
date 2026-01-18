@@ -1,8 +1,11 @@
+# Common Core Configuration for ESPHome Display Device
 globals:
   - id: display_timeout
     type: int
     restore_value: yes
     initial_value: '2'
+
+# Basic ESPHome Configuration
 esphome:
   name: ${display_name}
   friendly_name: ${display_friendly_name}
@@ -17,6 +20,7 @@ esphome:
   platformio_options:
     board_build.flash_mode: dio
 
+# ESP32-S3 Specific Configuration
 esp32:
   board: esp32-s3-devkitc-1
   variant: esp32s3
@@ -31,10 +35,12 @@ esp32:
       CONFIG_SPIRAM_RODATA: y
       CONFIG_ESP_TASK_WDT_TIMEOUT_S: "60"
 
+# External PSRAM Configuration
 psram:
   mode: octal
   speed: 80MHz
 
+# Output Configuration
 output:
   # Display Backlight LED
   - platform: ledc
@@ -42,6 +48,7 @@ output:
     id: backlight_output
     frequency: 100Hz
 
+# I2C Bus for Touchscreen
 i2c:
   - id: bus_a
     sda: GPIO19
@@ -53,6 +60,7 @@ i2c:
     # a small reduction in maximum touch update rate for stable, accurate input.
     frequency: 100kHz
 
+# Touchscreen Configuration
 touchscreen:
   platform: gt911
   id: touchscreen_id
@@ -70,11 +78,13 @@ touchscreen:
             - lvgl.widget.redraw:
             - light.turn_on: display_backlight
 
+# SPI Bus for Display
 spi:
   - id: lcd_spi
     clk_pin: GPIO48
     mosi_pin: GPIO47
 
+# Display Configuration
 display:
   - platform: st7701s
     id: ${display_name}
@@ -123,7 +133,7 @@ display:
         - 7          # B4
         - 15         # B5
 
-
+# LVGL Configuration
 lvgl:
   on_idle:
     timeout: !lambda "return (id(display_timeout_backlight).state * 60 * 1000);"
@@ -144,6 +154,7 @@ lvgl:
             text: "Display bereit"
             align: CENTER
 
+# Time Configuration
 time:
   - platform: sntp
     id: sntp_time
@@ -163,7 +174,9 @@ time:
         seconds: 0
         then:
           - switch.turn_off: switch_antiburn
+ # 
 
+# Backlight Configuration
 light:
   # Backlight
   - platform: monochromatic
@@ -172,6 +185,7 @@ light:
     id: display_backlight
     restore_mode: ALWAYS_ON
     on_turn_on:
+      - switch.turn_off: switch_antiburn
       - if:
           condition: lvgl.is_paused
           then:
@@ -186,9 +200,7 @@ light:
             - logger.log: "Backlight off, pausing LVGL"
             - lvgl.pause:
 
-
-# To be able to get logs from the device via serial and api.
-
+# Display Timeout Configuration
 number:
   - platform: template
     id: display_timeout_backlight
@@ -228,6 +240,81 @@ switch:
             - lvgl.resume:
             - lvgl.widget.redraw:
 
+# Diagnostic Sensors
+sensor:
+  # Uptime Sensor
+  - platform: uptime
+    name: "Laufzeit"
+    id: uptime_sensor
+    entity_category: "diagnostic"
+    device_class: "duration"
+    unit_of_measurement: "s"
+  
+  # Chip temperature
+  - platform: internal_temperature
+    name: "ESP32 Interne Temperatur"
+    id: esp32_temperature
+    entity_category: "diagnostic"
+    device_class: "temperature"
+    update_interval: 30s
+
+  # WI-FI Signal Strength in dBm
+  - platform: wifi_signal
+    name: "WiFi Signal dBm"
+    id: wifi_signal_db
+    entity_category: "diagnostic"
+    device_class: "signal_strength"
+    update_interval: 30s
+    unit_of_measurement: "dBm"
+    
+  # WI-FI Signal Strength in %
+  - platform: wifi_signal
+    name: "WiFi Signal Prozent"
+    id: wifi_signal_percent
+    entity_category: "diagnostic"
+    update_interval: 30s
+    filters:
+      - lambda: return min(max(2 * (x + 100.0), 0.0), 100.0);
+    unit_of_measurement: "%"
+
+# Diagnostic Text Sensors    
+text_sensor:
+  # WiFi Info
+  - platform: wifi_info
+    ip_address:
+      name: IP Address
+    ssid:
+      name: SSID
+    bssid:
+      name: BSSID
+    mac_address:
+      name: Mac Wifi Address
+    scan_results:
+      name: Latest Scan Results
+    dns_address:
+      name: DNS Address
+    
+    # Firmware version
+  - platform: template
+    name: "Display Firmware Version"
+    id: firmware_version
+    lambda: return std::string("${version}");
+    icon: "mdi:information"
+    entity_category: "diagnostic"
+
+    # ESPHome version with compilation date
+  - platform: template
+    name: "ESPHome Version"
+    id: esphome_version
+    lambda: |-
+      #ifdef ESPHOME_VERSION
+        return std::string(ESPHOME_VERSION);
+      #else
+        return std::string("unknown");
+      #endif
+    entity_category: "diagnostic"
+
+# Logger Configuration
 logger:
   level: debug
   logs:
@@ -244,6 +331,7 @@ ota:
   - platform: http_request
     id: firmware_ota
 
+# HTTP Request Configuration for Firmware Updates
 http_request:
   useragent: esphome-4848s040
   follow_redirects: true
@@ -252,6 +340,7 @@ http_request:
   buffer_size_rx: 2048
   buffer_size_tx: 1024
 
+# Firmware
 update:
   - platform: http_request
     id: firmware_update
@@ -260,6 +349,7 @@ update:
     device_class: firmware
     update_interval: 24h
 
+# WiFi Configuration
 wifi:
   # Set up a wifi access point using the device name above
   ap:
@@ -267,4 +357,5 @@ wifi:
 # In combination with the `ap` this allows the user
 # to provision wifi credentials to the device.
 
+# ESPHome Captive Portal
 captive_portal:
