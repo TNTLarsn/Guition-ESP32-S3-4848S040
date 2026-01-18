@@ -1,0 +1,22 @@
+  #############################
+  ########### LOGO ############
+  #############################
+
+- file: 'assets/images/ha_logo.png'
+  id: ha_logo
+  type: rgb565
+  resize: 400x82
+  transparency: alpha_channel
+
+- file: 'assets/images/homeassistant.png'
+  id: ha_img
+  type: rgb565
+  resize: 400x82
+  transparency: alpha_channel
+
+- file: 'assets/images/esphome.png'
+  id: esphome_img
+  type: rgb565
+  resize: 320x95
+  transparency: alpha_channel
+
