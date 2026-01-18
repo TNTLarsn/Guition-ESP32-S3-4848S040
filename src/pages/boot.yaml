@@ -45,7 +45,7 @@ lvgl:
                       text_color: color_text_dark_primary
                       text: " "
                   - spinner:
-                      id: boot_homeassistant_spiner
+                      id: boot_homeassistant_spinner
                       y: 0
                       width: 50
                       height: 50
@@ -149,7 +149,7 @@ script:
           if (!id(ha_connected)) {
             id(ha_connected) = true;
             lv_label_set_text(id(boot_homeassistant_label), "Home Assistant Connected!");
-            lv_obj_add_flag(id(boot_homeassistant_spiner), LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(id(boot_homeassistant_spinner), LV_OBJ_FLAG_HIDDEN);
             id(check_boot_status).execute();
           }
 
