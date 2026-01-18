@@ -302,7 +302,7 @@ text_sensor:
     icon: "mdi:information"
     entity_category: "diagnostic"
 
-    # ESPHome version with compilation date
+# ESPHome version with compilation date
   - platform: template
     name: "ESPHome Version"
     id: esphome_version
