@@ -1,9 +1,11 @@
 packages: 
   # Include all of the core configuration
   core: !include common/core.yaml
+  homeassistant: !include common/homeassistant.yaml
   boot_screen: !include pages/boot.yaml
+  home_page: !include pages/home.yaml
+  theme: !include themes/homeassistant.yaml
 
 substitutions: !include common/substitutions.yaml
-color: !include common/colors.yaml
 font: !include common/fonts.yaml
 image: !include common/image.yaml

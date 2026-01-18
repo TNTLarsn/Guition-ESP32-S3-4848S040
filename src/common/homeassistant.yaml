@@ -1,0 +1,82 @@
+substitutions:
+  # Homeassistant Entitäten
+  ha_switch_entity_id_1:       switch.shellypro3_ece334e98834_output_0
+  ha_switch_entity_id_2:       switch.shellypro3_ece334e98834_output_1
+  ha_switch_entity_id_3:       switch.shellypro3_ece334e98834_output_2
+  ha_switch_entity_id_4:       switch.shellypro3_ece334ed6054_output_0
+  ha_switch_entity_id_5:       switch.shellypro3_ece334ed6054_output_1
+  ha_switch_entity_id_6:       switch.shellypro3_ece334ed6054_output_2
+
+# Display Interne Entitäten
+binary_sensor:
+  - platform: homeassistant
+    id: ha_binary_sensor_1
+    entity_id: ${ha_switch_entity_id_1}
+    internal: true
+    trigger_on_initial_state: true
+    on_state:
+      then:
+        lvgl.widget.update:
+          id: homeassistant_btn_1
+          state:
+            checked: !lambda return x;
+
+  - platform: homeassistant
+    id: ha_binary_sensor_2
+    entity_id: ${ha_switch_entity_id_2}
+    internal: true
+    trigger_on_initial_state: true
+    on_state:
+      then:
+        lvgl.widget.update:
+          id: homeassistant_btn_2
+          state:
+            checked: !lambda return x;
+
+  - platform: homeassistant
+    id: ha_binary_sensor_3
+    entity_id: ${ha_switch_entity_id_3}
+    internal: true
+    trigger_on_initial_state: true
+    on_state:
+      then:
+        lvgl.widget.update:
+          id: homeassistant_btn_3
+          state:
+            checked: !lambda return x;
+
+  - platform: homeassistant
+    id: ha_binary_sensor_4
+    entity_id: ${ha_switch_entity_id_4}
+    internal: true
+    trigger_on_initial_state: true
+    on_state:
+      then:
+        lvgl.widget.update:
+          id: homeassistant_btn_4
+          state:
+            checked: !lambda return x;
+  
+  - platform: homeassistant
+    id: ha_binary_sensor_5
+    entity_id: ${ha_switch_entity_id_5}
+    internal: true
+    trigger_on_initial_state: true
+    on_state:
+      then:
+        lvgl.widget.update:
+          id: homeassistant_btn_5
+          state:
+            checked: !lambda return x;
+
+  - platform: homeassistant
+    id: ha_binary_sensor_6
+    entity_id: ${ha_switch_entity_id_6}
+    internal: true
+    trigger_on_initial_state: true
+    on_state:
+      then:
+        lvgl.widget.update:
+          id: homeassistant_btn_6
+          state:
+            checked: !lambda return x;

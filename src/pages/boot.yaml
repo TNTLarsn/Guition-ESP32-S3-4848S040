@@ -143,6 +143,8 @@ script:
 
       - delay: 1s
       - lvgl.widget.hide: loading_page
+      - lvgl.page.show:
+          id: home_page
 
 
   - id: on_ha_connected
