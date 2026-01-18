@@ -204,6 +204,8 @@ number:
   - platform: template
     id: display_timeout_backlight
     name: Hintergrundbeleuchtungs Timeout
+    entity_category: "config"
+    device_class: "duration"
     icon: "mdi:timer"
     optimistic: true
     unit_of_measurement: "m"
