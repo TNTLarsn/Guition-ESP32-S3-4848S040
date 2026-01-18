@@ -94,7 +94,7 @@ Details siehe [LOCAL_TESTING.md](LOCAL_TESTING.md).
 | --------- | ------- | -------- |
 | Display-Parameter | [core.yaml](src/common/core.yaml#L87-L124) | 87-124 |
 | Touch-Kalibrierung | [core.yaml](src/common/core.yaml#L56-L63) | 56-63 |
-| Backlight-Timeout | [core.yaml](src/common/core.yaml#L168-L180) | 168-180 |
+| Backlight-Timeout | [core.yaml](src/common/core.yaml#L171-L183) | 171-183 |
 | Projektversion | [substitutions.yaml](src/common/substitutions.yaml) | 2-5 |
 
 ### Build & Flash
