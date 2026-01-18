@@ -294,7 +294,7 @@ text_sensor:
     dns_address:
       name: DNS Address
     
-    # Firmware version
+# Firmware version
   - platform: template
     name: "Display Firmware Version"
     id: firmware_version
