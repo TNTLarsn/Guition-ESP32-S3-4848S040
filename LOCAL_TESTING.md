@@ -68,6 +68,11 @@ bash test_ci.sh
 ---
 
 ## Prerequisites
+### Flash Erase Behavior
+
+- Das Makefile-Target `make flash` löscht den Flash-Speicher vor dem Upload mit `esptool.py erase_flash` (Chip: ESP32-S3, Port: `/dev/cu.usbserial-110`).
+- Voraussetzung: `esptool.py` ist installiert (z. B. via `pip install esptool`).
+- Falls dein Gerät einen anderen Port nutzt, passe den Port im [Makefile](Makefile) an.
 
 All scripts require:
 
@@ -80,6 +85,14 @@ All scripts require:
 If not already installed:
 
 ```bash
+### "esptool.py: command not found"
+
+`esptool.py` ist nicht installiert. Bitte installiere es z. B. via pip:
+
+```bash
+pip install esptool
+```
+
 # Via pip (recommended)
 python3 -m venv .venv
 source .venv/bin/activate

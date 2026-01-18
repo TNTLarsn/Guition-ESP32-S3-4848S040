@@ -1,9 +1,9 @@
 {
   "default": true,
   "MD033": {
-    "allowed_elements": [
-      "esp-web-install-button",
-      "script"
-    ]
+    "allowed_elements": ["esp-web-install-button", "script"]
+  },
+  "MD013": {
+    "line_length": 200
   }
 }

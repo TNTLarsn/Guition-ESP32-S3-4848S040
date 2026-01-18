@@ -44,8 +44,15 @@ clean:
 
 # Flash firmware
 flash:
+	@echo "Erasing flash via esptool..."
 	@echo "Flashing firmware to /dev/cu.usbserial-110..."
+	@esptool.py --chip esp32s3 --port /dev/cu.usbserial-110 erase_flash
 	@esphome upload src/main.factory.yaml --device /dev/cu.usbserial-110
+
+# Update firmware
+update:
+	@echo "Updating firmware on /dev/cu.usbserial-110..."
+	@esphome run src/main.yaml --device /dev/cu.usbserial-110
 
 # Open serial console
 monitor:
