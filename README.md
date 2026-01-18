@@ -113,6 +113,12 @@ make monitor
 make clean
 ```
 
+Hinweise zum Flash:
+
+- Beim Target `make flash` wird der Chipspeicher vor dem Upload mit `esptool.py` vollständig gelöscht (`erase_flash`).
+- Voraussetzung: `esptool.py` ist installiert (z. B. über `pip install esptool`).
+- Standard-Port: `/dev/cu.usbserial-110` (Passe ihn im [Makefile](Makefile) an, falls dein Gerät einen anderen Port nutzt.)
+
 ## 🔧 Konfiguration
 
 ### YAML-Hierarchie (Package-System)
