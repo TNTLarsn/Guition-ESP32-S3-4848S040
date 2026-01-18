@@ -16,7 +16,7 @@ jobs:
       files: |
         src/main.yaml
       esphome-version: 2025.12.7
-      # combined-name: project-template
+      combined-name: guition-esp32-s3-4848s040
       #### Modify above here to match your project ####
 
       release-summary: ${{ github.event.release.body }}
