@@ -159,8 +159,6 @@ main.factory.yaml          # Factory mit improv_serial
 
 ## 📚 Dokumentation
 
-- [Copilot-Anweisungen](.github/copilot-instructions.md) - Detaillierte
-      Projekt-Dokumentation
 - [Local Testing Guide](LOCAL_TESTING.md) - Lokale Test-Optionen
 - [ESPHome Documentation](https://esphome.io) - Offizielle ESPHome-Docs
 
