@@ -101,52 +101,50 @@ lvgl:
     #label:
     # text_font: roboto24 # set all your labels to use your custom defined font
     button:
-      bg_color: 0x333333
-      #bg_grad_color: 0x333333
-      #bg_grad_dir: VER
+      bg_color: color_gray_700
       bg_opa: 85%
-      border_color: 0x333333
+      border_color: color_gray_700
       border_width: 0
-      text_color: 0xFFFFFF
+      text_color: color_text_dark_primary
       pressed: # set some btn colors to be different in pressed state
-        bg_color: 0x111111
-        bg_grad_color: 0x111111
+        bg_color: color_gray_900
+        bg_grad_color: color_gray_900
       checked: # set some btn colors to be different in checked state
-        bg_color: 0x111111
-        bg_grad_color: 0x111111
+        bg_color: color_gray_900
+        bg_grad_color: color_gray_900
         text_color: color_primary
     buttonmatrix:
       bg_opa: TRANSP
-      border_color: 0x333333
+      border_color: color_gray_700
       border_width: 0
-      text_color: 0xFFFFFF
+      text_color: color_white
       pad_all: 0
       items: # set all your btnmatrix buttons to use your custom defined styles and font
-        bg_color: 0x333333
-        bg_grad_color: 0x333333
+        bg_color: color_gray_700
+        bg_grad_color: color_gray_700
         bg_grad_dir: VER
         bg_opa: COVER
-        border_color: 0x333333
+        border_color: color_gray_700
         border_width: 1
-        text_color: 0xFFFFFF
+        text_color: color_white
         #text_font: roboto10
         pressed:
-          bg_color: 0x111111
-          bg_grad_color: 0x111111
+          bg_color: color_gray_900
+          bg_grad_color: color_gray_900
         checked:
-          bg_color: 0x111111
-          bg_grad_color: 0x111111
-          text_color: 0xEEEEEE
+          bg_color: color_gray_900
+          bg_grad_color: color_gray_900
+          text_color: color_gray_100
     switch:
       border_width: 0
       outline_opa: TRANSP
       shadow_width: 0
 
       # Track (background)
-      bg_color: color_success   # green when OFF
+      bg_color: color_success
       bg_opa: COVER
       checked:
-        bg_color: color_secondary # orange when ON
+        bg_color: color_secondary
         bg_opa: COVER
         border_width: 0
         outline_opa: TRANSP
@@ -167,13 +165,13 @@ lvgl:
 
       # Knob (the circle)
       knob:
-        bg_color: 0xFFFFFF   # solid white
+        bg_color: color_white
         bg_opa: COVER
         border_width: 0
         outline_opa: TRANSP
         shadow_width: 0
         checked:
-          bg_color: 0xFFFFFF
+          bg_color: color_white
           bg_opa: COVER
           border_width: 0
           outline_opa: TRANSP
@@ -182,23 +180,23 @@ lvgl:
     slider:
       border_width: 1
       border_opa: 30%
-      bg_color: 0x9c9c9c
+      bg_color: color_gray_500
       bg_opa: 15%
       indicator:
-        bg_color: 0x333333
-        bg_grad_color: 0x333333
+        bg_color: color_gray_700
+        bg_grad_color: color_gray_700
         bg_opa: COVER
       knob:
-        bg_color: 0x444444
-        bg_grad_color: 0x444444
+        bg_color: color_gray_600
+        bg_grad_color: color_gray_600
         bg_opa: COVER
-        border_color: 0x444444
+        border_color: color_gray_600
         border_width: 1
-        text_color: 0xFFFFFF
+        text_color: color_white
 #-------------------------------------------
   style_definitions:
       - id: header_footer
-        bg_color: 0x444444
+        bg_color: color_gray_600
         bg_opa: COVER
         radius: 0
         pad_all: 0
@@ -208,7 +206,7 @@ lvgl:
         width: 100%
         height: 40
       - id: header_footer_btn
-        bg_color: 0x444444
+        bg_color: color_gray_600
         bg_opa: COVER
         radius: 0
         border_width: 0
@@ -218,5 +216,5 @@ lvgl:
       - id: red_s
         border_width: 1
         border_opa: 30%
-        bg_color: 0xFF0000
+        bg_color: color_error
         bg_opa: 15%
