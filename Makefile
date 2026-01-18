@@ -1,53 +1,53 @@
-# Makefile für lokale ESPHome CI-Tests
-# Nutze: make test, make validate, make compile, make clean
+# Makefile for local ESPHome CI tests
+# Usage: make test, make validate, make compile, make clean
 
 .PHONY: help test validate compile clean flash monitor
 
-# Standard-Target
+# Default target
 help:
-	@echo "ESPHome Lokale CI-Tests"
+	@echo "ESPHome Local CI Tests"
 	@echo "======================="
 	@echo ""
-	@echo "Verfügbare Targets:"
-	@echo "  make test       - Führt alle CI-Tests aus (Validierung + Kompilierung)"
-	@echo "  make validate   - Validiert nur die YAML-Konfigurationen"
-	@echo "  make compile    - Kompiliert die Firmware (ohne Upload)"
-	@echo "  make clean      - Löscht Build-Artefakte"
-	@echo "  make flash      - Flasht Firmware auf das Gerät (Port: /dev/cu.usbserial-110)"
-	@echo "  make monitor    - Öffnet serielle Konsole zum Debugging"
+	@echo "Available targets:"
+	@echo "  make test       - Runs all CI tests (validation + compilation)"
+	@echo "  make validate   - Only validates the YAML configurations"
+	@echo "  make compile    - Compiles the firmware (without upload)"
+	@echo "  make clean      - Deletes build artifacts"
+	@echo "  make flash      - Flashes firmware to the device (port: /dev/cu.usbserial-110)"
+	@echo "  make monitor    - Opens serial console for debugging"
 	@echo ""
 
-# Führt alle Tests aus (wie CI)
+# Runs all tests (like CI)
 test:
-	@echo "Führe CI-Tests aus..."
+	@echo "Running CI tests..."
 	@python3 test_ci.py
 
-# Nur Validierung
+# Validation only
 validate:
-	@echo "Validiere Konfigurationen..."
+	@echo "Validating configurations..."
 	@esphome config src/main.yaml
 	@esphome config src/main.factory.yaml
-	@echo "✓ Alle Konfigurationen sind valide"
+	@echo "✓ All configurations are valid"
 
-# Nur Kompilierung
+# Compilation only
 compile:
-	@echo "Kompiliere Firmware..."
+	@echo "Compiling firmware..."
 	@esphome compile src/main.yaml
 	@esphome compile src/main.factory.yaml
-	@echo "✓ Firmware erfolgreich kompiliert"
+	@echo "✓ Firmware successfully compiled"
 
-# Build-Artefakte löschen
+# Delete build artifacts
 clean:
-	@echo "Lösche Build-Artefakte..."
+	@echo "Deleting build artifacts..."
 	@rm -rf src/.esphome/build
-	@echo "✓ Build-Verzeichnis gelöscht"
+	@echo "✓ Build directory deleted"
 
-# Firmware flashen
+# Flash firmware
 flash:
-	@echo "Flashe Firmware auf /dev/cu.usbserial-110..."
+	@echo "Flashing firmware to /dev/cu.usbserial-110..."
 	@esphome upload src/main.factory.yaml --device /dev/cu.usbserial-110
 
-# Serielle Konsole öffnen
+# Open serial console
 monitor:
-	@echo "Öffne serielle Konsole..."
+	@echo "Opening serial console..."
 	@esphome logs src/main.yaml --device /dev/cu.usbserial-110
