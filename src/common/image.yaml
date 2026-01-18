@@ -20,3 +20,9 @@
   resize: 320x95
   transparency: alpha_channel
 
+- file: 'assets/images/see.png'
+  id: see_img
+  type: rgb565
+  resize: 512x512
+  transparency: alpha_channel
+
