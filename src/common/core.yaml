@@ -1,0 +1,224 @@
+globals:
+  - id: display_timeout
+    type: int
+    restore_value: yes
+    initial_value: '2'
+esphome:
+  name: ${display_name}
+  friendly_name: ${display_friendly_name}
+  name_add_mac_suffix: true
+  project:
+    # Projektname im Namespace-Format (namespace.project)
+    name: ${project_name}
+    version: ${version}
+  includes:
+    - <sstream>
+    - <algorithm>
+  platformio_options:
+    board_build.flash_mode: dio
+
+esp32:
+  board: esp32-s3-devkitc-1
+  variant: esp32s3
+  flash_size: 16MB
+  framework:
+    type: esp-idf
+    advanced:
+      loop_task_stack_size: 8192
+    sdkconfig_options:
+      CONFIG_ESP32S3_DEFAULT_CPU_FREQ_240: "y"
+      CONFIG_SPIRAM_FETCH_INSTRUCTIONS: y
+      CONFIG_SPIRAM_RODATA: y
+      CONFIG_ESP_TASK_WDT_TIMEOUT_S: "60"
+
+psram:
+  mode: octal
+  speed: 80MHz
+
+output:
+  # Display Backlight LED
+  - platform: ledc
+    pin: GPIO38
+    id: backlight_output
+    frequency: 100Hz
+
+i2c:
+  - id: bus_a
+    sda: GPIO19
+    scl:
+      number: GPIO45
+      ignore_strapping_warning: true
+    # Reduced from default (400kHz) to 100kHz to improve GT911 reliability on this PCB;
+    # higher I2C speeds caused intermittent touch events / ghost touches, so we trade
+    # a small reduction in maximum touch update rate for stable, accurate input.
+    frequency: 100kHz
+
+touchscreen:
+  platform: gt911
+  id: touchscreen_id
+  transform:
+    mirror_x: false
+    mirror_y: false
+  display: ${display_name}
+  on_release:
+      - if:
+          condition: lvgl.is_paused
+          then:
+            - logger.log: "LVGL resuming"
+            - lvgl.resume:
+            - lvgl.widget.redraw:
+            - light.turn_on: display_backlight
+
+spi:
+  - id: lcd_spi
+    clk_pin: GPIO48
+    mosi_pin: GPIO47
+
+display:
+  - platform: st7701s
+    id: ${display_name}
+    update_interval: never
+    auto_clear_enabled: false
+    data_rate: 2MHz
+    spi_mode: MODE3
+    color_order: RGB
+    invert_colors: false
+    dimensions:
+      width: 480
+      height: 480
+    transform:
+      mirror_x: false
+      mirror_y: false
+    cs_pin: 39
+      # reset not defined 
+    de_pin: 18
+    hsync_pin: 16
+    vsync_pin: 17
+    pclk_pin: 21
+    init_sequence: 
+      - 1
+      - [0xFF, 0x77, 0x01, 0x00, 0x00, 0x10] # CMD2_BKSEL_BK0
+      - [0xCD, 0x00] # disable MDT flag
+    pclk_frequency: 12MHz
+    pclk_inverted: false
+    data_pins:
+      red:
+        - 11         # R1
+        - 12         # R2
+        - 13         # R3
+        - 14         # R4
+        - 0          # R5
+      green:
+        - 8          # G0
+        - 20         # G1
+        - 3          # G2
+        - 46         # G3
+        - 9          # G4
+        - 10         # G5 
+      blue:
+        - 4          # B1
+        - 5          # B2
+        - 6          # B3
+        - 7          # B4
+        - 15         # B5
+
+
+lvgl:
+  on_idle:
+    timeout: !lambda "return (id(display_timeout_backlight).state * 60 * 1000);"
+    then:
+      - if:
+          condition:
+            lambda: 'return id(display_timeout_backlight).state >= 0;'
+          then:
+            - logger.log: "LVGL is idle"
+            - light.turn_off: display_backlight
+            - lvgl.pause:
+          else:
+            - logger.log: "LVGL idle, but backlight is on"
+  pages:
+    - id: main_page
+      widgets:
+        - label:
+            text: "Display bereit"
+            align: CENTER
+
+light:
+  # Backlight
+  - platform: monochromatic
+    output: backlight_output
+    name: Backlight
+    id: display_backlight
+    restore_mode: ALWAYS_ON
+    on_turn_on:
+      - if:
+          condition: lvgl.is_paused
+          then:
+            - logger.log: "LVGL resuming by backlight on"
+            - lvgl.resume:
+            - lvgl.widget.redraw:
+    on_turn_off:
+      - if:
+          condition:
+            lambda: 'return id(display_timeout_backlight).state >= 0;'
+          then:
+            - logger.log: "Backlight off, pausing LVGL"
+            - lvgl.pause:
+
+
+# To be able to get logs from the device via serial and api.
+
+number:
+  - platform: template
+    id: display_timeout_backlight
+    name: Hintergrundbeleuchtungs Timeout
+    icon: "mdi:timer"
+    optimistic: true
+    unit_of_measurement: "m"
+    initial_value: 2
+    restore_value: true
+    min_value: -1
+    max_value: 720
+    step: 1
+    mode: box
+
+logger:
+  level: debug
+  logs:
+    lvgl: info
+  hardware_uart: UART0
+
+# API is a requirement of the dashboard import.
+api:
+
+# OTA is required for Over-the-Air updating
+ota:
+  - platform: esphome
+    id: ota_state
+  - platform: http_request
+    id: firmware_ota
+
+http_request:
+  useragent: esphome-4848s040
+  follow_redirects: true
+  redirect_limit: 5
+  timeout: 30s
+  buffer_size_rx: 2048
+  buffer_size_tx: 1024
+
+update:
+  - platform: http_request
+    id: firmware_update
+    name: "Firmware"
+    source: https://github.com/tntlarsn/guition-esp32-s3-4848s040/releases/latest/download/${display_name}.manifest.json
+    device_class: firmware
+    update_interval: 24h
+
+wifi:
+  # Set up a wifi access point using the device name above
+  ap:
+
+# In combination with the `ap` this allows the user
+# to provision wifi credentials to the device.
+
+captive_portal:
