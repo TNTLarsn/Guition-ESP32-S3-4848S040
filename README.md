@@ -188,7 +188,7 @@ LICENSE-Datei.
 ## 🐛 Probleme melden
 
 Probleme oder Feature-Requests? Bitte öffne ein
-[Issue](https://github.com/TNTLarsn/Guition-ESP32-S3-4848S040/issues).
+[Issue](https://github.com/tntlarsn/Guition-ESP32-S3-4848S040/issues).
 
 ---
 
