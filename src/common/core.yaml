@@ -174,7 +174,6 @@ time:
         seconds: 0
         then:
           - switch.turn_off: switch_antiburn
- # 
 
 # Backlight Configuration
 light:
