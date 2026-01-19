@@ -1,134 +1,7 @@
 substitutions:
+  # Icon Substitutions für LVGL Widgets (Fallback)
   lightbulb: "\U000F1802"
-  boiler_on: "\U000F0238"
-  boiler_off: "\U000F1722"
-  radiator: "\U000F0438"
-  ceiling_light: "\U000F0769"
-  house_temp: "\U000F0F55"
-  door_open: "\U000F081C"
-  door_lock: "\U000F139B"
-  thermometer: "\U000F050F"
   nightbulb: "\U000F1A4D"
-  arm_alarm: "\U000F068A"
-  disarm_alarm: "\U000F099E"
-  stairs: "\U000F04CD"
-  light_recessed: "\U000F179B"
-  #weather icons
-  cloudy: "\U000F0590"
-  cloudyalert: "\U000F0F2F"
-  cloudyarrowright: "\U000F0E6E"
-  fog: "\U000F0591"
-  hail: "\U000F0592"
-  hazy: "\U000F0F30"
-  hurricane: "\U000F0898"
-  lightning: "\U000F0593"
-  lightningrainy: "\U000F067E"
-  night: "\U000F0594"
-  nightpartlycloudy: "\U000F0F31"
-  partlycloudy: "\U000F0595"
-  partlylightning: "\U000F0F32"
-  partlyrainy: "\U000F0F33"
-  partlysnowy: "\U000F0F34"
-  partlysnowyrainy: "\U000F0F35"
-  pouring: "\U000F0596"
-  rainy: "\U000F0597"
-  snowy: "\U000F0598"
-  snowyheavy: "\U000F0F36"
-  snowyrainy: "\U000F067F"
-  sunny: "\U000F0599"
-  sunnyalert: "\U000F0F37"
-  sunnyoff: "\U000F14E4"
-  sunset: "\U000F059A"
-  sunsetdown: "\U000F059B"
-  sunsetup: "\U000F059C"
-  tornado: "\U000F0F38"
-  windy: "\U000F059D"
-  windyvariant: "\U000F059E"
-  happyface: "\U000F01F5"
-
-font:
-  - file: "gfonts://Roboto"
-    id: roboto24
-    size: 24
-    bpp: 4
-    extras:
-      - file: 'assets/fonts/materialdesignicons-webfont.ttf'
-        glyphs: [
-          "\U000F004B",
-          "\U000F006E",
-          "\U000F012C",
-          $light_recessed,
-          "\U000F0748",
-          "\U000F1A1B",
-          "\U000F02DC",
-          "\U000F0A02",
-          "\U000F035F",
-          "\U000F0156",
-          "\U000F0C5F", 
-          "\U000f0084",
-          "\U000f0091",
-          "\U000F050F", # Thermometer
-          $house_temp,
-          ]
-  
-  - file: "gfonts://Roboto"
-    id: weather_icons
-    size: 110
-    bpp: 4
-    extras:
-      - file: 'assets/fonts/materialdesignicons-webfont.ttf' # http://materialdesignicons.com/cdn/7.4.47/ 
-        glyphs: [
-          $cloudy,
-          $cloudyalert,
-          $cloudyarrowright,
-          $fog,
-          $hail,
-          $hazy,
-          $hurricane,
-          $lightning,
-          $lightningrainy,
-          $night,
-          $nightpartlycloudy,
-          $partlycloudy,
-          $partlylightning,
-          $partlyrainy,
-          $partlysnowy,
-          $partlysnowyrainy,
-          $pouring,
-          $rainy,
-          $snowy,
-          $snowyheavy,
-          $snowyrainy,
-          $sunny,
-          $sunnyalert,
-          $sunnyoff,
-          $sunset,
-          $sunsetdown,
-          $sunsetup,
-          $tornado,
-          $windy,
-          $windyvariant,
-          $happyface
-        ]      
-
-  
-  - file: "gfonts://Roboto"
-    id: btn_icons_font
-    size: 70
-    bpp: 4
-    extras:
-      - file: 'assets/fonts/materialdesignicons-webfont.ttf' # http://materialdesignicons.com/cdn/7.4.47/ 
-        glyphs: [
-          $nightbulb,
-          $lightbulb,
-          $boiler_on,
-          $boiler_off,
-          $radiator,
-          $ceiling_light,
-          $house_temp,
-          $stairs,
-          $light_recessed,
-        ]
 
 lvgl:
     pages:
@@ -161,12 +34,14 @@ lvgl:
                     grid_cell_y_align: STRETCH
                     widgets:
                       - label:
+                          id: homeassistant_btn_1_icon
                           text_font: btn_icons_font
                           text: $lightbulb
                           align: CENTER
                           y: -20
                       - label:
-                          text: "Rechts 1"
+                          id: homeassistant_btn_1_label
+                          text: '1'
                           long_mode: dot
                           align: CENTER
                           y: 30
@@ -185,12 +60,14 @@ lvgl:
                     grid_cell_y_align: STRETCH
                     widgets:
                       - label:
+                          id: homeassistant_btn_2_icon
                           text_font: btn_icons_font
                           text: $nightbulb
                           align: CENTER
                           y: -20
                       - label:
-                          text: "Rechts 2"
+                          id: homeassistant_btn_2_label
+                          text: '2'
                           long_mode: dot
                           align: CENTER
                           y: 30
@@ -209,12 +86,14 @@ lvgl:
                     grid_cell_y_align: STRETCH
                     widgets:
                       - label:
+                          id: homeassistant_btn_3_icon
                           text_font: btn_icons_font
                           text: $lightbulb
                           align: CENTER
                           y: -20
                       - label:
-                          text: "Rechts 3"
+                          id: homeassistant_btn_3_label
+                          text: '3'
                           long_mode: dot
                           align: CENTER
                           y: 30
@@ -233,12 +112,14 @@ lvgl:
                     grid_cell_y_align: STRETCH
                     widgets:
                       - label:
+                          id: homeassistant_btn_4_icon
                           text_font: btn_icons_font
                           text: $lightbulb
                           align: CENTER
                           y: -20
                       - label:
-                          text: "Links 1"
+                          id: homeassistant_btn_4_label
+                          text: '4'
                           long_mode: dot
                           align: CENTER
                           y: 30
@@ -257,12 +138,14 @@ lvgl:
                     grid_cell_y_align: STRETCH
                     widgets:
                       - label:
+                          id: homeassistant_btn_5_icon
                           text_font: btn_icons_font
                           text: $lightbulb
                           align: CENTER
                           y: -20
                       - label:
-                          text: "Links 2"
+                          id: homeassistant_btn_5_label
+                          text: '5'
                           long_mode: dot
                           align: CENTER
                           y: 30
@@ -281,12 +164,14 @@ lvgl:
                     grid_cell_y_align: STRETCH
                     widgets:
                       - label:
+                          id: homeassistant_btn_6_icon
                           text_font: btn_icons_font
                           text: $lightbulb
                           align: CENTER
                           y: -20
                       - label:
-                          text: "Links 3"
+                          id: homeassistant_btn_6_label
+                          text: '6'
                           long_mode: dot
                           align: CENTER
                           y: 30
@@ -295,4 +180,3 @@ lvgl:
                           service: switch.toggle
                           data_template:
                             entity_id: ${ha_switch_entity_id_6}
-    

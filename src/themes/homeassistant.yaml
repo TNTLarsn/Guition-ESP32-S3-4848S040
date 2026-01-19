@@ -98,8 +98,8 @@ color:
 
 lvgl:
   theme:
-    #label:
-    # text_font: roboto24 # set all your labels to use your custom defined font
+    label:
+      text_font: nunito_16 # set all your labels to use your custom defined font
     button:
       bg_color: color_gray_700
       bg_opa: 85%

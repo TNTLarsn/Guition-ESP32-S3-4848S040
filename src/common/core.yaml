@@ -17,8 +17,9 @@ esphome:
   includes:
     - <sstream>
     - <algorithm>
+    - helper/mdi_icon_map.h # MDI Icon Helper für dynamische Icon-Konvertierung aus Home Assistant
   platformio_options:
-    board_build.flash_mode: dio
+    board_build.flash_mode: dio    
 
 # ESP32-S3 Specific Configuration
 esp32:
@@ -28,7 +29,8 @@ esp32:
   framework:
     type: esp-idf
     advanced:
-      loop_task_stack_size: 8192
+      # Erhöht von 8192 auf 16384 für große std::map Initialisierung (MDI Icons)
+      loop_task_stack_size: 16384
     sdkconfig_options:
       CONFIG_ESP32S3_DEFAULT_CPU_FREQ_240: "y"
       CONFIG_SPIRAM_FETCH_INSTRUCTIONS: y

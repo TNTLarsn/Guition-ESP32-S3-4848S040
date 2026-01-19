@@ -80,3 +80,150 @@ binary_sensor:
           id: homeassistant_btn_6
           state:
             checked: !lambda return x;
+
+text_sensor:
+  # Friendly Names für Button Labels
+  - platform: homeassistant
+    id: ha_binary_sensor_1_friendly_name
+    entity_id: ${ha_switch_entity_id_1}
+    attribute: friendly_name
+    internal: true
+    on_value:
+      then:
+        lvgl.label.update:
+          id: homeassistant_btn_1_label
+          text: !lambda return x.c_str();
+
+  - platform: homeassistant
+    id: ha_binary_sensor_2_friendly_name
+    entity_id: ${ha_switch_entity_id_2}
+    attribute: friendly_name
+    internal: true
+    on_value:
+      then:
+        lvgl.label.update:
+          id: homeassistant_btn_2_label
+          text: !lambda return x.c_str();
+
+  - platform: homeassistant
+    id: ha_binary_sensor_3_friendly_name
+    entity_id: ${ha_switch_entity_id_3}
+    attribute: friendly_name
+    internal: true
+    on_value:
+      then:
+        lvgl.label.update:
+          id: homeassistant_btn_3_label
+          text: !lambda return x.c_str();
+
+  - platform: homeassistant
+    id: ha_binary_sensor_4_friendly_name
+    entity_id: ${ha_switch_entity_id_4}
+    attribute: friendly_name
+    internal: true
+    on_value:
+      then:
+        lvgl.label.update:
+          id: homeassistant_btn_4_label
+          text: !lambda return x.c_str();
+
+  - platform: homeassistant
+    id: ha_binary_sensor_5_friendly_name
+    entity_id: ${ha_switch_entity_id_5}
+    attribute: friendly_name
+    internal: true
+    on_value:
+      then:
+        lvgl.label.update:
+          id: homeassistant_btn_5_label
+          text: !lambda return x.c_str();
+
+  - platform: homeassistant
+    id: ha_binary_sensor_6_friendly_name
+    entity_id: ${ha_switch_entity_id_6}
+    attribute: friendly_name
+    internal: true              
+    on_value:
+      then:
+        lvgl.label.update:
+          id: homeassistant_btn_6_label
+          text: !lambda return x.c_str();
+
+  # Icons für Buttons (MDI Icons aus Home Assistant)
+  - platform: homeassistant
+    id: ha_entity_1_icon
+    entity_id: ${ha_switch_entity_id_1}
+    attribute: icon
+    internal: true
+    on_value:
+      then:
+        lvgl.label.update:
+          id: homeassistant_btn_1_icon
+          text: !lambda |-
+            static MdiIconHelper helper;
+            return helper.convert_mdi_icon(x);
+
+  - platform: homeassistant
+    id: ha_entity_2_icon
+    entity_id: ${ha_switch_entity_id_2}
+    attribute: icon
+    internal: true
+    on_value:
+      then:
+        lvgl.label.update:
+          id: homeassistant_btn_2_icon
+          text: !lambda |-
+            static MdiIconHelper helper;
+            return helper.convert_mdi_icon(x);
+
+  - platform: homeassistant
+    id: ha_entity_3_icon
+    entity_id: ${ha_switch_entity_id_3}
+    attribute: icon
+    internal: true
+    on_value:
+      then:
+        lvgl.label.update:
+          id: homeassistant_btn_3_icon
+          text: !lambda |-
+            static MdiIconHelper helper;
+            return helper.convert_mdi_icon(x);
+
+  - platform: homeassistant
+    id: ha_entity_4_icon
+    entity_id: ${ha_switch_entity_id_4}
+    attribute: icon
+    internal: true
+    on_value:
+      then:
+        lvgl.label.update:
+          id: homeassistant_btn_4_icon
+          text: !lambda |-
+            static MdiIconHelper helper;
+            return helper.convert_mdi_icon(x);
+
+  - platform: homeassistant
+    id: ha_entity_5_icon
+    entity_id: ${ha_switch_entity_id_5}
+    attribute: icon
+    internal: true
+    on_value:
+      then:
+        lvgl.label.update:
+          id: homeassistant_btn_5_icon
+          text: !lambda |-
+            static MdiIconHelper helper;
+            return helper.convert_mdi_icon(x);
+
+  - platform: homeassistant
+    id: ha_entity_6_icon
+    entity_id: ${ha_switch_entity_id_6}
+    attribute: icon
+    internal: true
+    on_value:
+      then:
+        lvgl.label.update:
+          id: homeassistant_btn_6_icon
+          text: !lambda |-
+            static MdiIconHelper helper;
+            return helper.convert_mdi_icon(x);
