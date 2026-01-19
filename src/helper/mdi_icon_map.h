@@ -144,7 +144,7 @@ static const MdiIconEntry MDI_ICONS[] = {
     {"skip-previous", 0xF04AE},
     {"smoke-detector", 0xF0392},
     {"snowflake", 0xF0717},
-    {"sofa", 0xF04C4},
+    {"sofa", 0xF04C5},
     {"speaker", 0xF04C3},
     {"speaker-off", 0xF04C4},
     {"spotlight", 0xF0601},
