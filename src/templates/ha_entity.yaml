@@ -48,8 +48,8 @@ text_sensor:
           id: homeassistant_btn_${num}_icon
           text: !lambda |-
             static MdiIconHelper helper;
-            // Bei leerem, "unknown", "unavailable" oder fehlendem "mdi:" Präfix -> default_icon verwenden
-            if (x.empty() || x == "unknown" || x == "unavailable" || x.find("mdi:") == std::string::npos) {
+            // Bei leerem oder fehlendem Icon-Attribut -> default_icon verwenden
+            if (x.empty()) {
               return helper.convert_mdi_icon("${default_icon}");
             }
             return helper.convert_mdi_icon(x);
