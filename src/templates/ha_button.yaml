@@ -1,11 +1,11 @@
 # Template für Home Assistant LVGL Button Widget
-# Variablen: num, col, row, entity_id, default_icon (optional)
+# Variablen: num, col, row, default_icon (optional)
+# Die Entity-ID wird dynamisch aus dem Text-Sensor ha_entity_${num}_id gelesen
 
 defaults:
   num: "1"
   col: "0"
   row: "0"
-  entity_id: "switch.placeholder"
   default_icon: "\U000F1802"  # lightbulb
 
 button:
@@ -31,5 +31,5 @@ button:
   on_click:
     - homeassistant.service:
         service: switch.toggle
-        data_template:
-          entity_id: ${entity_id}
+        data:
+          entity_id: !lambda return id(ha_entity_${num}_id).state.c_str();
