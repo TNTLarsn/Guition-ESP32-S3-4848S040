@@ -1,10 +1,11 @@
 # Template für Home Assistant Entity Sensoren
 # Wird mehrfach mit unterschiedlichen vars eingebunden
-# Variablen: num, entity_id
+# Variablen: num, entity_id, default_icon
 
 defaults:
   num: "1"
   entity_id: "switch.placeholder"
+  default_icon: "mdi:lightbulb"
 
 binary_sensor:
   - platform: homeassistant
@@ -33,6 +34,9 @@ text_sensor:
           text: !lambda return x.c_str();
 
   # Icon für Button (MDI Icons aus Home Assistant)
+  # Hinweis: Das icon-Attribut ist nur gesetzt, wenn der Nutzer es manuell überschrieben hat.
+  # Andernfalls verwendet Home Assistant ein Default-Icon basierend auf Domain/Device Class,
+  # das aber nicht als Attribut verfügbar ist.
   - platform: homeassistant
     id: ha_entity_${num}_icon
     entity_id: ${entity_id}
@@ -44,6 +48,10 @@ text_sensor:
           id: homeassistant_btn_${num}_icon
           text: !lambda |-
             static MdiIconHelper helper;
+            // Bei leerem, "unknown", "unavailable" oder fehlendem "mdi:" Präfix -> default_icon verwenden
+            if (x.empty() || x == "unknown" || x == "unavailable" || x.find("mdi:") == std::string::npos) {
+              return helper.convert_mdi_icon("${default_icon}");
+            }
             return helper.convert_mdi_icon(x);
 
   # Entity ID als Text Sensor (z.B. für Button Service Aufrufe)

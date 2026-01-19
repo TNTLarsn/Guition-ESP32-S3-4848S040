@@ -9,28 +9,34 @@ packages:
     vars:
       num: "1"
       entity_id: switch.shellypro3_ece334e98834_output_0
+      default_icon: "mdi:ceiling-light"
   ha_entity_2: !include
     file: ../templates/ha_entity.yaml
     vars:
       num: "2"
       entity_id: switch.shellypro3_ece334e98834_output_1
+      default_icon: "mdi:ceiling-light"
   ha_entity_3: !include
     file: ../templates/ha_entity.yaml
     vars:
       num: "3"
       entity_id: switch.shellypro3_ece334e98834_output_2
+      default_icon: "mdi:ceiling-light"
   ha_entity_4: !include
     file: ../templates/ha_entity.yaml
     vars:
       num: "4"
       entity_id: switch.shellypro3_ece334ed6054_output_0
+      default_icon: "mdi:ceiling-light"
   ha_entity_5: !include
     file: ../templates/ha_entity.yaml
     vars:
       num: "5"
       entity_id: switch.shellypro3_ece334ed6054_output_1
+      default_icon: "mdi:ceiling-light"
   ha_entity_6: !include
     file: ../templates/ha_entity.yaml
     vars:
       num: "6"
       entity_id: switch.shellypro3_ece334ed6054_output_2
+      default_icon: "mdi:ceiling-light"

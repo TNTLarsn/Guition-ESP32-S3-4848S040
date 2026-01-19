@@ -1,12 +1,12 @@
 # Template für Home Assistant LVGL Button Widget
-# Variablen: num, col, row, default_icon (optional)
+# Variablen: num, col, row, default_icon (optional, MDI-Format z.B. "mdi:lightbulb")
 # Die Entity-ID wird dynamisch aus dem Text-Sensor ha_entity_${num}_id gelesen
 
 defaults:
   num: "1"
   col: "0"
   row: "0"
-  default_icon: "\U000F1802"  # lightbulb
+  default_icon: "mdi:lightbulb"
 
 button:
   id: homeassistant_btn_${num}
@@ -19,7 +19,9 @@ button:
     - label:
         id: homeassistant_btn_${num}_icon
         text_font: btn_icons_font
-        text: ${default_icon}
+        text: !lambda |-
+          static MdiIconHelper helper;
+          return helper.convert_mdi_icon("${default_icon}");
         align: CENTER
         y: -20
     - label:
