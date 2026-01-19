@@ -47,8 +47,8 @@ text_sensor:
             return helper.convert_mdi_icon(x);
 
   # Entity ID als Text Sensor (z.B. für Button Service Aufrufe)
-  - platform: homeassistant
+  - platform: template
     id: ha_entity_${num}_id
-    entity_id: ${entity_id}
-    attribute: entity_id
     internal: true
+    lambda: |-
+      return {"${entity_id}"};
