@@ -306,7 +306,7 @@
     "\U000F0238", # heat
     "\U000F0717", # cool
     "\U000F1A79", # heat_cool
-    "\U000F0210", # fan    
+    "\U000F0210", # fan
     "\U000F1B18", # auto
     "\U000F0906", # off
     "\U000F18DD", # ceiling lights
