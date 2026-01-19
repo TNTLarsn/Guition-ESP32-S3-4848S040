@@ -250,13 +250,13 @@
   bpp: 4
   glyphs: [
     "\U000F07D0", # home assistant
-    "\U000F15FA", # windsock    
+    "\U000F15FA", # windsock
     "\U000F068A", # shield home
     "\U000F1828", # shield moon
     "\U000F099D", # shield lock
     "\U000F06BB", # shield plane
     "\U000F099E", # shield off
-    "\U000F0498", # shield    
+    "\U000F0498", # shield
     "\U000F0493", # settings
     "\U000F032A", # preset eco
     "\U000F0F9B", # preset away
@@ -310,14 +310,14 @@
     "\U000F1B18", # auto
     "\U000F0906", # off
     "\U000F18DD", # ceiling lights
-    "\U000F0FB0", # devices    
+    "\U000F0FB0", # device
     "\U000F0341", # display lock
     "\U000F1A4D", # display brightness
     "\U000F1C70", # display info
     "\U000F08BB", # display settings
     "\U000F06A1", # display home
     "\U000F18F6", # display weather
-    "\U000F03D8", # palette    
+    "\U000F03D8", # palette
     "\U000F04AE", # previous track
     "\U000F04AD", # next track
     "\U000F040A", # play
@@ -346,7 +346,7 @@
     "\U000F0467", # rotate right
     "\U000F1C91", # swing on
     "\U000F1C92", # swing off
-    "\U000F1B29", # faucet    
+    "\U000F1B29", # faucet
     "\U000F0E47", # hand
   ]
 
@@ -443,7 +443,7 @@
         "\U000F0F2F", # cloudyalert
         "\U000F0E6E", # cloudyarrowright
         "\U000F0591", # fog
-        "\U000F0AC1", # hail        
+        "\U000F0AC1", # hail
         "\U000F0F30", # hazy
         "\U000F0898", # hurricane
         "\U000F0593", # lightning
