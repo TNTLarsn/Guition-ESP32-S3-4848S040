@@ -1,0 +1,35 @@
+# Template für Home Assistant LVGL Button Widget
+# Variablen: num, col, row, entity_id, default_icon (optional)
+
+defaults:
+  num: "1"
+  col: "0"
+  row: "0"
+  entity_id: "switch.placeholder"
+  default_icon: "\U000F1802"  # lightbulb
+
+button:
+  id: homeassistant_btn_${num}
+  checkable: true
+  grid_cell_column_pos: ${col}
+  grid_cell_row_pos: ${row}
+  grid_cell_x_align: STRETCH
+  grid_cell_y_align: STRETCH
+  widgets:
+    - label:
+        id: homeassistant_btn_${num}_icon
+        text_font: btn_icons_font
+        text: ${default_icon}
+        align: CENTER
+        y: -20
+    - label:
+        id: homeassistant_btn_${num}_label
+        text: "${num}"
+        long_mode: dot
+        align: CENTER
+        y: 30
+  on_click:
+    - homeassistant.service:
+        service: switch.toggle
+        data_template:
+          entity_id: ${entity_id}

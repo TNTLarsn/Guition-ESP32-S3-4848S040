@@ -1,0 +1,54 @@
+# Template für Home Assistant Entity Sensoren
+# Wird mehrfach mit unterschiedlichen vars eingebunden
+# Variablen: num, entity_id
+
+defaults:
+  num: "1"
+  entity_id: "switch.placeholder"
+
+binary_sensor:
+  - platform: homeassistant
+    id: ha_entity_state_${num}
+    entity_id: ${entity_id}
+    internal: true
+    trigger_on_initial_state: true
+    on_state:
+      then:
+        lvgl.widget.update:
+          id: homeassistant_btn_${num}
+          state:
+            checked: !lambda return x;
+
+text_sensor:
+  # Friendly Name für Button Label
+  - platform: homeassistant
+    id: ha_entity_${num}_friendly_name
+    entity_id: ${entity_id}
+    attribute: friendly_name
+    internal: true
+    on_value:
+      then:
+        lvgl.label.update:
+          id: homeassistant_btn_${num}_label
+          text: !lambda return x.c_str();
+
+  # Icon für Button (MDI Icons aus Home Assistant)
+  - platform: homeassistant
+    id: ha_entity_${num}_icon
+    entity_id: ${entity_id}
+    attribute: icon
+    internal: true
+    on_value:
+      then:
+        lvgl.label.update:
+          id: homeassistant_btn_${num}_icon
+          text: !lambda |-
+            static MdiIconHelper helper;
+            return helper.convert_mdi_icon(x);
+
+  # Entity ID als Text Sensor (z.B. für Button Service Aufrufe)
+  - platform: homeassistant
+    id: ha_entity_${num}_id
+    entity_id: ${entity_id}
+    attribute: entity_id
+    internal: true
