@@ -10,7 +10,7 @@ substitutions:
 # Display Interne Entitäten
 binary_sensor:
   - platform: homeassistant
-    id: ha_binary_sensor_1
+    id: ha_entity_state_1
     entity_id: ${ha_switch_entity_id_1}
     internal: true
     trigger_on_initial_state: true
@@ -22,7 +22,7 @@ binary_sensor:
             checked: !lambda return x;
 
   - platform: homeassistant
-    id: ha_binary_sensor_2
+    id: ha_entity_state_2
     entity_id: ${ha_switch_entity_id_2}
     internal: true
     trigger_on_initial_state: true
@@ -34,7 +34,7 @@ binary_sensor:
             checked: !lambda return x;
 
   - platform: homeassistant
-    id: ha_binary_sensor_3
+    id: ha_entity_state_3
     entity_id: ${ha_switch_entity_id_3}
     internal: true
     trigger_on_initial_state: true
@@ -46,7 +46,7 @@ binary_sensor:
             checked: !lambda return x;
 
   - platform: homeassistant
-    id: ha_binary_sensor_4
+    id: ha_entity_state_4
     entity_id: ${ha_switch_entity_id_4}
     internal: true
     trigger_on_initial_state: true
@@ -58,7 +58,7 @@ binary_sensor:
             checked: !lambda return x;
   
   - platform: homeassistant
-    id: ha_binary_sensor_5
+    id: ha_entity_state_5
     entity_id: ${ha_switch_entity_id_5}
     internal: true
     trigger_on_initial_state: true
@@ -70,7 +70,7 @@ binary_sensor:
             checked: !lambda return x;
 
   - platform: homeassistant
-    id: ha_binary_sensor_6
+    id: ha_entity_state_6
     entity_id: ${ha_switch_entity_id_6}
     internal: true
     trigger_on_initial_state: true
