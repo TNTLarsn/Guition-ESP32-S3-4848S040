@@ -479,7 +479,7 @@
   extras:
     - file: 'assets/fonts/materialdesignicons-webfont.ttf'
       # Erweiterte Glyph-Liste für alle häufig verwendeten MDI Icons
-      # Um alle Icons zu unterstützen, verwenden wir Glyph-Ranges
+      # Um die wichtigsten Icons zu unterstützen, verwenden wir eine explizite Glyph-Liste
       glyphs: [
         # Lichter
         "\U000F1802", # lightbulb
