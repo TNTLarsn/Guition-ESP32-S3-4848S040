@@ -538,6 +538,8 @@
         "\U000F0522", # toggle-switch-off
         "\U000F0A19", # toggle-switch-outline
         "\U000F0A1A", # toggle-switch-off-outline
+        "\U000F0A25", # toggle-switch-variant
+        "\U000F0A26", # toggle-switch-variant-off
         "\U000F097E", # light-switch
         "\U000F1A24", # light-switch-off
         
@@ -553,6 +555,7 @@
         "\U000F0438", # radiator
         "\U000F0AD7", # radiator-disabled
         "\U000F0AD8", # radiator-off
+        "\U000F043D", # radiobox-blank
         "\U000F1AAF", # heating-coil
         "\U000F1A43", # heat-pump
         "\U000F1A44", # heat-pump-outline
@@ -667,6 +670,8 @@
         "\U000F07E4", # molecule-co2
         "\U000F00A2", # brightness-6
         "\U000F00A3", # brightness-7
+        "\U000F0273", # bullhorn
+        "\U000F1792", # button-pointer
         "\U000F15B2", # motion
         "\U000F0566", # vibrate
         "\U000F0373", # magnet
@@ -726,6 +731,8 @@
         "\U000F036D", # microphone-off
         "\U000F0296", # gamepad
         "\U000F0297", # gamepad-variant
+        "\U000F0BC1", # script-text
+        "\U000F0BC2", # script-text-outline
         
         # Netzwerk & Verbindungen
         "\U000F05A9", # wifi
@@ -789,6 +796,7 @@
         "\U000F0908", # robot-vacuum-variant
         "\U000F1B5D", # robot-vacuum-alert
         "\U000F1B5E", # robot-vacuum-off
+        "\U000F06A9", # robot
         
         # Wetter
         "\U000F0599", # weather-sunny
@@ -903,6 +911,8 @@
         "\U000F0F93", # water-pump-off
         "\U000F0606", # pool
         "\U000F1A5A", # pool-thermometer
+        "\U000F0FB0", # pipe
+        "\U000F0889", # pipe-valve
         "\U000F0828", # hot-tub
         "\U000F0E45", # grill
         "\U000F118A", # grill-outline
@@ -1040,6 +1050,7 @@
         "\U000F03D3", # package
         "\U000F03D4", # package-variant
         "\U000F03D5", # package-variant-closed
+        "\U000F03D8", # palette
         "\U000F0E44", # gift
         "\U000F02A7", # gift-outline
         "\U000F0110", # cart

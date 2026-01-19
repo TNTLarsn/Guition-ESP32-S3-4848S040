@@ -1,11 +1,14 @@
 # Template für Home Assistant Entity Sensoren
 # Wird mehrfach mit unterschiedlichen vars eingebunden
-# Variablen: num, entity_id, default_icon
+# Variablen: num, entity_id
+#
+# Default Icons basieren auf Home Assistant Standards:
+# https://github.com/home-assistant/frontend/blob/main/src/data/icons.ts
+# Die Domain wird automatisch aus der entity_id extrahiert.
 
 defaults:
   num: "1"
   entity_id: "switch.placeholder"
-  default_icon: "mdi:lightbulb"
 
 binary_sensor:
   - platform: homeassistant
@@ -37,6 +40,7 @@ text_sensor:
   # Hinweis: Das icon-Attribut ist nur gesetzt, wenn der Nutzer es manuell überschrieben hat.
   # Andernfalls verwendet Home Assistant ein Default-Icon basierend auf Domain/Device Class,
   # das aber nicht als Attribut verfügbar ist.
+  # Wir ermitteln das Domain-Default-Icon automatisch aus der entity_id.
   - platform: homeassistant
     id: ha_entity_${num}_icon
     entity_id: ${entity_id}
@@ -48,11 +52,44 @@ text_sensor:
           id: homeassistant_btn_${num}_icon
           text: !lambda |-
             static MdiIconHelper helper;
-            // Bei leerem oder fehlendem Icon-Attribut -> default_icon verwenden
-            if (x.empty()) {
-              return helper.convert_mdi_icon("${default_icon}");
+            // Bei gesetztem Icon-Attribut -> dieses verwenden
+            if (!x.empty()) {
+              return helper.convert_mdi_icon(x);
             }
-            return helper.convert_mdi_icon(x);
+            // Andernfalls Domain-spezifisches Default-Icon verwenden
+            // (basierend auf Home Assistant Standards)
+            std::string entity_id = "${entity_id}";
+            std::string domain = entity_id.substr(0, entity_id.find('.'));
+            
+            // Home Assistant Default Icons pro Domain
+            // Quelle: https://github.com/home-assistant/frontend/blob/main/src/data/icons.ts
+            if (domain == "switch") return helper.convert_mdi_icon("mdi:toggle-switch-variant");
+            if (domain == "light") return helper.convert_mdi_icon("mdi:lightbulb");
+            if (domain == "sensor") return helper.convert_mdi_icon("mdi:eye");
+            if (domain == "binary_sensor") return helper.convert_mdi_icon("mdi:radiobox-blank");
+            if (domain == "input_boolean") return helper.convert_mdi_icon("mdi:toggle-switch");
+            if (domain == "button") return helper.convert_mdi_icon("mdi:button-pointer");
+            if (domain == "lock") return helper.convert_mdi_icon("mdi:lock");
+            if (domain == "cover") return helper.convert_mdi_icon("mdi:window-shutter");
+            if (domain == "fan") return helper.convert_mdi_icon("mdi:fan");
+            if (domain == "climate") return helper.convert_mdi_icon("mdi:thermostat");
+            if (domain == "vacuum") return helper.convert_mdi_icon("mdi:robot-vacuum");
+            if (domain == "media_player") return helper.convert_mdi_icon("mdi:speaker");
+            if (domain == "scene") return helper.convert_mdi_icon("mdi:palette");
+            if (domain == "script") return helper.convert_mdi_icon("mdi:script-text");
+            if (domain == "automation") return helper.convert_mdi_icon("mdi:robot");
+            if (domain == "humidifier") return helper.convert_mdi_icon("mdi:air-humidifier");
+            if (domain == "siren") return helper.convert_mdi_icon("mdi:bullhorn");
+            if (domain == "valve") return helper.convert_mdi_icon("mdi:pipe-valve");
+            if (domain == "alarm_control_panel") return helper.convert_mdi_icon("mdi:shield");
+            if (domain == "camera") return helper.convert_mdi_icon("mdi:video");
+            if (domain == "person") return helper.convert_mdi_icon("mdi:account");
+            if (domain == "device_tracker") return helper.convert_mdi_icon("mdi:account");
+            if (domain == "water_heater") return helper.convert_mdi_icon("mdi:water-boiler");
+            if (domain == "update") return helper.convert_mdi_icon("mdi:package");
+            
+            // Fallback für unbekannte Domains
+            return helper.convert_mdi_icon("mdi:help-circle");
 
   # Entity ID als Text Sensor (z.B. für Button Service Aufrufe)
   - platform: template
