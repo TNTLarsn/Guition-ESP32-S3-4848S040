@@ -21,7 +21,7 @@ button:
         text_font: btn_icons_font
         text: !lambda return id(ha_entity_${num}_icon)->state;
         align: CENTER
-        y: -20
+        y: -10
     - label:
         id: homeassistant_btn_${num}_label
         text: "${num}"
