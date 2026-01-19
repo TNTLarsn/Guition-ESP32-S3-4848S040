@@ -194,7 +194,7 @@ static const MdiIconEntry MDI_ICONS[] = {
     {"window-open", 0xF05AD},
     {"window-shutter", 0xF111C},
     {"window-shutter-open", 0xF111E},
-    {"wrench", 0xF0598},
+    {"wrench", 0xF0AD3},
 };
 
 static const size_t MDI_ICONS_COUNT = sizeof(MDI_ICONS) / sizeof(MDI_ICONS[0]);
