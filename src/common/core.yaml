@@ -29,7 +29,7 @@ esp32:
   framework:
     type: esp-idf
     advanced:
-      # Erhöht von 8192 auf 16384 für große std::map Initialisierung (MDI Icons)
+      # Erhöht von 8192 auf 16384 für MDI Icon Helper mit statischem C-Array + Binärsuche (siehe helper/mdi_icon_map.h)
       loop_task_stack_size: 16384
     sdkconfig_options:
       CONFIG_ESP32S3_DEFAULT_CPU_FREQ_240: "y"
