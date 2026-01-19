@@ -245,6 +245,8 @@ switch:
             - lvgl.widget.redraw:
 
   # Built in 240v relay
+  # Relay is currently assumed to be active-high (HIGH = relay ON, LOW = relay OFF).
+  # If your relay module is active-low, update this pin configuration to include `inverted: true`.
   - platform: gpio
     pin:
       number: 40
