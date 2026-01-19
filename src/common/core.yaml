@@ -246,7 +246,10 @@ switch:
 
   # Built in 240v relay
   - platform: gpio
-    pin: 40
+    pin:
+      number: 40
+      mode:
+        output: true
     id: panel_output
     name: "Internes 240V Relais"
     icon: mdi:electric-switch
