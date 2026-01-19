@@ -355,7 +355,7 @@
   size: 40
   bpp: 4
   glyphs: [
-    "\U000F0415", # plus    
+    "\U000F0415", # plus
     "\U000F0374", # minus
     "\U000F1107", # socket
     "\U000F1480", # current
