@@ -252,6 +252,7 @@ switch:
       number: 40
       mode:
         output: true
+    restore_mode: RESTORE_DEFAULT_OFF
     id: panel_output
     name: "Internes 240V Relais"
     icon: mdi:electric-switch
