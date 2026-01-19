@@ -84,7 +84,7 @@ binary_sensor:
 text_sensor:
   # Friendly Names für Button Labels
   - platform: homeassistant
-    id: ha_binary_sensor_1_friendly_name
+    id: ha_entity_1_friendly_name
     entity_id: ${ha_switch_entity_id_1}
     attribute: friendly_name
     internal: true
@@ -95,7 +95,7 @@ text_sensor:
           text: !lambda return x.c_str();
 
   - platform: homeassistant
-    id: ha_binary_sensor_2_friendly_name
+    id: ha_entity_2_friendly_name
     entity_id: ${ha_switch_entity_id_2}
     attribute: friendly_name
     internal: true
@@ -106,7 +106,7 @@ text_sensor:
           text: !lambda return x.c_str();
 
   - platform: homeassistant
-    id: ha_binary_sensor_3_friendly_name
+    id: ha_entity_3_friendly_name
     entity_id: ${ha_switch_entity_id_3}
     attribute: friendly_name
     internal: true
@@ -117,7 +117,7 @@ text_sensor:
           text: !lambda return x.c_str();
 
   - platform: homeassistant
-    id: ha_binary_sensor_4_friendly_name
+    id: ha_entity_4_friendly_name
     entity_id: ${ha_switch_entity_id_4}
     attribute: friendly_name
     internal: true
@@ -128,7 +128,7 @@ text_sensor:
           text: !lambda return x.c_str();
 
   - platform: homeassistant
-    id: ha_binary_sensor_5_friendly_name
+    id: ha_entity_5_friendly_name
     entity_id: ${ha_switch_entity_id_5}
     attribute: friendly_name
     internal: true
@@ -139,7 +139,7 @@ text_sensor:
           text: !lambda return x.c_str();
 
   - platform: homeassistant
-    id: ha_binary_sensor_6_friendly_name
+    id: ha_entity_6_friendly_name
     entity_id: ${ha_switch_entity_id_6}
     attribute: friendly_name
     internal: true              
