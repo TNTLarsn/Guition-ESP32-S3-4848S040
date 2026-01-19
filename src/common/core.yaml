@@ -280,6 +280,25 @@ sensor:
       - lambda: return min(max(2 * (x + 100.0), 0.0), 100.0);
     unit_of_measurement: "%"
 
+# Buttons for Restart and Firmware Update
+button:
+  - platform: restart
+    name: "Neustart"
+    id: restart_button
+    entity_category: config
+    icon: "mdi:restart"
+    disabled_by_default: true
+
+  - platform: template
+    name: "Check for Updates"
+    id: check_updates_button
+    entity_category: config
+    icon: "mdi:update"
+    disabled_by_default: true
+    on_press:
+      then:
+        - component.update: firmware_update
+
 # Diagnostic Text Sensors    
 text_sensor:
   # WiFi Info
