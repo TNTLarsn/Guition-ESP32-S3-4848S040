@@ -4,179 +4,28 @@ substitutions:
   nightbulb: "\U000F1A4D"
 
 lvgl:
-    pages:
-      - id: home_page
-        widgets:
-          - image:
-              align: CENTER
-              src: see_img
-          - obj: # a properly placed container object for all these controls
-              layout: # enable the GRID layout for the children widgets
-                type: GRID # split the rows and the columns proportionally
-                grid_columns: [FR(1), FR(1), FR(1)] # equal
-                grid_rows: [FR(50), FR(50)] # like percents
-              width: 100%
-              height: 90%
-              #align: CENTER
-              pad_all: 15
-              pad_top: 22
-              #pad_row: 1
-              #pad_column: 1
-              bg_opa: TRANSP
-              border_opa: TRANSP
-              widgets:
-                - button:
-                    id: homeassistant_btn_1
-                    checkable: true
-                    grid_cell_column_pos: 0 # place the widget in
-                    grid_cell_row_pos: 0 # the corresponding cell
-                    grid_cell_x_align: STRETCH
-                    grid_cell_y_align: STRETCH
-                    widgets:
-                      - label:
-                          id: homeassistant_btn_1_icon
-                          text_font: btn_icons_font
-                          text: $lightbulb
-                          align: CENTER
-                          y: -20
-                      - label:
-                          id: homeassistant_btn_1_label
-                          text: '1'
-                          long_mode: dot
-                          align: CENTER
-                          y: 30
-                    on_click:
-                      - homeassistant.service:
-                          service: switch.toggle
-                          data_template:
-                            entity_id: ${ha_switch_entity_id_1}
-
-                - button:
-                    id: homeassistant_btn_2
-                    checkable: true
-                    grid_cell_column_pos: 0 # place the widget in
-                    grid_cell_row_pos: 1 # the corresponding cell
-                    grid_cell_x_align: STRETCH
-                    grid_cell_y_align: STRETCH
-                    widgets:
-                      - label:
-                          id: homeassistant_btn_2_icon
-                          text_font: btn_icons_font
-                          text: $nightbulb
-                          align: CENTER
-                          y: -20
-                      - label:
-                          id: homeassistant_btn_2_label
-                          text: '2'
-                          long_mode: dot
-                          align: CENTER
-                          y: 30
-                    on_click:
-                      - homeassistant.service:
-                          service: switch.toggle
-                          data_template:
-                            entity_id: ${ha_switch_entity_id_2}
-                      
-                - button:
-                    id: homeassistant_btn_3
-                    checkable: true
-                    grid_cell_column_pos: 1 # place the widget in
-                    grid_cell_row_pos: 0 # the corresponding cell
-                    grid_cell_x_align: STRETCH
-                    grid_cell_y_align: STRETCH
-                    widgets:
-                      - label:
-                          id: homeassistant_btn_3_icon
-                          text_font: btn_icons_font
-                          text: $lightbulb
-                          align: CENTER
-                          y: -20
-                      - label:
-                          id: homeassistant_btn_3_label
-                          text: '3'
-                          long_mode: dot
-                          align: CENTER
-                          y: 30
-                    on_click:
-                      - homeassistant.service:
-                          service: switch.toggle
-                          data_template:
-                            entity_id: ${ha_switch_entity_id_3}
-                            
-                - button:
-                    id: homeassistant_btn_4
-                    checkable: true
-                    grid_cell_column_pos: 1 # place the widget in
-                    grid_cell_row_pos: 1 # the corresponding cell
-                    grid_cell_x_align: STRETCH
-                    grid_cell_y_align: STRETCH
-                    widgets:
-                      - label:
-                          id: homeassistant_btn_4_icon
-                          text_font: btn_icons_font
-                          text: $lightbulb
-                          align: CENTER
-                          y: -20
-                      - label:
-                          id: homeassistant_btn_4_label
-                          text: '4'
-                          long_mode: dot
-                          align: CENTER
-                          y: 30
-                    on_click:
-                      - homeassistant.service:
-                          service: switch.toggle
-                          data_template:
-                            entity_id: ${ha_switch_entity_id_4}
-
-                - button:
-                    id: homeassistant_btn_5
-                    checkable: true
-                    grid_cell_column_pos: 2 # place the widget in
-                    grid_cell_row_pos: 0 # the corresponding cell
-                    grid_cell_x_align: STRETCH
-                    grid_cell_y_align: STRETCH
-                    widgets:
-                      - label:
-                          id: homeassistant_btn_5_icon
-                          text_font: btn_icons_font
-                          text: $lightbulb
-                          align: CENTER
-                          y: -20
-                      - label:
-                          id: homeassistant_btn_5_label
-                          text: '5'
-                          long_mode: dot
-                          align: CENTER
-                          y: 30
-                    on_click:
-                      - homeassistant.service:
-                          service: switch.toggle
-                          data_template:
-                            entity_id: ${ha_switch_entity_id_5}
-                          
-                - button:
-                    id: homeassistant_btn_6
-                    checkable: true
-                    grid_cell_column_pos: 2 # place the widget in
-                    grid_cell_row_pos: 1 # the corresponding cell
-                    grid_cell_x_align: STRETCH
-                    grid_cell_y_align: STRETCH
-                    widgets:
-                      - label:
-                          id: homeassistant_btn_6_icon
-                          text_font: btn_icons_font
-                          text: $lightbulb
-                          align: CENTER
-                          y: -20
-                      - label:
-                          id: homeassistant_btn_6_label
-                          text: '6'
-                          long_mode: dot
-                          align: CENTER
-                          y: 30
-                    on_click:
-                      - homeassistant.service:
-                          service: switch.toggle
-                          data_template:
-                            entity_id: ${ha_switch_entity_id_6}
+  pages:
+    - id: home_page
+      widgets:
+        - image:
+            align: CENTER
+            src: see_img
+        - obj: # Container mit GRID Layout für Button-Widgets
+            layout:
+              type: GRID
+              grid_columns: [FR(1), FR(1), FR(1)]
+              grid_rows: [FR(50), FR(50)]
+            width: 100%
+            height: 90%
+            pad_all: 15
+            pad_top: 22
+            bg_opa: TRANSP
+            border_opa: TRANSP
+            widgets:
+              # Buttons via Template-Include (col 0-2, row 0-1)
+              - !include { file: ../templates/ha_button.yaml, vars: { num: "1", col: "0", row: "0", default_icon: "$lightbulb" } }
+              - !include { file: ../templates/ha_button.yaml, vars: { num: "2", col: "0", row: "1", default_icon: "$nightbulb" } }
+              - !include { file: ../templates/ha_button.yaml, vars: { num: "3", col: "1", row: "0", default_icon: "$lightbulb" } }
+              - !include { file: ../templates/ha_button.yaml, vars: { num: "4", col: "1", row: "1", default_icon: "$lightbulb" } }
+              - !include { file: ../templates/ha_button.yaml, vars: { num: "5", col: "2", row: "0", default_icon: "$lightbulb" } }
+              - !include { file: ../templates/ha_button.yaml, vars: { num: "6", col: "2", row: "1", default_icon: "$lightbulb" } }

@@ -66,13 +66,16 @@ esphome run src/main.factory.yaml
 │   │   ├── core.yaml          # Hardware-Konfiguration
 │   │   ├── substitutions.yaml # Projekt-Variablen
 │   │   ├── fonts.yaml         # Font-Definitionen inkl. MDI Icons
-│   │   ├── homeassistant.yaml # Home Assistant Sensoren & Entities
+│   │   ├── homeassistant.yaml # Home Assistant Entity-Definitionen (via Templates)
 │   │   └── colors.yaml        # Farbdefinitionen
 │   ├── helper/
 │   │   └── mdi_icon_map.h     # MDI Icon zu Unicode Konverter
 │   ├── pages/
 │   │   ├── boot.yaml          # Boot-Screen
-│   │   └── home.yaml          # Hauptseite mit HA-Buttons
+│   │   └── home.yaml          # Hauptseite mit HA-Buttons (via Templates)
+│   ├── templates/             # Wiederverwendbare YAML-Templates
+│   │   ├── ha_entity.yaml     # Template: HA Entity Sensoren
+│   │   └── ha_button.yaml     # Template: LVGL Button Widget
 │   └── themes/
 │       └── homeassistant.yaml # Home Assistant Theme (Farben & Styles)
 ├── .github/workflows/
@@ -162,26 +165,58 @@ main.factory.yaml          # Factory mit improv_serial
 
 ## 🏠 Home Assistant Integration
 
-### Dynamische Icons & Labels
+### Template-basierte Architektur
 
-Das Display lädt automatisch Icons und Namen aus Home Assistant:
+Das Projekt nutzt ESPHome's "Packages as Templates" Pattern für maximale
+Wiederverwendbarkeit und reduzierte Code-Duplizierung:
+
+```text
+templates/
+├── ha_entity.yaml   # Generiert: binary_sensor + 3x text_sensor pro Entität
+└── ha_button.yaml   # Generiert: LVGL Button Widget mit Icon & Label
+```
+
+### Entity-Template (`ha_entity.yaml`)
+
+Jedes Template-Include erstellt automatisch:
+
+- **binary_sensor**: State der Entität (für Button checked-State)
+- **text_sensor (friendly_name)**: Dynamisches Label aus Home Assistant
+- **text_sensor (icon)**: Dynamisches Icon (MDI → Unicode Konvertierung)
+- **text_sensor (entity_id)**: Entity ID für Service-Aufrufe
+
+### Button-Template (`ha_button.yaml`)
+
+Generiert vollständige LVGL Button-Widgets mit:
+
+- Grid-Positionierung (Spalte/Zeile)
+- Icon-Label mit MDI Font
+- Text-Label für Entity-Name
+- Touch-Handler für `switch.toggle` Service
+
+### Konfigurierbare Entitäten
+
+Ändere die Home Assistant Entitäten in [homeassistant.yaml](src/common/homeassistant.yaml):
 
 ```yaml
-# In src/common/homeassistant.yaml
-text_sensor:
-  - platform: homeassistant
-    entity_id: switch.meine_lampe
-    attribute: friendly_name
-    on_value:
-      then:
-        lvgl.label.update:
-          id: button_label
-          text: !lambda return x.c_str();
+# Packages as Templates - eine Zeile pro Entität
+packages:
+  ha_entity_1: !include
+    file: ../templates/ha_entity.yaml
+    vars:
+      num: "1"
+      entity_id: switch.wohnzimmer_licht
+  ha_entity_2: !include
+    file: ../templates/ha_entity.yaml
+    vars:
+      num: "2"
+      entity_id: switch.schlafzimmer_licht
+  # ... bis zu 6 Entitäten
 ```
 
 ### MDI Icon Konvertierung
 
-Der `MdiIconHelper` in [src/helper/mdi_icon_map.h](src/helper/mdi_icon_map.h) konvertiert
+Der `MdiIconHelper` in [mdi_icon_map.h](src/helper/mdi_icon_map.h) konvertiert
 Home Assistant Icon-Namen (z.B. `mdi:lightbulb`) automatisch zu Unicode-Codepoints:
 
 ```cpp
@@ -192,17 +227,6 @@ return helper.convert_mdi_icon("mdi:lightbulb"); // → Unicode für 󰌵
 
 **Unterstützte Icons**: ~180 häufig verwendete MDI Icons (Lichter, Schalter, Heizung,
 Jalousien, Sensoren, Media, Wetter, etc.)
-
-### Konfigurierbare Entitäten
-
-Ändere die Home Assistant Entitäten in [src/common/homeassistant.yaml](src/common/homeassistant.yaml):
-
-```yaml
-substitutions:
-  ha_switch_entity_id_1: switch.wohnzimmer_licht
-  ha_switch_entity_id_2: switch.schlafzimmer_licht
-  # ... bis zu 6 Entitäten
-```
 
 ## 📝 Release-Prozess
 
