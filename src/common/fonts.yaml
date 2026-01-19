@@ -538,7 +538,7 @@
         "\U000F0522", # toggle-switch-off
         "\U000F0A19", # toggle-switch-outline
         "\U000F0A1A", # toggle-switch-off-outline
-        "\U000F0A25", # toggle-switch-variant
+        "\U000F1A25", # toggle-switch-variant
         "\U000F0A26", # toggle-switch-variant-off
         "\U000F097E", # light-switch
         "\U000F1A24", # light-switch-off

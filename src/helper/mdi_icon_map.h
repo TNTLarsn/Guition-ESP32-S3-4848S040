@@ -167,7 +167,7 @@ static const MdiIconEntry MDI_ICONS[] = {
     {"timer", 0xF051A},
     {"toggle-switch", 0xF0521},
     {"toggle-switch-off", 0xF0522},
-    {"toggle-switch-variant", 0xF0A25},
+    {"toggle-switch-variant", 0xF1A25},
     {"toilet", 0xF09AB},
     {"tools", 0xF1064},
     {"track-light", 0xF0914},
