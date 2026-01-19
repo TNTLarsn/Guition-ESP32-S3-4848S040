@@ -6,3 +6,6 @@
 .github/copilot-instructions.md
 .vscode/*
 .venv/*
+
+# CodeQL artifacts
+_codeql_detected_source_root

@@ -12,6 +12,7 @@ Pixel LCD und kapazitivem Touchscreen.
 - **4.8" LCD Display** (480x480 Pixel, ST7701S Treiber)
 - **Kapazitiver Touchscreen** (GT911, I2C)
 - **LVGL Integration** für moderne Benutzeroberflächen
+- **Automatische Domain-Icons** - Icons basierend auf Home Assistant Entity-Domain (24 unterstützte Domains)
 - **Dynamische MDI Icons** - Automatische Icon-Konvertierung aus Home Assistant
 - **Home Assistant Integration** - Dynamische Labels, Icons und States via Native API
 - **OTA Updates** via HTTP Request und ESPHome Dashboard
@@ -182,8 +183,14 @@ Jedes Template-Include erstellt automatisch:
 
 - **binary_sensor**: State der Entität (für Button checked-State)
 - **text_sensor (friendly_name)**: Dynamisches Label aus Home Assistant
-- **text_sensor (icon)**: Dynamisches Icon (MDI → Unicode Konvertierung)
+- **text_sensor (icon)**: Dynamisches Icon aus HA oder Domain-Default (MDI → Unicode)
+- **text_sensor (default_icon)**: Domain-basiertes Default-Icon (switch → toggle-switch-variant, light → lightbulb, etc.)
 - **text_sensor (entity_id)**: Entity ID für Service-Aufrufe
+
+**Icon-Priorität:**
+1. Custom Icon aus Home Assistant (wenn manuell gesetzt)
+2. Domain-Default Icon (automatisch basierend auf Entity-Domain)
+3. Fallback: `help-circle`
 
 ### Button-Template (`ha_button.yaml`)
 
@@ -200,17 +207,18 @@ Generiert vollständige LVGL Button-Widgets mit:
 
 ```yaml
 # Packages as Templates - eine Zeile pro Entität
+# Icons werden automatisch basierend auf der Entity-Domain ermittelt
 packages:
   ha_entity_1: !include
     file: ../templates/ha_entity.yaml
     vars:
       num: "1"
-      entity_id: switch.wohnzimmer_licht
+      entity_id: switch.wohnzimmer_licht  # → Icon: toggle-switch-variant
   ha_entity_2: !include
     file: ../templates/ha_entity.yaml
     vars:
       num: "2"
-      entity_id: switch.schlafzimmer_licht
+      entity_id: light.schlafzimmer_licht  # → Icon: lightbulb
   # ... bis zu 6 Entitäten
 ```
 
@@ -225,8 +233,28 @@ static MdiIconHelper helper;
 return helper.convert_mdi_icon("mdi:lightbulb"); // → Unicode für 󰌵
 ```
 
-**Unterstützte Icons**: ~180 häufig verwendete MDI Icons (Lichter, Schalter, Heizung,
+**Unterstützte Icons**: ~190 häufig verwendete MDI Icons (Lichter, Schalter, Heizung,
 Jalousien, Sensoren, Media, Wetter, etc.)
+
+### Domain-basierte Default-Icons
+
+Das System erkennt automatisch die Entity-Domain und wählt das passende Icon:
+
+| Domain | Default Icon |
+|--------|-------------|
+| `switch` | `toggle-switch-variant` |
+| `light` | `lightbulb` |
+| `sensor` | `eye` |
+| `binary_sensor` | `radiobox-blank` |
+| `climate` | `thermostat` |
+| `cover` | `window-shutter` |
+| `fan` | `fan` |
+| `lock` | `lock` |
+| `vacuum` | `robot-vacuum` |
+| `media_player` | `speaker` |
+| ... | *24 Domains insgesamt* |
+
+**Quelle**: [Home Assistant Frontend Icons](https://github.com/home-assistant/frontend/blob/main/src/data/icons.ts)
 
 ## 📝 Release-Prozess
 
