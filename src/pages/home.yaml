@@ -1,8 +1,3 @@
-substitutions:
-  # Icon Substitutions für LVGL Widgets (Fallback)
-  lightbulb: "\U000F1802"
-  nightbulb: "\U000F1A4D"
-
 lvgl:
   pages:
     - id: home_page
@@ -23,9 +18,10 @@ lvgl:
             border_opa: TRANSP
             widgets:
               # Buttons via Template-Include (col 0-2, row 0-1)
-              - !include { file: ../templates/ha_button.yaml, vars: { num: "1", col: "0", row: "0", default_icon: "$lightbulb" } }
-              - !include { file: ../templates/ha_button.yaml, vars: { num: "2", col: "0", row: "1", default_icon: "$nightbulb" } }
-              - !include { file: ../templates/ha_button.yaml, vars: { num: "3", col: "1", row: "0", default_icon: "$lightbulb" } }
-              - !include { file: ../templates/ha_button.yaml, vars: { num: "4", col: "1", row: "1", default_icon: "$lightbulb" } }
-              - !include { file: ../templates/ha_button.yaml, vars: { num: "5", col: "2", row: "0", default_icon: "$lightbulb" } }
-              - !include { file: ../templates/ha_button.yaml, vars: { num: "6", col: "2", row: "1", default_icon: "$lightbulb" } }
+              # default_icon ist optional, Standard ist "mdi:lightbulb"
+              - !include { file: ../templates/ha_button.yaml, vars: { num: "1", col: "0", row: "0" } }
+              - !include { file: ../templates/ha_button.yaml, vars: { num: "2", col: "0", row: "1" } }
+              - !include { file: ../templates/ha_button.yaml, vars: { num: "3", col: "1", row: "0" } }
+              - !include { file: ../templates/ha_button.yaml, vars: { num: "4", col: "1", row: "1" } }
+              - !include { file: ../templates/ha_button.yaml, vars: { num: "5", col: "2", row: "0" } }
+              - !include { file: ../templates/ha_button.yaml, vars: { num: "6", col: "2", row: "1" } }
