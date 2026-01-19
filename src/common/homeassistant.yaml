@@ -2,7 +2,7 @@
 # Verwendet "Packages as Templates" um wiederholende Sensoren dynamisch zu generieren
 
 # Dynamische Sensor-Generierung via Template-Packages
-# Jedes Package erstellt: binary_sensor (State) + 3x text_sensor (Name, Icon , Entity ID)
+# Jedes Package erstellt: binary_sensor (State) + 3x text_sensor (Name, Icon, Entity ID)
 packages:
   ha_entity_1: !include
     file: ../templates/ha_entity.yaml
