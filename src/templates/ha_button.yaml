@@ -19,9 +19,7 @@ button:
     - label:
         id: homeassistant_btn_${num}_icon
         text_font: btn_icons_font
-        text: !lambda |-
-          static MdiIconHelper helper;
-          return helper.convert_mdi_icon("${default_icon}");
+        text: !lambda return id(ha_entity_${num}_icon)->state;
         align: CENTER
         y: -20
     - label:
