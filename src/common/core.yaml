@@ -218,8 +218,9 @@ number:
     step: 1
     mode: box
 
-# Antiburn Switch
+# Device Switches
 switch:
+  # Antiburn Switch
   - platform: template
     name: Bildschirmschoner
     id: switch_antiburn
@@ -242,6 +243,19 @@ switch:
           then:
             - lvgl.resume:
             - lvgl.widget.redraw:
+
+  # Built in 240v relay
+  # Relay is currently assumed to be active-high (HIGH = relay ON, LOW = relay OFF).
+  # If your relay module is active-low, update this pin configuration to include `inverted: true`.
+  - platform: gpio
+    pin:
+      number: 40
+      mode:
+        output: true
+    restore_mode: RESTORE_DEFAULT_OFF
+    id: panel_output
+    name: "Internes 240V Relais"
+    icon: mdi:electric-switch
 
 # Diagnostic Sensors
 sensor:
