@@ -12,9 +12,10 @@ Pixel LCD und kapazitivem Touchscreen.
 - **4.8" LCD Display** (480x480 Pixel, ST7701S Treiber)
 - **Kapazitiver Touchscreen** (GT911, I2C)
 - **LVGL Integration** für moderne Benutzeroberflächen
+- **Dynamische MDI Icons** - Automatische Icon-Konvertierung aus Home Assistant
+- **Home Assistant Integration** - Dynamische Labels, Icons und States via Native API
 - **OTA Updates** via HTTP Request und ESPHome Dashboard
 - **WiFi Provisioning** über Bluetooth LE oder Captive Portal
-- **Home Assistant Integration** via Native API
 - **Web-basierte Installation** mit ESP Web Tools (kein Tool-Download nötig)
 
 ## 📦 Hardware-Spezifikationen
@@ -61,9 +62,19 @@ esphome run src/main.factory.yaml
 ├── src/
 │   ├── main.yaml              # Basis-Konfiguration (nach Adoption)
 │   ├── main.factory.yaml      # Factory-Version mit Provisioning
-│   └── common/
-│       ├── core.yaml          # Hardware-Konfiguration
-│       └── substitutions.yaml # Projekt-Variablen
+│   ├── common/
+│   │   ├── core.yaml          # Hardware-Konfiguration
+│   │   ├── substitutions.yaml # Projekt-Variablen
+│   │   ├── fonts.yaml         # Font-Definitionen inkl. MDI Icons
+│   │   ├── homeassistant.yaml # Home Assistant Sensoren & Entities
+│   │   └── colors.yaml        # Farbdefinitionen
+│   ├── helper/
+│   │   └── mdi_icon_map.h     # MDI Icon zu Unicode Konverter
+│   ├── pages/
+│   │   ├── boot.yaml          # Boot-Screen
+│   │   └── home.yaml          # Hauptseite mit HA-Buttons
+│   └── themes/
+│       └── homeassistant.yaml # Home Assistant Theme (Farben & Styles)
 ├── .github/workflows/
 │   ├── ci.yml                 # Automatische Tests bei PRs
 │   ├── publish-firmware.yml   # Release-Builds
@@ -148,6 +159,50 @@ main.factory.yaml          # Factory mit improv_serial
 - Timeout: Konfigurierbar über `display_timeout_backlight`
 - Bei Idle: Backlight aus + LVGL pausiert
 - Bei Touch: LVGL resume + Backlight ein
+
+## 🏠 Home Assistant Integration
+
+### Dynamische Icons & Labels
+
+Das Display lädt automatisch Icons und Namen aus Home Assistant:
+
+```yaml
+# In src/common/homeassistant.yaml
+text_sensor:
+  - platform: homeassistant
+    entity_id: switch.meine_lampe
+    attribute: friendly_name
+    on_value:
+      then:
+        lvgl.label.update:
+          id: button_label
+          text: !lambda return x.c_str();
+```
+
+### MDI Icon Konvertierung
+
+Der `MdiIconHelper` in [src/helper/mdi_icon_map.h](src/helper/mdi_icon_map.h) konvertiert
+Home Assistant Icon-Namen (z.B. `mdi:lightbulb`) automatisch zu Unicode-Codepoints:
+
+```cpp
+// Beispiel-Nutzung in Lambda
+static MdiIconHelper helper;
+return helper.convert_mdi_icon("mdi:lightbulb"); // → Unicode für 󰌵
+```
+
+**Unterstützte Icons**: ~180 häufig verwendete MDI Icons (Lichter, Schalter, Heizung,
+Jalousien, Sensoren, Media, Wetter, etc.)
+
+### Konfigurierbare Entitäten
+
+Ändere die Home Assistant Entitäten in [src/common/homeassistant.yaml](src/common/homeassistant.yaml):
+
+```yaml
+substitutions:
+  ha_switch_entity_id_1: switch.wohnzimmer_licht
+  ha_switch_entity_id_2: switch.schlafzimmer_licht
+  # ... bis zu 6 Entitäten
+```
 
 ## 📝 Release-Prozess
 
