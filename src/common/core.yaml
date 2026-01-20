@@ -438,6 +438,7 @@ ota:
             condition: lvgl.is_paused
             then:
               - lvgl.resume:
+              - lvgl.widget.redraw:
         - lvgl.page.show: ota_page
         - lvgl.label.update:
             id: ota_title
