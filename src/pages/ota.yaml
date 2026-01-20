@@ -1,0 +1,59 @@
+############################
+# LVGL OTA PAGE
+############################
+lvgl:
+  pages:
+    - id: ota_page
+      widgets:
+        - obj:
+            bg_color: color_surface_dark
+            shadow_opa: transp
+            width: ${display_width}
+            height: ${display_height}
+            outline_width: 0
+            border_width: 0
+            radius: 0
+            widgets:
+              - image:
+                  y: 30
+                  align: top_mid
+                  src: ha_img
+
+              - obj:
+                  id: ota_container
+                  y: 180
+                  width: 300
+                  height: 200
+                  pad_all: 0
+                  align: top_mid
+                  bg_opa: transp
+                  shadow_opa: transp
+                  border_opa: transp
+                  border_width: 0
+                  radius: 10
+                  widgets:
+                    - label:
+                        id: ota_title
+                        text: "Firmware Update"
+                        align: top_mid
+                        y: 0
+                        text_font: nunito_20
+                        text_color: color_text_dark_primary
+
+                    - bar:
+                        id: ota_bar
+                        width: 100%
+                        height: 30
+                        align: center
+                        y: 20
+                        min_value: 0
+                        max_value: 100
+                        value: 0
+
+                    - label:
+                        id: ota_percent
+                        text: "0 %"
+                        align: center
+                        y: 60
+                        text_font: nunito_20
+                        text_color: color_text_dark_primary

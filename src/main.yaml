@@ -4,6 +4,7 @@ packages:
   homeassistant: !include common/homeassistant.yaml
   boot_screen: !include pages/boot.yaml
   home_page: !include pages/home.yaml
+  ota_page: !include pages/ota.yaml
   theme: !include themes/homeassistant.yaml
 
 substitutions: !include common/substitutions.yaml

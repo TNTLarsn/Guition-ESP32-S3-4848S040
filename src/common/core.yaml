@@ -4,6 +4,16 @@ globals:
     type: int
     restore_value: yes
     initial_value: '2'
+  
+  - id: ota_active
+    type: bool
+    restore_value: no
+    initial_value: 'false'
+
+  - id: ota_progress
+    type: int
+    restore_value: no
+    initial_value: '0'
 
 # Basic ESPHome Configuration
 esphome:
@@ -20,6 +30,12 @@ esphome:
     - helper/mdi_icon_map.h # MDI Icon Helper für dynamische Icon-Konvertierung aus Home Assistant
   platformio_options:
     board_build.flash_mode: dio    
+  on_boot:
+    - priority: -100
+      then:
+        - lambda: |-
+            id(ota_active) = false;
+            id(ota_progress) = 0;
 
 # ESP32-S3 Specific Configuration
 esp32:
@@ -71,14 +87,21 @@ touchscreen:
     mirror_y: false
   display: ${display_name}
   on_release:
-      - if:
-          condition: lvgl.is_paused
-          then:
-            - logger.log: "LVGL resuming"
-            - switch.turn_off: switch_antiburn
-            - lvgl.resume:
-            - lvgl.widget.redraw:
-            - light.turn_on: display_backlight
+    - if:
+        condition:
+          lambda: 'return id(ota_active);'
+        then:
+          - logger.log: "Touch ignored (OTA active)"
+        else:
+          - logger.log: "Touch processed"
+          - if:
+              condition: lvgl.is_paused
+              then:
+                - logger.log: "LVGL resuming"
+                - switch.turn_off: switch_antiburn
+                - lvgl.resume:
+                - lvgl.widget.redraw:
+                - light.turn_on: display_backlight
 
 # SPI Bus for Display
 spi:
@@ -103,7 +126,6 @@ display:
       mirror_x: false
       mirror_y: false
     cs_pin: 39
-      # reset not defined 
     de_pin: 18
     hsync_pin: 16
     vsync_pin: 17
@@ -115,25 +137,9 @@ display:
     pclk_frequency: 12MHz
     pclk_inverted: false
     data_pins:
-      red:
-        - 11         # R1
-        - 12         # R2
-        - 13         # R3
-        - 14         # R4
-        - 0          # R5
-      green:
-        - 8          # G0
-        - 20         # G1
-        - 3          # G2
-        - 46         # G3
-        - 9          # G4
-        - 10         # G5 
-      blue:
-        - 4          # B1
-        - 5          # B2
-        - 6          # B3
-        - 7          # B4
-        - 15         # B5
+      red:   [11, 12, 13, 14, 0]
+      green: [8, 20, 3, 46, 9, 10]
+      blue:  [4, 5, 6, 7, 15]
 
 # LVGL Configuration
 lvgl:
@@ -162,9 +168,9 @@ time:
     id: sntp_time
     timezone: "${timezone}"
     servers:
-     - ntp0.ntp-servers.net
-     - ntp1.ntp-servers.net
-     - ntp2.ntp-servers.net
+      - ntp0.ntp-servers.net
+      - ntp1.ntp-servers.net
+      - ntp2.ntp-servers.net
     on_time:
       - hours: 2,3,4,5
         minutes: 5
@@ -312,6 +318,15 @@ button:
     on_press:
       then:
         - component.update: firmware_update
+  
+  - platform: template
+    name: "Firmware Update installieren"
+    id: install_firmware_update_button
+    entity_category: "config"
+    icon: "mdi:download"
+    on_press:
+      then:
+        - script.execute: start_ota_update
 
 # Diagnostic Text Sensors    
 text_sensor:
@@ -362,12 +377,118 @@ api:
 
 # OTA is required for Over-the-Air updating
 ota:
+  # ESPHome Dashboard OTA
   - platform: esphome
     id: ota_state
+    on_begin:
+      then:
+        - lambda: |-
+            id(ota_active) = true;
+            id(ota_progress) = 0;
+        - light.turn_on: display_backlight
+        - if:
+            condition: lvgl.is_paused
+            then:
+              - lvgl.resume:
+              - lvgl.widget.redraw:
+        - lvgl.page.show: ota_page
+        - lvgl.label.update:
+            id: ota_title
+            text: "ESPHome OTA Update"
+    on_progress:
+      then:
+        - lambda: 'id(ota_progress) = x;'
+        - lvgl.bar.update:
+            id: ota_bar
+            value: !lambda "return id(ota_progress);"
+        - lvgl.label.update:
+            id: ota_percent
+            text: !lambda |-
+              char buf[8];
+              snprintf(buf, sizeof(buf), "%d %%", id(ota_progress));
+              return std::string(buf);
+    on_end:
+      then:
+        - lvgl.label.update:
+            id: ota_title
+            text: "Update abgeschlossen"
+        - lvgl.label.update:
+            id: ota_percent
+            text: "Neustart..."
+        - lambda: 'id(ota_active) = false;' 
+    on_error:
+      then:
+        - lambda: 'id(ota_active) = false;'
+        - lvgl.label.update:
+            id: ota_title
+            text: "Update FEHLER"
+        - lvgl.label.update:
+            id: ota_percent
+            text: "Abgebrochen"
+
+  # HTTP Request OTA (für Firmware Updates via manifest.json)
   - platform: http_request
     id: firmware_ota
+    on_begin:
+      then:
+        - lambda: |-
+            id(ota_active) = true;
+            id(ota_progress) = 0;
+        - light.turn_on: display_backlight
+        - if:
+            condition: lvgl.is_paused
+            then:
+              - lvgl.resume:
+              - lvgl.widget.redraw:
+        - lvgl.page.show: ota_page
+        - lvgl.label.update:
+            id: ota_title
+            text: "Firmware Download"
+        - lvgl.label.update:
+            id: ota_percent
+            text: "0 %"
+        - lvgl.bar.update:
+            id: ota_bar
+            value: 0
+        - lvgl.widget.redraw:
+    on_progress:
+      then:
+        - lambda: |-
+            id(ota_progress) = (int)x;
+            lv_task_handler();
+        - lvgl.bar.update:
+            id: ota_bar
+            value: !lambda "return (int)x;"
+        - lvgl.label.update:
+            id: ota_percent
+            text: !lambda |-
+              char buf[8];
+              snprintf(buf, sizeof(buf), "%d %%", (int)x);
+              return std::string(buf);
+        - lambda: 'lv_task_handler();'
+    on_end:
+      then:
+        - lambda: 'id(ota_active) = false;'
+        - lvgl.label.update:
+            id: ota_title
+            text: "Update abgeschlossen"
+        - lvgl.label.update:
+            id: ota_percent
+            text: "Neustart..."
+        - lvgl.widget.redraw:
+        - lambda: 'id(ota_active) = false;' 
+    on_error:
+      then:
+        - lambda: 'id(ota_active) = false;'
+        - lvgl.label.update:
+            id: ota_title
+            text: "Update FEHLER"
+        - lvgl.label.update:
+            id: ota_percent
+            text: "Abgebrochen"
+        - lvgl.widget.redraw:
 
-# HTTP Request Configuration for Firmware Updates
+# HTTP Request Configuration
 http_request:
   useragent: esphome-4848s040
   follow_redirects: true
@@ -376,7 +497,7 @@ http_request:
   buffer_size_rx: 2048
   buffer_size_tx: 1024
 
-# Firmware
+# Firmware Update
 update:
   - platform: http_request
     id: firmware_update
@@ -384,6 +505,37 @@ update:
     source: https://github.com/tntlarsn/guition-esp32-s3-4848s040/releases/latest/download/${display_name}.manifest.json
     device_class: firmware
     update_interval: 24h
+    ota_id: firmware_ota
+    on_update_available:
+      then:
+        - logger.log: "Firmware Update verfügbar!"
+
+# Script für OTA Update
+script:
+  - id: start_ota_update
+    mode: single
+    then:
+      - lambda: |-
+          id(ota_active) = true;
+          id(ota_progress) = 0;
+      - light.turn_on: display_backlight
+      - if:
+          condition: lvgl.is_paused
+          then:
+            - lvgl.resume:
+            - lvgl.widget.redraw:
+      - lvgl.page.show: ota_page
+      - lvgl.label.update:
+          id: ota_title
+          text: "Firmware Download"
+      - lvgl.label.update:
+          id: ota_percent
+          text: "Wird gestartet..."
+      - lvgl.bar.update:
+          id: ota_bar
+          value: 0
+      - delay: 500ms
+      - update.perform: firmware_update
 
 # WiFi Configuration
 wifi:
