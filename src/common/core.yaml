@@ -502,7 +502,7 @@ update:
   - platform: http_request
     id: firmware_update
     name: "Firmware"
-    source: http://192.168.178.185:8000/manifest.json
+    source: https://github.com/tntlarsn/guition-esp32-s3-4848s040/releases/latest/download/${display_name}.manifest.json
     device_class: firmware
     update_interval: 24h
     ota_id: firmware_ota
