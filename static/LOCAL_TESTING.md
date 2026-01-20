@@ -117,10 +117,8 @@ make localcleanup
 ```bash
 make local-release-test [DEVICE-IP]
 ```
-Hinweis: Wenn bereits eine `.local_dev_state` existiert, wird der erneute Start absichtlich verhindert.
-Bitte zuerst `make localcleanup` ausführen.
 
-Optional (nicht empfohlen): erzwingen mit `FORCE=1 make local-release-test [DEVICE-IP]`.
+**Hinweis:** Wenn bereits eine `.local_dev_state` existiert, wird der erneute Start absichtlich verhindert. Bitte zuerst `make localcleanup` ausführen. Optional (nicht empfohlen): erzwingen mit `FORCE=1 make local-release-test [DEVICE-IP]`.
 
 1. ✅ PC-IP wird automatisch erkannt
 2. ✅ Device-IP wird ermittelt (oder abgefragt)
