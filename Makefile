@@ -84,6 +84,9 @@ localcleanup:
 	@echo "Cleaning up local OTA test..."
 	@bash scripts/local-testing/cleanup_ota_test.sh
 
-# Catch-all für Device-IP als Argument
+# Catch-all für Device-IP als Argument:
+# Any additional non-target argument (e.g. an IP address) is captured here
+# so it can be passed via $(MAKECMDGOALS). This will also catch mistyped
+# targets, but we print a message to make that behavior visible.
 %:
-	@:
+	@echo "Note: Treating '$@' as a device IP argument, not as a Make target."
