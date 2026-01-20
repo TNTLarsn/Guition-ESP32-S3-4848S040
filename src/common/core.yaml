@@ -94,14 +94,14 @@ touchscreen:
           - logger.log: "Touch ignored (OTA active)"
         else:
           - logger.log: "Touch processed"
-    - if:
-        condition: lvgl.is_paused
-        then:
-          - logger.log: "LVGL resuming"
-          - switch.turn_off: switch_antiburn
-          - lvgl.resume:
-          - lvgl.widget.redraw:
-          - light.turn_on: display_backlight
+          - if:
+              condition: lvgl.is_paused
+              then:
+                - logger.log: "LVGL resuming"
+                - switch.turn_off: switch_antiburn
+                - lvgl.resume:
+                - lvgl.widget.redraw:
+                - light.turn_on: display_backlight
 
 # SPI Bus for Display
 spi:
@@ -415,6 +415,7 @@ ota:
         - lvgl.label.update:
             id: ota_percent
             text: "Neustart..."
+        - lambda: 'id(ota_active) = false;' 
     on_error:
       then:
         - lambda: 'id(ota_active) = false;'
@@ -475,6 +476,7 @@ ota:
             id: ota_percent
             text: "Neustart..."
         - lvgl.widget.redraw:
+        - lambda: 'id(ota_active) = false;' 
     on_error:
       then:
         - lambda: 'id(ota_active) = false;'
