@@ -25,12 +25,28 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m'
 
-# Konfiguration
-PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# Konfiguration - PROJECT_DIR ist das Git-Root (2 Ebenen hoch)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
 HTTP_PORT=8000
 DEVICE_IP="${1:-}"
 CORE_YAML="${PROJECT_DIR}/src/common/core.yaml"
 STATE_FILE="${PROJECT_DIR}/.local_dev_state"
+
+# ============================================================================
+# Sicherheits-Guard: Local Dev Mode nicht erneut starten
+# ============================================================================
+if [ -f "$STATE_FILE" ] && [ "${FORCE:-0}" != "1" ]; then
+    echo -e "${RED}❌ Local Dev Mode ist bereits aktiv (State-Datei vorhanden).${NC}"
+    echo "   Datei: $STATE_FILE"
+    echo ""
+    echo "   Bitte zuerst Cleanup ausführen:"
+    echo "     make localcleanup"
+    echo ""
+    echo "   Falls du es wirklich erzwingen willst (nicht empfohlen):"
+    echo "     FORCE=1 make local-release-test <DEVICE_IP>"
+    exit 2
+fi
 
 echo -e "${BLUE}╔════════════════════════════════════════════════════════════╗${NC}"
 echo -e "${BLUE}║          🚀 Local Dev Mode - Setup                         ║${NC}"

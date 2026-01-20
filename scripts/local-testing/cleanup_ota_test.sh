@@ -20,8 +20,9 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m'
 
-# Konfiguration
-PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# Konfiguration - PROJECT_DIR ist das Git-Root (2 Ebenen hoch)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
 STATE_FILE="${PROJECT_DIR}/.local_dev_state"
 CORE_YAML="${PROJECT_DIR}/src/common/core.yaml"
 HTTP_PORT=8000
