@@ -10,3 +10,4 @@
 # CodeQL artifacts
 _codeql_detected_source_root
 .http_server.pid
+.local_dev_state
