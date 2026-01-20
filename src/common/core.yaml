@@ -4,6 +4,16 @@ globals:
     type: int
     restore_value: yes
     initial_value: '2'
+  
+  - id: ota_active
+    type: bool
+    restore_value: no
+    initial_value: 'false'
+
+  - id: ota_progress
+    type: int
+    restore_value: no
+    initial_value: '0'
 
 # Basic ESPHome Configuration
 esphome:
@@ -20,7 +30,12 @@ esphome:
     - helper/mdi_icon_map.h # MDI Icon Helper für dynamische Icon-Konvertierung aus Home Assistant
   platformio_options:
     board_build.flash_mode: dio    
-
+  on_boot:
+    - priority: -100
+      then:
+        - lambda: |-
+            id(ota_active) = false;
+            id(ota_progress) = 0;
 # ESP32-S3 Specific Configuration
 esp32:
   board: esp32-s3-devkitc-1
@@ -71,6 +86,13 @@ touchscreen:
     mirror_y: false
   display: ${display_name}
   on_release:
+      - if:
+          condition:
+            lambda: 'return id(ota_active);'
+          then:
+            - logger.log: "Touch ignored (OTA active)"
+          else:
+            - logger.log: "Touch processed"
       - if:
           condition: lvgl.is_paused
           then:
@@ -364,8 +386,60 @@ api:
 ota:
   - platform: esphome
     id: ota_state
+    on_begin:
+      then:
+        - lambda: |-
+            id(ota_active) = true;
+            id(ota_progress) = 0;
+        - light.turn_on: display_backlight
+        - lvgl.page.show: ota_page
+
+    on_progress:
+      then:
+        - lambda: |-
+            id(ota_progress) = x;
+        - lvgl.bar.update:
+            id: ota_bar
+            value: !lambda "return id(ota_progress);"
+        - lvgl.label.update:
+            id: ota_percent
+            text: !lambda |-
+              char buf[8];
+              snprintf(buf, sizeof(buf), "%d %%", id(ota_progress));
+              return std::string(buf);
+
+    on_end:
+      then:
+        - lvgl.label.update:
+            id: ota_title
+            text: "Update abgeschlossen"
+        - lvgl.label.update:
+            id: ota_percent
+            text: "Neustart..."
+
+    on_error:
+      then:
+        - lvgl.label.update:
+            id: ota_title
+            text: "Update FEHLER"
+        - lvgl.label.update:
+            id: ota_percent
+            text: "Abgebrochen"
+  
   - platform: http_request
     id: firmware_ota
+    on_begin:
+      then:
+        - script.execute: http_ota_progress_simulation
+    on_error:
+      then:
+        - lvgl.page.show: ota_page
+        - lvgl.label.update:
+            id: ota_title
+            text: "Update FEHLER"
+        - lvgl.label.update:
+            id: ota_percent
+            text: "Abgebrochen"
 
 # HTTP Request Configuration for Firmware Updates
 http_request:
