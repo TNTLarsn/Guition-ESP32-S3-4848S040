@@ -35,7 +35,7 @@ lvgl:
                     - label:
                         id: ota_title
                         text: "Firmware Update"
-                        align: TOP_MID
+                        align: top_mid
                         y: 0
                         text_font: montserrat_24
                         text_color: color_text_dark_primary
