@@ -5,6 +5,8 @@
 /secrets.yaml
 .github/copilot-instructions.md
 .vscode/*
+!.vscode/launch.json
+!.vscode/tasks.json
 .venv/*
 
 # CodeQL artifacts

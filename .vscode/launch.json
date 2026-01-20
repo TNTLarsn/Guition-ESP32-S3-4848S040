@@ -1,0 +1,51 @@
+{
+    // ESPHome Display - Launch & Debug Konfigurationen
+    // Tasks ausführen: Cmd+Shift+P → "Tasks: Run Task"
+    // Oder: Terminal → Run Task...
+    "version": "0.2.0",
+    "configurations": [
+        // ════════════════════════════════════════════════════════════════
+        // 🚀 LOCAL DEV MODE - Compound Tasks
+        // ════════════════════════════════════════════════════════════════
+        {
+            "name": "🚀 Local Dev Mode starten",
+            "type": "node-terminal",
+            "request": "launch",
+            "command": "make local-release-test",
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "📦 Local Update",
+            "type": "node-terminal",
+            "request": "launch",
+            "command": "make localupdate",
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "🧹 Local Cleanup",
+            "type": "node-terminal",
+            "request": "launch",
+            "command": "make localcleanup",
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "📺 Monitor (Logs)",
+            "type": "node-terminal",
+            "request": "launch",
+            "command": "make monitor",
+            "cwd": "${workspaceFolder}"
+        }
+    ],
+    "compounds": [
+        {
+            "name": "🔄 Full Local Test Cycle",
+            "configurations": ["🚀 Local Dev Mode starten"],
+            "stopAll": true,
+            "presentation": {
+                "hidden": false,
+                "group": "Local Testing",
+                "order": 1
+            }
+        }
+    ]
+}
