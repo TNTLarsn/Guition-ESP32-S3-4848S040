@@ -529,6 +529,10 @@ script:
           id: ota_title
           text: "Firmware Download"
       - lvgl.label.update:
+          id: ota_version_info
+          text: !lambda |-
+            return std::string(id(firmware_update).update_info.current_version) + " >> " + std::string(id(firmware_update).update_info.latest_version);
+      - lvgl.label.update:
           id: ota_percent
           text: "Wird gestartet..."
       - lvgl.bar.update:
