@@ -41,7 +41,7 @@ lvgl:
                         text_color: color_text_dark_primary
                     - label:
                         id: ota_version_info
-                        text: "von: ${version} nach: ..."
+                        text: "${version} >> ..."
                         align: top_mid
                         y: 30
                         text_font: nunito_16
