@@ -69,7 +69,11 @@ button:
                     data:
                       entity_id: !lambda return id(ha_entity_${num}_id).state.c_str();
               else:
-                - homeassistant.service:
-                    service: lock.lock
-                    data:
-                      entity_id: !lambda return id(ha_entity_${num}_id).state.c_str();
+                - if:
+                    condition:
+                      lambda: 'return id(ha_entity_${num}_state_text).state == "unlocked";'
+                    then:
+                      - homeassistant.service:
+                          service: lock.lock
+                          data:
+                            entity_id: !lambda return id(ha_entity_${num}_id).state.c_str();
