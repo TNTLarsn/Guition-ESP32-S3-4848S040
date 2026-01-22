@@ -18,10 +18,14 @@ binary_sensor:
     trigger_on_initial_state: true
     on_state:
       then:
-        lvgl.widget.update:
-          id: homeassistant_btn_${num}
-          state:
-            checked: !lambda return x;
+        - if:
+            condition:
+              lambda: 'return id(ha_entity_${num}_domain).state != "button";'
+            then:
+              - lvgl.widget.update:
+                  id: homeassistant_btn_${num}
+                  state:
+                    checked: !lambda return x;
 
 text_sensor:
   # Friendly Name für Button Label
@@ -108,9 +112,42 @@ text_sensor:
                 id: homeassistant_btn_${num}_icon
                 text: !lambda return x.c_str();
 
+  # Entity State als Text Sensor (z.B. für Lock Toggle Logic)
+  - platform: homeassistant
+    id: ha_entity_${num}_state_text
+    entity_id: ${entity_id}
+    internal: true
+
   # Entity ID als Text Sensor (z.B. für Button Service Aufrufe)
   - platform: template
     id: ha_entity_${num}_id
     internal: true
     lambda: |-
       return {"${entity_id}"};
+
+  # Entity Domain als Text Sensor (z.B. für Icon Auswahl)
+  - platform: template
+    id: ha_entity_${num}_domain
+    internal: true
+    lambda: |-
+      std::string entity_id = "${entity_id}";
+      size_t dot_pos = entity_id.find('.');
+      
+      // Validierung: Entity-ID muss einen Punkt enthalten
+      if (dot_pos == std::string::npos) {
+        ESP_LOGW("ha_entity", "Invalid entity_id format '%s': missing dot separator", entity_id.c_str());
+        return std::string("unknown");
+      }
+      
+      std::string domain = entity_id.substr(0, dot_pos);
+      return domain;
+    on_value:
+      then:
+        - lambda: |-
+            auto obj = id(homeassistant_btn_${num});
+            if (x == "button") {
+              lv_obj_clear_flag(obj, LV_OBJ_FLAG_CHECKABLE);
+              lv_obj_clear_state(obj, LV_STATE_CHECKED);
+            } else {
+              lv_obj_add_flag(obj, LV_OBJ_FLAG_CHECKABLE);
+            }
