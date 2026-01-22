@@ -35,7 +35,7 @@ button:
           lambda: |-
             std::string domain = id(ha_entity_${num}_domain).state;
             // Domains that support .toggle service
-            const char* toggle_domains[] = {"switch", "light", "fan", "cover", "valve", "input_boolean"};
+            const char* toggle_domains[] = {"switch", "light", "fan", "cover", "valve", "input_boolean", "automation", "script", "remote"};
             for (const char* d : toggle_domains) {
               if (domain == d) return true;
             }
