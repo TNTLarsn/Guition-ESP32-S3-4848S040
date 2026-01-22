@@ -10,6 +10,66 @@ defaults:
   num: "1"
   entity_id: "switch.placeholder"
 
+# Script für verzögerte LVGL Flag-Updates mit Retry-Logik
+# Versucht bis zu 4 mal mit 200ms Pause zwischen Versuchen (max 600ms)
+script:
+  # Helper-Script das die eigentlichen Flag-Updates durchführt
+  - id: apply_button_flags_${num}
+    mode: single
+    then:
+      - lambda: |-
+          auto obj = id(homeassistant_btn_${num});
+          std::string domain = id(ha_entity_${num}_domain).state;
+          
+          if (domain == "button") {
+            lv_obj_clear_flag(obj, LV_OBJ_FLAG_CHECKABLE);
+            lv_obj_clear_state(obj, LV_STATE_CHECKED);
+          } else {
+            lv_obj_add_flag(obj, LV_OBJ_FLAG_CHECKABLE);
+          }
+  
+  # Retry-Script mit Timeout-Logik
+  - id: update_button_flags_${num}
+    mode: restart
+    then:
+      # Versuch 1: Sofortige Prüfung
+      - if:
+          condition:
+            lambda: 'return lv_is_initialized();'
+          then:
+            - script.execute: apply_button_flags_${num}
+            - lambda: 'ESP_LOGD("ha_entity", "Button ${num} flags updated immediately");'
+          else:
+            # Versuch 2: Nach 200ms
+            - delay: 200ms
+            - if:
+                condition:
+                  lambda: 'return lv_is_initialized();'
+                then:
+                  - script.execute: apply_button_flags_${num}
+                  - lambda: 'ESP_LOGD("ha_entity", "Button ${num} flags updated after 200ms");'
+                else:
+                  # Versuch 3: Nach weiteren 200ms (400ms total)
+                  - delay: 200ms
+                  - if:
+                      condition:
+                        lambda: 'return lv_is_initialized();'
+                      then:
+                        - script.execute: apply_button_flags_${num}
+                        - lambda: 'ESP_LOGD("ha_entity", "Button ${num} flags updated after 400ms");'
+                      else:
+                        # Versuch 4: Nach weiteren 200ms (600ms total)
+                        - delay: 200ms
+                        - if:
+                            condition:
+                              lambda: 'return lv_is_initialized();'
+                            then:
+                              - script.execute: apply_button_flags_${num}
+                              - lambda: 'ESP_LOGD("ha_entity", "Button ${num} flags updated after 600ms");'
+                            else:
+                              # Timeout nach 600ms
+                              - lambda: 'ESP_LOGW("ha_entity", "Timeout (600ms) waiting for LVGL initialization for button ${num}");'
+
 binary_sensor:
   - platform: homeassistant
     id: ha_entity_state_${num}
@@ -143,11 +203,4 @@ text_sensor:
       return domain;
     on_value:
       then:
-        - lambda: |-
-            auto obj = id(homeassistant_btn_${num});
-            if (x == "button") {
-              lv_obj_clear_flag(obj, LV_OBJ_FLAG_CHECKABLE);
-              lv_obj_clear_state(obj, LV_STATE_CHECKED);
-            } else {
-              lv_obj_add_flag(obj, LV_OBJ_FLAG_CHECKABLE);
-            }
+        - script.execute: update_button_flags_${num}

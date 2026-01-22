@@ -77,3 +77,11 @@ button:
                           service: lock.lock
                           data:
                             entity_id: !lambda return id(ha_entity_${num}_id).state.c_str();
+    # Unbekannte oder ungültige Domain: Warnung loggen
+    - if:
+        condition:
+          lambda: 'return id(ha_entity_${num}_domain).state == "unknown";'
+        then:
+          - lambda: |-
+              ESP_LOGW("ha_button", "Unknown domain for entity_id '%s' on button ${num}",
+                       id(ha_entity_${num}_id).state.c_str());
