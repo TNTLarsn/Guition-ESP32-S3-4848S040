@@ -29,7 +29,59 @@ button:
         align: CENTER
         y: 30
   on_click:
-    - homeassistant.service:
-        service: switch.toggle
-        data:
-          entity_id: !lambda return id(ha_entity_${num}_id).state.c_str();
+    # Domains mit nativer .toggle-Unterstützung behandeln
+    - if:
+        condition:
+          lambda: |-
+            std::string domain = id(ha_entity_${num}_domain).state;
+            // Domains die den .toggle Service unterstützen
+            const char* toggle_domains[] = {"switch", "light", "fan", "cover", "valve", "input_boolean", "automation", "script", "remote"};
+            for (const char* d : toggle_domains) {
+              if (domain == d) return true;
+            }
+            return false;
+        then:
+          - homeassistant.service:
+              service: !lambda |-
+                return std::string(id(ha_entity_${num}_domain).state) + ".toggle";
+              data:
+                entity_id: !lambda return id(ha_entity_${num}_id).state.c_str();
+    # Button-Domain nutzt button.press statt toggle
+    - if:
+        condition:
+          lambda: 'return id(ha_entity_${num}_domain).state == "button";'
+        then:
+          - homeassistant.service:
+              service: button.press
+              data:
+                entity_id: !lambda return id(ha_entity_${num}_id).state.c_str();
+    # Lock-Domain: lock/unlock abhängig vom aktuellen Zustand
+    - if:
+        condition:
+          lambda: 'return id(ha_entity_${num}_domain).state == "lock";'
+        then:
+          - if:
+              condition:
+                lambda: 'return id(ha_entity_${num}_state_text).state == "locked";'
+              then:
+                - homeassistant.service:
+                    service: lock.unlock
+                    data:
+                      entity_id: !lambda return id(ha_entity_${num}_id).state.c_str();
+              else:
+                - if:
+                    condition:
+                      lambda: 'return id(ha_entity_${num}_state_text).state == "unlocked";'
+                    then:
+                      - homeassistant.service:
+                          service: lock.lock
+                          data:
+                            entity_id: !lambda return id(ha_entity_${num}_id).state.c_str();
+    # Unbekannte oder ungültige Domain: Warnung loggen
+    - if:
+        condition:
+          lambda: 'return id(ha_entity_${num}_domain).state == "unknown";'
+        then:
+          - lambda: |-
+              ESP_LOGW("ha_button", "Unknown domain for entity_id '%s' on button ${num}",
+                       id(ha_entity_${num}_id).state.c_str());

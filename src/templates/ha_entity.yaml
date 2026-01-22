@@ -10,6 +10,66 @@ defaults:
   num: "1"
   entity_id: "switch.placeholder"
 
+# Script für verzögerte LVGL Flag-Updates mit Retry-Logik
+# Versucht bis zu 4 mal mit 200ms Pause zwischen Versuchen (max 600ms)
+script:
+  # Helper-Script das die eigentlichen Flag-Updates durchführt
+  - id: apply_button_flags_${num}
+    mode: single
+    then:
+      - lambda: |-
+          auto obj = id(homeassistant_btn_${num});
+          std::string domain = id(ha_entity_${num}_domain).state;
+          
+          if (domain == "button") {
+            lv_obj_clear_flag(obj, LV_OBJ_FLAG_CHECKABLE);
+            lv_obj_clear_state(obj, LV_STATE_CHECKED);
+          } else {
+            lv_obj_add_flag(obj, LV_OBJ_FLAG_CHECKABLE);
+          }
+  
+  # Retry-Script mit Timeout-Logik
+  - id: update_button_flags_${num}
+    mode: restart
+    then:
+      # Versuch 1: Sofortige Prüfung
+      - if:
+          condition:
+            lambda: 'return lv_is_initialized();'
+          then:
+            - script.execute: apply_button_flags_${num}
+            - lambda: 'ESP_LOGD("ha_entity", "Button ${num} flags updated immediately");'
+          else:
+            # Versuch 2: Nach 200ms
+            - delay: 200ms
+            - if:
+                condition:
+                  lambda: 'return lv_is_initialized();'
+                then:
+                  - script.execute: apply_button_flags_${num}
+                  - lambda: 'ESP_LOGD("ha_entity", "Button ${num} flags updated after 200ms");'
+                else:
+                  # Versuch 3: Nach weiteren 200ms (400ms total)
+                  - delay: 200ms
+                  - if:
+                      condition:
+                        lambda: 'return lv_is_initialized();'
+                      then:
+                        - script.execute: apply_button_flags_${num}
+                        - lambda: 'ESP_LOGD("ha_entity", "Button ${num} flags updated after 400ms");'
+                      else:
+                        # Versuch 4: Nach weiteren 200ms (600ms total)
+                        - delay: 200ms
+                        - if:
+                            condition:
+                              lambda: 'return lv_is_initialized();'
+                            then:
+                              - script.execute: apply_button_flags_${num}
+                              - lambda: 'ESP_LOGD("ha_entity", "Button ${num} flags updated after 600ms");'
+                            else:
+                              # Timeout nach 600ms
+                              - lambda: 'ESP_LOGW("ha_entity", "Timeout (600ms) waiting for LVGL initialization for button ${num}");'
+
 binary_sensor:
   - platform: homeassistant
     id: ha_entity_state_${num}
@@ -18,10 +78,14 @@ binary_sensor:
     trigger_on_initial_state: true
     on_state:
       then:
-        lvgl.widget.update:
-          id: homeassistant_btn_${num}
-          state:
-            checked: !lambda return x;
+        - if:
+            condition:
+              lambda: 'return id(ha_entity_${num}_domain).state != "button";'
+            then:
+              - lvgl.widget.update:
+                  id: homeassistant_btn_${num}
+                  state:
+                    checked: !lambda return x;
 
 text_sensor:
   # Friendly Name für Button Label
@@ -108,9 +172,35 @@ text_sensor:
                 id: homeassistant_btn_${num}_icon
                 text: !lambda return x.c_str();
 
+  # Entity State als Text Sensor (z.B. für Lock Toggle Logic)
+  - platform: homeassistant
+    id: ha_entity_${num}_state_text
+    entity_id: ${entity_id}
+    internal: true
+
   # Entity ID als Text Sensor (z.B. für Button Service Aufrufe)
   - platform: template
     id: ha_entity_${num}_id
     internal: true
     lambda: |-
       return {"${entity_id}"};
+
+  # Entity Domain als Text Sensor (z.B. für Icon Auswahl)
+  - platform: template
+    id: ha_entity_${num}_domain
+    internal: true
+    lambda: |-
+      std::string entity_id = "${entity_id}";
+      size_t dot_pos = entity_id.find('.');
+      
+      // Validierung: Entity-ID muss einen Punkt enthalten
+      if (dot_pos == std::string::npos) {
+        ESP_LOGW("ha_entity", "Invalid entity_id format '%s': missing dot separator", entity_id.c_str());
+        return std::string("unknown");
+      }
+      
+      std::string domain = entity_id.substr(0, dot_pos);
+      return domain;
+    on_value:
+      then:
+        - script.execute: update_button_flags_${num}
