@@ -144,7 +144,7 @@ text_sensor:
     on_value:
       then:
         - lambda: |-
-            // Sicherstellen dass LVGL initialisiert ist bevor Flags manipuliert werden
+            // Sicherstellen, dass LVGL initialisiert ist, bevor Flags manipuliert werden
             if (!lv_is_initialized()) {
               ESP_LOGW("ha_entity", "LVGL not initialized yet, skipping flag update for button ${num}");
               return;
