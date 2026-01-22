@@ -10,6 +10,36 @@ defaults:
   num: "1"
   entity_id: "switch.placeholder"
 
+# Script für verzögerte LVGL Flag-Updates mit Retry-Logik
+script:
+  - id: update_button_flags_${num}
+    mode: restart
+    then:
+      - lambda: |-
+          // Warte bis zu 5 Sekunden (10 Versuche x 500ms) auf LVGL-Initialisierung
+          for (int i = 0; i < 10; i++) {
+            if (lv_is_initialized()) {
+              auto obj = id(homeassistant_btn_${num});
+              std::string domain = id(ha_entity_${num}_domain).state;
+              
+              if (domain == "button") {
+                lv_obj_clear_flag(obj, LV_OBJ_FLAG_CHECKABLE);
+                lv_obj_clear_state(obj, LV_STATE_CHECKED);
+                ESP_LOGD("ha_entity", "Button ${num} flags updated: non-checkable (domain: button)");
+              } else {
+                lv_obj_add_flag(obj, LV_OBJ_FLAG_CHECKABLE);
+                ESP_LOGD("ha_entity", "Button ${num} flags updated: checkable (domain: %s)", domain.c_str());
+              }
+              return;
+            }
+            
+            // LVGL noch nicht bereit, kurz warten
+            delay(500);
+          }
+          
+          // Timeout: LVGL wurde nicht innerhalb von 5 Sekunden initialisiert
+          ESP_LOGW("ha_entity", "Timeout waiting for LVGL initialization for button ${num}");
+
 binary_sensor:
   - platform: homeassistant
     id: ha_entity_state_${num}
@@ -143,17 +173,4 @@ text_sensor:
       return domain;
     on_value:
       then:
-        - lambda: |-
-            // Sicherstellen, dass LVGL initialisiert ist, bevor Flags manipuliert werden
-            if (!lv_is_initialized()) {
-              ESP_LOGW("ha_entity", "LVGL not initialized yet, skipping flag update for button ${num}");
-              return;
-            }
-            
-            auto obj = id(homeassistant_btn_${num});
-            if (x == "button") {
-              lv_obj_clear_flag(obj, LV_OBJ_FLAG_CHECKABLE);
-              lv_obj_clear_state(obj, LV_STATE_CHECKED);
-            } else {
-              lv_obj_add_flag(obj, LV_OBJ_FLAG_CHECKABLE);
-            }
+        - script.execute: update_button_flags_${num}
