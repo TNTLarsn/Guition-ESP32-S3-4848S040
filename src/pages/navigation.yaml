@@ -1,0 +1,151 @@
+# Globale Navigation für alle Pages
+# Wird als top_layer über allen Seiten angezeigt (außer Boot/OTA)
+
+# Page-Index für Navigation
+# 0 = home_page
+# 1 = switches_page
+# Weitere Pages hier hinzufügen und TOTAL_PAGES anpassen
+
+globals:
+  - id: current_page_index
+    type: int
+    restore_value: no
+    initial_value: '0'
+
+  - id: total_pages
+    type: int
+    restore_value: no
+    initial_value: '2'
+
+lvgl:
+  top_layer:
+    widgets:
+      # Navigation Bar am unteren Rand
+      - obj:
+          id: navigation_bar
+          align: BOTTOM_MID
+          width: 100%
+          height: 60
+          pad_all: 2
+          bg_color: color_bg_light_secondary
+          bg_opa: 80%
+          radius: 0
+          border_opa: TRANSP
+          shadow_opa: TRANSP
+          hidden: true
+          layout:
+            type: GRID
+            grid_columns: [FR(1), FR(1)]
+            grid_rows: [FR(1)]
+          widgets:
+            # Zurück-Button (links)
+            - button:
+                id: nav_btn_prev
+                grid_cell_column_pos: 0
+                grid_cell_row_pos: 0
+                grid_cell_x_align: STRETCH
+                grid_cell_y_align: STRETCH
+                radius: 10
+                shadow_opa: TRANSP
+                on_click:
+                  then:
+                    - script.execute: navigate_prev
+                widgets:
+                  - label:
+                      id: nav_btn_prev_icon
+                      align: CENTER
+                      text_font: mdi_icons_40
+                      text_color: color_text_light_primary
+
+            # Vor-Button (rechts)
+            - button:
+                id: nav_btn_next
+                grid_cell_column_pos: 1
+                grid_cell_row_pos: 0
+                grid_cell_x_align: STRETCH
+                grid_cell_y_align: STRETCH
+                radius: 10
+                shadow_opa: TRANSP
+                on_click:
+                  then:
+                    - script.execute: navigate_next
+                widgets:
+                  - label:
+                      id: nav_btn_next_icon
+                      align: CENTER
+                      text_font: mdi_icons_40
+                      text_color: color_text_light_primary
+
+# Icons via MdiIconHelper setzen (on_boot)
+esphome:
+  on_boot:
+    priority: -50
+    then:
+      - lambda: |-
+          static MdiIconHelper helper;
+          lv_label_set_text(id(nav_btn_prev_icon), helper.convert_mdi_icon("mdi:chevron-left").c_str());
+          lv_label_set_text(id(nav_btn_next_icon), helper.convert_mdi_icon("mdi:chevron-right").c_str());
+
+script:
+  # Navigation zur vorherigen Seite
+  - id: navigate_prev
+    then:
+      - lambda: |-
+          int current = id(current_page_index);
+          int total = id(total_pages);
+          // Wrap-around: von 0 zurück zu letzter Seite
+          current = (current - 1 + total) % total;
+          id(current_page_index) = current;
+      - script.execute: show_current_page
+
+  # Navigation zur nächsten Seite
+  - id: navigate_next
+    then:
+      - lambda: |-
+          int current = id(current_page_index);
+          int total = id(total_pages);
+          // Wrap-around: von letzter Seite weiter zu 0
+          current = (current + 1) % total;
+          id(current_page_index) = current;
+      - script.execute: show_current_page
+
+  # Aktuelle Seite basierend auf Index anzeigen
+  # Ab ESPHome 2026.1.x: Navigation erfolgt über lvgl.page.show (anstatt lv_disp_load_scr())
+  - id: show_current_page
+    then:
+      - if:
+          condition:
+            lambda: 'return id(current_page_index) == 0;'
+          then:
+            - lvgl.page.show: home_page
+          else:
+            - if:
+                condition:
+                  lambda: 'return id(current_page_index) == 1;'
+                then:
+                  - lvgl.page.show: switches_page
+                else:
+                  # Fallback: Zurück zur Home-Seite
+                  - lambda: 'id(current_page_index) = 0;'
+                  - lvgl.page.show: home_page
+
+  # Navigation Bar ein-/ausblenden
+  - id: show_navigation
+    then:
+      - lvgl.widget.show: navigation_bar
+
+  - id: hide_navigation
+    then:
+      - lvgl.widget.hide: navigation_bar
+
+  # Zu bestimmter Seite navigieren (per Index)
+  - id: navigate_to_page
+    parameters:
+      page_index: int
+    then:
+      - lambda: |-
+          int total = id(total_pages);
+          if (page_index >= 0 && page_index < total) {
+            id(current_page_index) = page_index;
+          }
+      - script.execute: show_current_page

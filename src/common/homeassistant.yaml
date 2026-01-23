@@ -37,3 +37,9 @@ packages:
     vars:
       num: "6"
       entity_id: switch.shellypro3_ece334ed6054_output_2
+  # Wetter verwendet spezielles Template (text_sensor statt binary_sensor)
+  ha_weather_7: !include
+    file: ../templates/ha_weather.yaml
+    vars:
+      num: "7"
+      entity_id: weather.wetter_garten

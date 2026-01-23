@@ -22,7 +22,6 @@ lvgl:
                     grid_cell_row_pos: 0
                     grid_cell_x_align: CENTER
                     grid_cell_y_align: CENTER
-                    align: CENTER
                     id: homeassistant_btn_7_icon
                     text: ha_entity_7_icon
                     text_color: color_text_light_primary
@@ -34,7 +33,6 @@ lvgl:
                     grid_cell_row_pos: 1
                     grid_cell_x_align: CENTER
                     grid_cell_y_align: START
-                    align: CENTER
                     id: homeassistant_btn_7_label
                     text: "Wetter bei -- °C"
                     text_font: roboto24
@@ -45,7 +43,6 @@ lvgl:
                     grid_cell_row_pos: 3
                     grid_cell_x_align: CENTER
                     grid_cell_y_align: END
-                    align: CENTER
                     id: display_time
                     text: !lambda |-
                       auto now = id(sntp_time).now();
@@ -59,7 +56,6 @@ lvgl:
                     grid_cell_row_pos: 2
                     grid_cell_x_align: CENTER
                     grid_cell_y_align: START
-                    align: CENTER
                     id: display_date
                     text: !lambda |-
                       auto now = id(sntp_time).now();
@@ -73,7 +69,6 @@ lvgl:
                     grid_cell_row_pos: 4
                     grid_cell_x_align: CENTER
                     grid_cell_y_align: CENTER
-                    align: CENTER
                     id: display_house_temp
                     text: house temp
                     text_font: roboto24
