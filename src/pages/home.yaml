@@ -8,20 +8,91 @@ lvgl:
         - obj: # Container mit GRID Layout für Button-Widgets
             layout:
               type: GRID
-              grid_columns: [FR(1), FR(1), FR(1)]
-              grid_rows: [FR(50), FR(50)]
+              grid_columns: [FR(1)]
+              grid_rows: [FR(30), FR(15), FR(5), FR(25), FR(25)]
             width: 100%
-            height: 61.8%
-            pad_all: 15
+            height: 100%
+            pad_all: 10
             pad_top: 22
             bg_opa: TRANSP
             border_opa: TRANSP
             widgets:
-              # Buttons via Template-Include (col 0-2, row 0-1)
-              # default_icon ist optional, Standard ist "mdi:lightbulb"
-              - !include { file: ../templates/ha_button.yaml, vars: { num: "1", col: "0", row: "0" } }
-              - !include { file: ../templates/ha_button.yaml, vars: { num: "2", col: "0", row: "1" } }
-              - !include { file: ../templates/ha_button.yaml, vars: { num: "3", col: "1", row: "0" } }
-              - !include { file: ../templates/ha_button.yaml, vars: { num: "4", col: "1", row: "1" } }
-              - !include { file: ../templates/ha_button.yaml, vars: { num: "5", col: "2", row: "0" } }
-              - !include { file: ../templates/ha_button.yaml, vars: { num: "6", col: "2", row: "1" } }
+                - label:
+                    grid_cell_column_pos: 0
+                    grid_cell_row_pos: 0
+                    grid_cell_x_align: CENTER
+                    grid_cell_y_align: CENTER
+                    align: CENTER
+                    id: homeassistant_btn_7_icon
+                    text: ha_entity_7_icon
+                    text_color: color_text_light_primary
+                    bg_opa: TRANSP
+                    text_font: weather_icons
+                
+                - label:
+                    grid_cell_column_pos: 0
+                    grid_cell_row_pos: 1
+                    grid_cell_x_align: CENTER
+                    grid_cell_y_align: START
+                    align: CENTER
+                    id: homeassistant_btn_7_label
+                    text: "Wetter bei -- °C"
+                    text_font: roboto24
+                    text_color: color_text_light_primary
+
+                - label:
+                    grid_cell_column_pos: 0
+                    grid_cell_row_pos: 3
+                    grid_cell_x_align: CENTER
+                    grid_cell_y_align: END
+                    align: CENTER
+                    id: display_time
+                    text: !lambda |-
+                      auto now = id(sntp_time).now();
+                      if (!now.is_valid()) return std::string("--:--");
+                      return DateTimeHelper::format_time_simple(now.hour, now.minute);
+                    text_font: roboto90
+                    text_color: color_text_light_primary
+                    
+                - label:
+                    grid_cell_column_pos: 0
+                    grid_cell_row_pos: 2
+                    grid_cell_x_align: CENTER
+                    grid_cell_y_align: START
+                    align: CENTER
+                    id: display_date
+                    text: !lambda |-
+                      auto now = id(sntp_time).now();
+                      if (!now.is_valid()) return std::string("---");
+                      return DateTimeHelper::format_date_short(now.day_of_month, now.month, now.year);
+                    text_font: roboto24
+                    text_color: color_text_light_primary
+                    
+                - label:
+                    grid_cell_column_pos: 0
+                    grid_cell_row_pos: 4
+                    grid_cell_x_align: CENTER
+                    grid_cell_y_align: CENTER
+                    align: CENTER
+                    id: display_house_temp
+                    text: house temp
+                    text_font: roboto24
+                    text_color: color_text_light_primary
+
+script: 
+    # Aktualisierung von Zeit- und Datums-Display
+    - id: update_datetime_display
+      mode: single
+      then:
+        - lvgl.label.update:
+            id: display_time
+            text: !lambda |-
+                auto now = id(sntp_time).now();
+                if (!now.is_valid()) return std::string("--:--");
+                return DateTimeHelper::format_time_simple(now.hour, now.minute);
+        - lvgl.label.update:
+            id: display_date
+            text: !lambda |-
+                auto now = id(sntp_time).now();
+                if (!now.is_valid()) return std::string("---");
+                return DateTimeHelper::format_date_short(now.day_of_month, now.month, now.year);
