@@ -51,7 +51,9 @@ text_sensor:
             else icon = "mdi:weather-cloudy"; // Fallback
             
             auto icon_text = helper.convert_mdi_icon(icon);
-            lv_label_set_text(id(homeassistant_btn_${num}_icon), icon_text.c_str());
+            if (lv_is_initialized()) {
+              lv_label_set_text(id(homeassistant_btn_${num}_icon), icon_text.c_str());
+            }   
             
             ESP_LOGD("ha_weather", "Weather state: %s -> Icon: %s", x.c_str(), icon.c_str());
         - lambda: |-
@@ -83,7 +85,9 @@ text_sensor:
             } else {
               snprintf(buf, sizeof(buf), "%s bei %.1f °C", translated.c_str(), id(weather_${num}_temp_value));
             }
-            lv_label_set_text(id(homeassistant_btn_${num}_label), buf);
+            if (lv_is_initialized()) {
+              lv_label_set_text(id(homeassistant_btn_${num}_label), buf);
+            }
 
   # Friendly Name (für alternatives Label falls gewünscht)
   - platform: homeassistant
