@@ -28,6 +28,7 @@ esphome:
     - <sstream>
     - <algorithm>
     - helper/mdi_icon_map.h # MDI Icon Helper für dynamische Icon-Konvertierung aus Home Assistant
+    - helper/datetime_helper.h # DateTime Helper für deutsche Datums-/Zeitformatierung
   platformio_options:
     board_build.flash_mode: dio    
   on_boot:
@@ -171,7 +172,16 @@ time:
       - ntp0.ntp-servers.net
       - ntp1.ntp-servers.net
       - ntp2.ntp-servers.net
+    on_time_sync:
+      then:
+        - logger.log: "Zeit synchronisiert - aktualisiere Display"
+        - script.execute: update_datetime_display
     on_time:
+      # Jede Minute Zeit und Datum aktualisieren
+      - seconds: 0
+        then:
+          - script.execute: update_datetime_display
+      # Antiburn zwischen 2:05 und 5:35 Uhr
       - hours: 2,3,4,5
         minutes: 5
         seconds: 0
