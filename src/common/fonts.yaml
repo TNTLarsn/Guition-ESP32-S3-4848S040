@@ -478,6 +478,16 @@
         "\U000F02D7", # weather-cloudy (fallback/additional)
       ]
 
+- file: "gfonts://Roboto"
+  id: roboto40
+  size: 40
+  bpp: 4
+  
+- file: "gfonts://Roboto"
+  id: roboto90
+  size: 90
+  bpp: 4
+
 - file: "assets/fonts/materialdesignicons-webfont.ttf"
   id: btn_icons_font
   size: 64
