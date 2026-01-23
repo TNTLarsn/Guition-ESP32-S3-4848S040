@@ -115,9 +115,9 @@ sensor:
             char buf[64];
             std::string weather_text = id(weather_${num}_state_text);
             if (weather_text.empty() || weather_text == "--") {
-              snprintf(buf, sizeof(buf), "--, %.1f °C", x);
+              snprintf(buf, sizeof(buf), "-- bei %.1f °C", x);
             } else {
-              snprintf(buf, sizeof(buf), "%s, %.1f °C", weather_text.c_str(), x);
+              snprintf(buf, sizeof(buf), "%s bei %.1f °C", weather_text.c_str(), x);
             }
             lv_label_set_text(id(homeassistant_btn_${num}_label), buf);
 
