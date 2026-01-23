@@ -110,7 +110,7 @@ script:
       - script.execute: show_current_page
 
   # Aktuelle Seite basierend auf Index anzeigen
-  # ESPHome 2026.1.x: Verwende lvgl.page.show statt lv_disp_load_scr()
+  # Ab ESPHome 2026.1.x: Navigation erfolgt über lvgl.page.show (anstatt lv_disp_load_scr())
   - id: show_current_page
     then:
       - if:
