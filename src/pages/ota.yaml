@@ -7,59 +7,74 @@ lvgl:
       widgets:
         - obj:
             bg_color: color_surface_dark
-            shadow_opa: transp
-            width: ${display_width}
-            height: ${display_height}
-            outline_width: 0
-            border_width: 0
+            shadow_opa: TRANSP
+            border_opa: TRANSP
+            width: 100%
+            height: 100%
+            pad_all: 20
             radius: 0
+            layout:
+              type: GRID
+              grid_columns: [FR(1)]
+              grid_rows: [FR(30), FR(15), FR(20), FR(8), FR(17), FR(10)]
             widgets:
+              # Row 0: Home Assistant Logo
               - image:
-                  y: 30
-                  align: top_mid
+                  grid_cell_column_pos: 0
+                  grid_cell_row_pos: 0
+                  grid_cell_x_align: CENTER
+                  grid_cell_y_align: END
                   src: ha_img
 
+              # Row 1: Spacer
               - obj:
-                  id: ota_container
-                  y: 180
-                  width: 300
-                  height: 200
-                  pad_all: 0
-                  align: top_mid
-                  bg_opa: transp
-                  shadow_opa: transp
-                  border_opa: transp
-                  border_width: 0
-                  radius: 10
-                  widgets:
-                    - label:
-                        id: ota_title
-                        text: "Firmware Update"
-                        align: top_mid
-                        y: 0
-                        text_font: nunito_20
-                        text_color: color_text_dark_primary
-                    - label:
-                        id: ota_version_info
-                        text: "${version} >> ..."
-                        align: top_mid
-                        y: 30
-                        text_font: nunito_16
-                        text_color: color_text_dark_secondary
-                    - bar:
-                        id: ota_bar
-                        width: 100%
-                        height: 30
-                        align: center
-                        y: 20
-                        min_value: 0
-                        max_value: 100
-                        value: 0
+                  grid_cell_column_pos: 0
+                  grid_cell_row_pos: 1
+                  bg_opa: TRANSP
+                  border_opa: TRANSP
 
-                    - label:
-                        id: ota_percent
-                        text: "0 %"
-                        align: center
-                        y: 60
-                        text_font: nunito_20
-                        text_color: color_text_dark_primary
+              # Row 2: OTA Titel
+              - label:
+                  id: ota_title
+                  grid_cell_column_pos: 0
+                  grid_cell_row_pos: 2
+                  grid_cell_x_align: CENTER
+                  grid_cell_y_align: CENTER
+                  text: "Firmware Update"
+                  text_font: nunito_20
+                  text_color: color_text_dark_primary
+
+              # Row 3: Version Info
+              - label:
+                  id: ota_version_info
+                  grid_cell_column_pos: 0
+                  grid_cell_row_pos: 3
+                  grid_cell_x_align: CENTER
+                  grid_cell_y_align: START
+                  text: "${version} >> ..."
+                  text_font: nunito_16
+                  text_color: color_text_dark_secondary
+
+              # Row 4: Progress Bar
+              - bar:
+                  id: ota_bar
+                  grid_cell_column_pos: 0
+                  grid_cell_row_pos: 4
+                  grid_cell_x_align: CENTER
+                  grid_cell_y_align: CENTER
+                  width: 300
+                  height: 30
+                  min_value: 0
+                  max_value: 100
+                  value: 0
+
+              # Row 5: Prozent-Anzeige
+              - label:
+                  id: ota_percent
+                  grid_cell_column_pos: 0
+                  grid_cell_row_pos: 5
+                  grid_cell_x_align: CENTER
+                  grid_cell_y_align: START
+                  text: "0 %"
+                  text_font: nunito_20
+                  text_color: color_text_dark_primary

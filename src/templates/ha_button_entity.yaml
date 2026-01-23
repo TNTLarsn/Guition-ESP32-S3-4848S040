@@ -1,0 +1,108 @@
+# Template für Home Assistant Button Entity
+# Spezielles Template für Button-Entitäten, da diese keinen binären State haben
+# sondern einen Timestamp (wann zuletzt gedrückt).
+#
+# Variablen: num, entity_id
+# Liefert: Friendly Name, Icon, Entity ID (KEIN binary_sensor!)
+
+defaults:
+  num: "2"
+  entity_id: "button.placeholder"
+
+# Script für verzögerte LVGL Flag-Updates mit Retry-Logik
+script:
+  - id: apply_button_flags_${num}
+    mode: single
+    then:
+      - lambda: |-
+          auto obj = id(homeassistant_btn_${num});
+          // Buttons sind nicht checkable
+          lv_obj_clear_flag(obj, LV_OBJ_FLAG_CHECKABLE);
+          lv_obj_clear_state(obj, LV_STATE_CHECKED);
+  
+  - id: update_button_flags_${num}
+    mode: restart
+    then:
+      - if:
+          condition:
+            lambda: 'return lv_is_initialized();'
+          then:
+            - script.execute: apply_button_flags_${num}
+          else:
+            - delay: 200ms
+            - if:
+                condition:
+                  lambda: 'return lv_is_initialized();'
+                then:
+                  - script.execute: apply_button_flags_${num}
+                else:
+                  - delay: 200ms
+                  - script.execute: apply_button_flags_${num}
+
+text_sensor:
+  # Friendly Name für Button Label
+  - platform: homeassistant
+    id: ha_entity_${num}_friendly_name
+    entity_id: ${entity_id}
+    attribute: friendly_name
+    internal: true
+    on_value:
+      then:
+        lvgl.label.update:
+          id: homeassistant_btn_${num}_label
+          text: !lambda return x.c_str();
+
+  # Icon für Button
+  - platform: homeassistant
+    id: ha_entity_${num}_icon
+    entity_id: ${entity_id}
+    attribute: icon
+    internal: true
+    on_value:
+      then:
+        lvgl.label.update:
+          id: homeassistant_btn_${num}_icon
+          text: !lambda |-
+            static MdiIconHelper helper;
+            if (!x.empty()) {
+              return helper.convert_mdi_icon(x);
+            }
+            return id(ha_entity_${num}_default_icon).state;
+
+  # Default Icon (Button-Pointer)
+  - platform: template
+    id: ha_entity_${num}_default_icon
+    internal: true
+    lambda: |-
+      static MdiIconHelper helper;
+      return helper.convert_mdi_icon("mdi:button-pointer");
+    on_value:
+      then:
+        - if:
+            condition:
+              lambda: 'return id(ha_entity_${num}_icon).state.empty();'
+            then:
+              lvgl.label.update:
+                id: homeassistant_btn_${num}_icon
+                text: !lambda return x.c_str();
+
+  # Entity ID als Text Sensor
+  - platform: template
+    id: ha_entity_${num}_id
+    internal: true
+    lambda: 'return {"${entity_id}"};'
+
+  # Entity State als Text (für Kompatibilität mit ha_button.yaml)
+  - platform: homeassistant
+    id: ha_entity_${num}_state_text
+    entity_id: ${entity_id}
+    internal: true
+
+  # Entity Domain (immer "button")
+  - platform: template
+    id: ha_entity_${num}_domain
+    internal: true
+    lambda: 'return {"button"};'
+    on_value:
+      then:
+        - script.execute: update_button_flags_${num}

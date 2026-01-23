@@ -70,6 +70,9 @@ script:
                               # Timeout nach 600ms
                               - lambda: 'ESP_LOGW("ha_entity", "Timeout (600ms) waiting for LVGL initialization for button ${num}");'
 
+# Binary Sensor für Entity State (nur für toggle-fähige Domains)
+# Hinweis: Domains wie "button" oder "weather" haben keinen binären State
+# und erzeugen eine Warnung - diese ist harmlos da die Logik den State ignoriert
 binary_sensor:
   - platform: homeassistant
     id: ha_entity_state_${num}
@@ -80,7 +83,10 @@ binary_sensor:
       then:
         - if:
             condition:
-              lambda: 'return id(ha_entity_${num}_domain).state != "button";'
+              # Nur für toggle-fähige Domains den checked-State aktualisieren
+              lambda: |-
+                std::string domain = id(ha_entity_${num}_domain).state;
+                return domain != "button" && domain != "weather" && domain != "sensor" && domain != "scene" && domain != "script";
             then:
               - lvgl.widget.update:
                   id: homeassistant_btn_${num}
@@ -158,6 +164,7 @@ text_sensor:
       if (domain == "device_tracker") return helper.convert_mdi_icon("mdi:account");
       if (domain == "water_heater") return helper.convert_mdi_icon("mdi:water-boiler");
       if (domain == "update") return helper.convert_mdi_icon("mdi:package");
+      if (domain == "weather") return helper.convert_mdi_icon("mdi:weather-cloudy");
       
       // Fallback für unbekannte Domains
       return helper.convert_mdi_icon("mdi:help-circle");

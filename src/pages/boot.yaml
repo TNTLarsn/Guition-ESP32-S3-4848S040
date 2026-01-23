@@ -103,6 +103,7 @@ script:
 
   - id: update_loading_page
     then:
+      - lvgl.widget.hide: navigation_bar
       - lvgl.label.update:
           id: boot_synchronization_label
           text: "Synchronisiere..."
@@ -143,8 +144,10 @@ script:
 
       - delay: 1s
       - lvgl.widget.hide: loading_page
+      - lambda: 'id(current_page_index) = 0;'
       - lvgl.page.show:
           id: home_page
+      - lvgl.widget.show: navigation_bar
 
 
   - id: on_ha_connected

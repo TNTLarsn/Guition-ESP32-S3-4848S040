@@ -1,0 +1,136 @@
+# Template für Home Assistant Weather Entity
+# Spezielles Template für Wetter-Entitäten, da diese keinen binären State haben
+# sondern Text-Zustände wie "partlycloudy", "sunny", "rainy", etc.
+#
+# Variablen: num, entity_id
+# Liefert: Icon (dynamisch nach Wetterzustand), Friendly Name, Temperatur, etc.
+
+defaults:
+  num: "7"
+  entity_id: "weather.home"
+
+globals:
+  - id: weather_${num}_state_text
+    type: std::string
+    restore_value: no
+    initial_value: '"--"'
+  - id: weather_${num}_temp_value
+    type: float
+    restore_value: no
+    initial_value: 'NAN'
+
+text_sensor:
+  # Wetterzustand (z.B. "partlycloudy", "sunny", "rainy")
+  - platform: homeassistant
+    id: ha_weather_${num}_state
+    entity_id: ${entity_id}
+    internal: true
+    on_value:
+      then:
+        - lambda: |-
+            // Wetterzustand-zu-Icon Mapping (Home Assistant Standard)
+            // https://www.home-assistant.io/integrations/weather/
+            static MdiIconHelper helper;
+            std::string icon;
+            
+            if (x == "clear-night") icon = "mdi:weather-night";
+            else if (x == "cloudy") icon = "mdi:weather-cloudy";
+            else if (x == "fog") icon = "mdi:weather-fog";
+            else if (x == "hail") icon = "mdi:weather-rainy";
+            else if (x == "lightning") icon = "mdi:weather-lightning";
+            else if (x == "lightning-rainy") icon = "mdi:weather-lightning";
+            else if (x == "partlycloudy") icon = "mdi:weather-partly-cloudy";
+            else if (x == "pouring") icon = "mdi:weather-rainy";
+            else if (x == "rainy") icon = "mdi:weather-rainy";
+            else if (x == "snowy") icon = "mdi:weather-snowy";
+            else if (x == "snowy-rainy") icon = "mdi:weather-snowy";
+            else if (x == "sunny") icon = "mdi:weather-sunny";
+            else if (x == "windy") icon = "mdi:weather-windy";
+            else if (x == "windy-variant") icon = "mdi:weather-windy";
+            else if (x == "exceptional") icon = "mdi:alert-circle";
+            else icon = "mdi:weather-cloudy"; // Fallback
+            
+            auto icon_text = helper.convert_mdi_icon(icon);
+            lv_label_set_text(id(homeassistant_btn_${num}_icon), icon_text.c_str());
+            
+            ESP_LOGD("ha_weather", "Weather state: %s -> Icon: %s", x.c_str(), icon.c_str());
+        - lambda: |-
+            // Deutsche Übersetzung speichern
+            std::string state = id(ha_weather_${num}_state).state;
+            std::string translated;
+            if (state == "clear-night") translated = "Klare Nacht";
+            else if (state == "cloudy") translated = "Bewölkt";
+            else if (state == "fog") translated = "Nebel";
+            else if (state == "hail") translated = "Hagel";
+            else if (state == "lightning") translated = "Gewitter";
+            else if (state == "lightning-rainy") translated = "Gewitter";
+            else if (state == "partlycloudy") translated = "Teils bewölkt";
+            else if (state == "pouring") translated = "Starkregen";
+            else if (state == "rainy") translated = "Regnerisch";
+            else if (state == "snowy") translated = "Schnee";
+            else if (state == "snowy-rainy") translated = "Schneeregen";
+            else if (state == "sunny") translated = "Sonnig";
+            else if (state == "windy") translated = "Windig";
+            else if (state == "windy-variant") translated = "Windig";
+            else if (state == "exceptional") translated = "Außergewöhnlich";
+            else translated = state;
+            id(weather_${num}_state_text) = translated;
+            
+            // Kombiniertes Label aktualisieren
+            char buf[64];
+            if (std::isnan(id(weather_${num}_temp_value))) {
+              snprintf(buf, sizeof(buf), "%s bei -- °C", translated.c_str());
+            } else {
+              snprintf(buf, sizeof(buf), "%s bei %.1f °C", translated.c_str(), id(weather_${num}_temp_value));
+            }
+            lv_label_set_text(id(homeassistant_btn_${num}_label), buf);
+
+  # Friendly Name (für alternatives Label falls gewünscht)
+  - platform: homeassistant
+    id: ha_weather_${num}_friendly_name
+    entity_id: ${entity_id}
+    attribute: friendly_name
+    internal: true
+
+  # Domain für Kompatibilität mit anderen Templates
+  - platform: template
+    id: ha_entity_${num}_domain
+    internal: true
+    lambda: 'return {"weather"};'
+
+sensor:
+  # Temperatur
+  - platform: homeassistant
+    id: ha_weather_${num}_temperature
+    entity_id: ${entity_id}
+    attribute: temperature
+    internal: true
+    on_value:
+      then:
+        - lambda: |-
+            // Temperatur speichern
+            id(weather_${num}_temp_value) = x;
+            
+            // Kombiniertes Label aktualisieren
+            char buf[64];
+            std::string weather_text = id(weather_${num}_state_text);
+            if (weather_text.empty() || weather_text == "--") {
+              snprintf(buf, sizeof(buf), "--, %.1f °C", x);
+            } else {
+              snprintf(buf, sizeof(buf), "%s, %.1f °C", weather_text.c_str(), x);
+            }
+            lv_label_set_text(id(homeassistant_btn_${num}_label), buf);
+
+  # Luftfeuchtigkeit
+  - platform: homeassistant
+    id: ha_weather_${num}_humidity
+    entity_id: ${entity_id}
+    attribute: humidity
+    internal: true
+
+  # Windgeschwindigkeit
+  - platform: homeassistant
+    id: ha_weather_${num}_wind_speed
+    entity_id: ${entity_id}
+    attribute: wind_speed
+    internal: true

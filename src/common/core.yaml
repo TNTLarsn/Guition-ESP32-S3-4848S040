@@ -391,6 +391,7 @@ ota:
             then:
               - lvgl.resume:
               - lvgl.widget.redraw:
+        - lvgl.widget.hide: navigation_bar
         - lvgl.page.show: ota_page
         - lvgl.label.update:
             id: ota_title
@@ -440,6 +441,7 @@ ota:
             then:
               - lvgl.resume:
               - lvgl.widget.redraw:
+        - lvgl.widget.hide: navigation_bar
         - lvgl.page.show: ota_page
         - lvgl.label.update:
             id: ota_title
@@ -524,6 +526,7 @@ script:
           then:
             - lvgl.resume:
             - lvgl.widget.redraw:
+      - lvgl.widget.hide: navigation_bar
       - lvgl.page.show: ota_page
       - lvgl.label.update:
           id: ota_title

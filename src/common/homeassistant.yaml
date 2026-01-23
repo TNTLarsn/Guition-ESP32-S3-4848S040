@@ -11,17 +11,18 @@ packages:
     file: ../templates/ha_entity.yaml
     vars:
       num: "1"
-      entity_id: switch.shellypro3_ece334e98834_output_0
-  ha_entity_2: !include
-    file: ../templates/ha_entity.yaml
+      entity_id: light.burolampe
+  # Button verwendet spezielles Template (kein binary_sensor, da State ein Timestamp ist)
+  ha_button_2: !include
+    file: ../templates/ha_button_entity.yaml
     vars:
       num: "2"
-      entity_id: switch.shellypro3_ece334e98834_output_1
+      entity_id: button.light_panels_50_3d_5b_identifizieren
   ha_entity_3: !include
     file: ../templates/ha_entity.yaml
     vars:
       num: "3"
-      entity_id: switch.shellypro3_ece334e98834_output_2
+      entity_id: switch.display_buero_switch_40
   ha_entity_4: !include
     file: ../templates/ha_entity.yaml
     vars:
@@ -37,3 +38,9 @@ packages:
     vars:
       num: "6"
       entity_id: switch.shellypro3_ece334ed6054_output_2
+  # Wetter verwendet spezielles Template (text_sensor statt binary_sensor)
+  ha_weather_7: !include
+    file: ../templates/ha_weather.yaml
+    vars:
+      num: "7"
+      entity_id: weather.home
