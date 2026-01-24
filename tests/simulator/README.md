@@ -7,12 +7,12 @@ Schnelles LVGL UI-Testing **ohne Hardware-Upload**!
 | Hardware-Workflow | Simulator-Workflow |
 |-------------------|-------------------|
 | Code ändern | Code ändern |
-| `make localupdate` (~2-3 Min) | `esphome run tests/simulator/main.simulator.yaml` (~3 Sek) |
+| `make localupdate` (~2-3 Min) | `esphome run tests/simulator/main.simulator.yaml` (Erst-Build ~30–60 Sek, danach ~3–5 Sek) |
 | Zu Home Assistant wechseln | ⚡ SDL-Fenster öffnet sich direkt |
 | Update klicken | - |
 | Warten auf Reboot | - |
 | Testen | Testen (Mausklicks = Touch) |
-| **~5 Minuten pro Iteration** | **~5 Sekunden pro Iteration** |
+| **~5 Minuten pro Iteration** | **Erste Iteration ~1 Minute, danach ~5–10 Sekunden** |
 
 ## Quick Start
 
