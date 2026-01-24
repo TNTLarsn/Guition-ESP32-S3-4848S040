@@ -162,7 +162,7 @@ script:
                   - lvgl.page.show: switches_page
                   - lvgl.label.update:
                       id: page_name_label
-                      text: "Geräte"
+                      text: "Schalter"
                 else:
                   # Fallback: Zurück zur Home-Seite
                   - lambda: 'id(current_page_index) = 0;'
