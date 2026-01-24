@@ -97,10 +97,7 @@ text_sensor:
 
 ## Einschränkungen
 
-1. **Home Assistant Services** funktionieren nicht (Button-Clicks loggen nur)
-2. **Custom Fonts** nicht eingebunden (schnellere Kompilierung)
-3. **MDI-Icons** werden als leere Kästchen angezeigt (Font fehlt)
-4. **Images** nicht eingebunden
+1. **Home Assistant Services** funktionieren nicht (Button-Clicks loggen nur). Fonts, MDI-Icons und Images werden dagegen wie in `tests/simulator/main.simulator.yaml` konfiguriert und im Simulator angezeigt.
 
 ## Workflow-Empfehlung
 
