@@ -43,3 +43,9 @@ packages:
     vars:
       num: "7"
       entity_id: weather.wetter_garten
+  # Innentemperatur-Sensor verwendet Sensor-Template (ohne UI-Button)
+  ha_sensor_8: !include
+    file: ../templates/ha_sensor.yaml
+    vars:
+      num: "8"
+      entity_id: sensor.durchschnitts_innentemperatur

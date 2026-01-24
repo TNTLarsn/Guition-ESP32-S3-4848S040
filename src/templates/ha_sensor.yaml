@@ -1,0 +1,47 @@
+# Template für Home Assistant Sensor Entity (ohne UI-Button)
+# Spezielles Template für reine Sensoren, die nur Text-Werte liefern
+# ohne zugehörigen LVGL-Button auf der Switches-Seite
+#
+# Variablen: num, entity_id
+# Liefert: State-Text, Domain, Friendly Name
+
+defaults:
+  num: "8"
+  entity_id: "sensor.placeholder"
+
+text_sensor:
+  # State Text (Sensor-Wert als String)
+  - platform: homeassistant
+    id: ha_entity_${num}_state_text
+    entity_id: ${entity_id}
+    internal: true
+    on_value:
+      then:
+        - lambda: |-
+            ESP_LOGD("ha_sensor", "Sensor ${num} state: %s", x.c_str());
+        # LVGL Label aktualisieren wenn vorhanden
+        - lvgl.label.update:
+            id: display_house_temp
+            text: !lambda |-
+              std::string temp = id(ha_entity_${num}_state_text).state;
+              if (temp.empty()) return std::string("-- °C");
+              return temp + " °C";
+
+  # Friendly Name
+  - platform: homeassistant
+    id: ha_entity_${num}_friendly_name
+    entity_id: ${entity_id}
+    attribute: friendly_name
+    internal: true
+
+  # Domain (extrahiert aus entity_id)
+  - platform: template
+    id: ha_entity_${num}_domain
+    internal: true
+    lambda: |-
+      std::string entity_id = "${entity_id}";
+      size_t pos = entity_id.find('.');
+      if (pos != std::string::npos) {
+        return entity_id.substr(0, pos);
+      }
+      return std::string("unknown");
