@@ -12,163 +12,198 @@
         }
     ],
     "tasks": [
-        // ════════════════════════════════════════════════════════════════
-        // 🚀 LOCAL DEV MODE
-        // ════════════════════════════════════════════════════════════════
-        {
-            "label": "🚀 Local Dev Mode aktivieren",
-            "type": "shell",
-            "command": "make",
-            "args": ["local-release-test", "${input:deviceIP}"],
-            "group": "build",
-            "presentation": {
-                "reveal": "always",
-                "panel": "dedicated",
-                "focus": true,
-                "clear": true
-            },
-            "problemMatcher": [],
-            "detail": "Gerät in lokalen Entwicklungsmodus versetzen (fragt nach Device-IP)"
+      // ════════════════════════════════════════════════════════════════
+      // 🖥️ SDL SIMULATOR
+      // ════════════════════════════════════════════════════════════════
+      {
+        "label": "🖥️ Simulator starten",
+        "type": "shell",
+        "command": "esphome",
+        "args": ["run", "tests/simulator/main.simulator.yaml"],
+        "group": {
+          "kind": "test",
+          "isDefault": true
         },
-        {
-            "label": "📦 Local Update",
-            "type": "shell",
-            "command": "make",
-            "args": ["localupdate"],
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            },
-            "presentation": {
-                "reveal": "always",
-                "panel": "dedicated",
-                "focus": true,
-                "clear": true
-            },
-            "problemMatcher": [],
-            "detail": "Neue Firmware kompilieren und bereitstellen"
+        "presentation": {
+          "reveal": "always",
+          "panel": "dedicated",
+          "focus": true,
+          "clear": true
         },
-        {
-            "label": "🧹 Local Cleanup",
-            "type": "shell",
-            "command": "make",
-            "args": ["localcleanup"],
-            "group": "build",
-            "presentation": {
-                "reveal": "always",
-                "panel": "dedicated",
-                "focus": true,
-                "clear": true
-            },
-            "problemMatcher": [],
-            "detail": "Zurück zum Normalzustand (GitHub-URL)"
+        "problemMatcher": [],
+        "detail": "SDL-Simulator für schnelles LVGL UI-Testing (ohne Hardware)"
+      },
+      {
+        "label": "🖥️ Simulator kompilieren",
+        "type": "shell",
+        "command": "esphome",
+        "args": ["compile", "tests/simulator/main.simulator.yaml"],
+        "group": "test",
+        "presentation": {
+          "reveal": "always",
+          "panel": "shared"
         },
+        "problemMatcher": [],
+        "detail": "Nur Simulator kompilieren (ohne Ausführen)"
+      },
 
-        // ════════════════════════════════════════════════════════════════
-        // 🧪 CI TESTS
-        // ════════════════════════════════════════════════════════════════
-        {
-            "label": "🧪 CI Tests ausführen",
-            "type": "shell",
-            "command": "make",
-            "args": ["test"],
-            "group": "test",
-            "presentation": {
-                "reveal": "always",
-                "panel": "shared"
-            },
-            "problemMatcher": [],
-            "detail": "Alle CI-Tests (Validierung + Kompilierung)"
+      // ════════════════════════════════════════════════════════════════
+      // 🚀 LOCAL DEV MODE
+      // ════════════════════════════════════════════════════════════════
+      {
+        "label": "🚀 Local Dev Mode aktivieren",
+        "type": "shell",
+        "command": "make",
+        "args": ["local-release-test", "${input:deviceIP}"],
+        "group": "build",
+        "presentation": {
+          "reveal": "always",
+          "panel": "dedicated",
+          "focus": true,
+          "clear": true
         },
-        {
-            "label": "✅ YAML Validieren",
-            "type": "shell",
-            "command": "make",
-            "args": ["validate"],
-            "group": "test",
-            "presentation": {
-                "reveal": "always",
-                "panel": "shared"
-            },
-            "problemMatcher": [],
-            "detail": "Nur YAML-Konfigurationen validieren"
+        "problemMatcher": [],
+        "detail": "Gerät in lokalen Entwicklungsmodus versetzen (fragt nach Device-IP)"
+      },
+      {
+        "label": "📦 Local Update",
+        "type": "shell",
+        "command": "make",
+        "args": ["localupdate"],
+        "group": {
+          "kind": "build",
+          "isDefault": true
         },
-        {
-            "label": "🔨 Firmware Kompilieren",
-            "type": "shell",
-            "command": "make",
-            "args": ["compile"],
-            "group": "build",
-            "presentation": {
-                "reveal": "always",
-                "panel": "shared"
-            },
-            "problemMatcher": [],
-            "detail": "Firmware kompilieren (ohne Upload)"
+        "presentation": {
+          "reveal": "always",
+          "panel": "dedicated",
+          "focus": true,
+          "clear": true
         },
+        "problemMatcher": [],
+        "detail": "Neue Firmware kompilieren und bereitstellen"
+      },
+      {
+        "label": "🧹 Local Cleanup",
+        "type": "shell",
+        "command": "make",
+        "args": ["localcleanup"],
+        "group": "build",
+        "presentation": {
+          "reveal": "always",
+          "panel": "dedicated",
+          "focus": true,
+          "clear": true
+        },
+        "problemMatcher": [],
+        "detail": "Zurück zum Normalzustand (GitHub-URL)"
+      },
 
-        // ════════════════════════════════════════════════════════════════
-        // 📡 DEVICE MANAGEMENT
-        // ════════════════════════════════════════════════════════════════
-        {
-            "label": "⚡ Flash Firmware (USB)",
-            "type": "shell",
-            "command": "make",
-            "args": ["flash"],
-            "group": "build",
-            "presentation": {
-                "reveal": "always",
-                "panel": "dedicated",
-                "focus": true
-            },
-            "problemMatcher": [],
-            "detail": "Firmware via USB flashen (mit Flash-Erase)"
+      // ════════════════════════════════════════════════════════════════
+      // 🧪 CI TESTS
+      // ════════════════════════════════════════════════════════════════
+      {
+        "label": "🧪 CI Tests ausführen",
+        "type": "shell",
+        "command": "make",
+        "args": ["test"],
+        "group": "test",
+        "presentation": {
+          "reveal": "always",
+          "panel": "shared"
         },
-        {
-            "label": "🔄 Update Firmware (USB)",
-            "type": "shell",
-            "command": "make",
-            "args": ["update"],
-            "group": "build",
-            "presentation": {
-                "reveal": "always",
-                "panel": "dedicated",
-                "focus": true
-            },
-            "problemMatcher": [],
-            "detail": "Firmware via USB updaten (esphome run)"
+        "problemMatcher": [],
+        "detail": "Alle CI-Tests (Validierung + Kompilierung)"
+      },
+      {
+        "label": "✅ YAML Validieren",
+        "type": "shell",
+        "command": "make",
+        "args": ["validate"],
+        "group": "test",
+        "presentation": {
+          "reveal": "always",
+          "panel": "shared"
         },
-        {
-            "label": "📺 Monitor (Logs)",
-            "type": "shell",
-            "command": "make",
-            "args": ["monitor"],
-            "group": "build",
-            "presentation": {
-                "reveal": "always",
-                "panel": "dedicated",
-                "focus": true
-            },
-            "problemMatcher": [],
-            "detail": "Serielle Konsole für Debugging öffnen",
-            "isBackground": true
+        "problemMatcher": [],
+        "detail": "Nur YAML-Konfigurationen validieren"
+      },
+      {
+        "label": "🔨 Firmware Kompilieren",
+        "type": "shell",
+        "command": "make",
+        "args": ["compile"],
+        "group": "build",
+        "presentation": {
+          "reveal": "always",
+          "panel": "shared"
         },
+        "problemMatcher": [],
+        "detail": "Firmware kompilieren (ohne Upload)"
+      },
 
-        // ════════════════════════════════════════════════════════════════
-        // 🗑️ CLEANUP
-        // ════════════════════════════════════════════════════════════════
-        {
-            "label": "🗑️ Build Clean",
-            "type": "shell",
-            "command": "make",
-            "args": ["clean"],
-            "group": "build",
-            "presentation": {
-                "reveal": "always",
-                "panel": "shared"
-            },
-            "problemMatcher": [],
-            "detail": "Build-Verzeichnis löschen"
-        }
+      // ════════════════════════════════════════════════════════════════
+      // 📡 DEVICE MANAGEMENT
+      // ════════════════════════════════════════════════════════════════
+      {
+        "label": "⚡ Flash Firmware (USB)",
+        "type": "shell",
+        "command": "make",
+        "args": ["flash"],
+        "group": "build",
+        "presentation": {
+          "reveal": "always",
+          "panel": "dedicated",
+          "focus": true
+        },
+        "problemMatcher": [],
+        "detail": "Firmware via USB flashen (mit Flash-Erase)"
+      },
+      {
+        "label": "🔄 Update Firmware (USB)",
+        "type": "shell",
+        "command": "make",
+        "args": ["update"],
+        "group": "build",
+        "presentation": {
+          "reveal": "always",
+          "panel": "dedicated",
+          "focus": true
+        },
+        "problemMatcher": [],
+        "detail": "Firmware via USB updaten (esphome run)"
+      },
+      {
+        "label": "📺 Monitor (Logs)",
+        "type": "shell",
+        "command": "make",
+        "args": ["monitor"],
+        "group": "build",
+        "presentation": {
+          "reveal": "always",
+          "panel": "dedicated",
+          "focus": true
+        },
+        "problemMatcher": [],
+        "detail": "Serielle Konsole für Debugging öffnen",
+        "isBackground": true
+      },
+
+      // ════════════════════════════════════════════════════════════════
+      // 🗑️ CLEANUP
+      // ════════════════════════════════════════════════════════════════
+      {
+        "label": "🗑️ Build Clean",
+        "type": "shell",
+        "command": "make",
+        "args": ["clean"],
+        "group": "build",
+        "presentation": {
+          "reveal": "always",
+          "panel": "shared"
+        },
+        "problemMatcher": [],
+        "detail": "Build-Verzeichnis löschen"
+      }
     ]
 }

@@ -4,37 +4,55 @@
     // Oder: Terminal → Run Task...
     "version": "0.2.0",
     "configurations": [
-        // ════════════════════════════════════════════════════════════════
-        // 🚀 LOCAL DEV MODE - Compound Tasks
-        // ════════════════════════════════════════════════════════════════
-        {
-            "name": "🚀 Local Dev Mode starten",
-            "type": "node-terminal",
-            "request": "launch",
-            "command": "make local-release-test",
-            "cwd": "${workspaceFolder}"
-        },
-        {
-            "name": "📦 Local Update",
-            "type": "node-terminal",
-            "request": "launch",
-            "command": "make localupdate",
-            "cwd": "${workspaceFolder}"
-        },
-        {
-            "name": "🧹 Local Cleanup",
-            "type": "node-terminal",
-            "request": "launch",
-            "command": "make localcleanup",
-            "cwd": "${workspaceFolder}"
-        },
-        {
-            "name": "📺 Monitor (Logs)",
-            "type": "node-terminal",
-            "request": "launch",
-            "command": "make monitor",
-            "cwd": "${workspaceFolder}"
-        }
+      // ════════════════════════════════════════════════════════════════
+      // 🖥️ SDL SIMULATOR - Schnelles UI Testing
+      // ════════════════════════════════════════════════════════════════
+      {
+        "name": "🖥️ SDL Simulator starten",
+        "type": "node-terminal",
+        "request": "launch",
+        "command": "esphome run tests/simulator/main.simulator.yaml",
+        "cwd": "${workspaceFolder}"
+      },
+      {
+        "name": "🖥️ SDL Simulator kompilieren",
+        "type": "node-terminal",
+        "request": "launch",
+        "command": "esphome compile tests/simulator/main.simulator.yaml",
+        "cwd": "${workspaceFolder}"
+      },
+
+      // ════════════════════════════════════════════════════════════════
+      // 🚀 LOCAL DEV MODE - Compound Tasks
+      // ════════════════════════════════════════════════════════════════
+      {
+        "name": "🚀 Local Dev Mode starten",
+        "type": "node-terminal",
+        "request": "launch",
+        "command": "make local-release-test",
+        "cwd": "${workspaceFolder}"
+      },
+      {
+        "name": "📦 Local Update",
+        "type": "node-terminal",
+        "request": "launch",
+        "command": "make localupdate",
+        "cwd": "${workspaceFolder}"
+      },
+      {
+        "name": "🧹 Local Cleanup",
+        "type": "node-terminal",
+        "request": "launch",
+        "command": "make localcleanup",
+        "cwd": "${workspaceFolder}"
+      },
+      {
+        "name": "📺 Monitor (Logs)",
+        "type": "node-terminal",
+        "request": "launch",
+        "command": "make monitor",
+        "cwd": "${workspaceFolder}"
+      }
     ],
     "compounds": [
         {

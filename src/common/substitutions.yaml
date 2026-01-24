@@ -7,3 +7,5 @@ version:                  "2026.1.5"
 timezone:                 "Europe/Berlin"
 display_width:            480
 display_height:           480
+navigation_bar_height:    60
+content_height:           420 # Berechnete Höhe für Content-Bereich (display_height - navigation_bar_height)
