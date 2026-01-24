@@ -11,7 +11,7 @@ lvgl:
               grid_columns: [FR(1)]
               grid_rows: [FR(30), FR(15), FR(5), FR(25), FR(25)]
             width: 100%
-            height: 100%
+            height: ${content_height}
             pad_all: 10
             pad_top: 22
             bg_opa: TRANSP
