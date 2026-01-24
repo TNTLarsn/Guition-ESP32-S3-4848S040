@@ -456,7 +456,7 @@ text_sensor:
     internal: true
     lambda: |-
       static MdiIconHelper helper;
-      return helper.convert_mdi_icon("mdi:power-socket-de");
+      return helper.convert_mdi_icon("mdi:power-socket");
   - platform: template
     id: ha_entity_4_state_text
     internal: true
