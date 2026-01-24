@@ -31,6 +31,7 @@ PROJECT_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
 HTTP_PORT=8000
 DEVICE_IP="${1:-}"
 CORE_YAML="${PROJECT_DIR}/src/common/core.yaml"
+MAIN_YAML="${PROJECT_DIR}/src/main.yaml"
 STATE_FILE="${PROJECT_DIR}/.local_dev_state"
 
 # ============================================================================
@@ -95,22 +96,41 @@ echo -e "${GREEN}✅ Device-IP: $DEVICE_IP${NC}"
 echo ""
 
 # ============================================================================
-# 3. core.yaml mit lokaler URL patchen
+# 3. core.yaml und main.yaml patchen
 # ============================================================================
-echo -e "${YELLOW}📍 Schritt 3: core.yaml patchen...${NC}"
+echo -e "${YELLOW}📍 Schritt 3: Konfigurationsdateien patchen...${NC}"
 
 # Originale URL extrahieren und speichern (nur beim ersten Mal)
 if [ -z "${ORIGINAL_SOURCE_URL:-}" ]; then
     ORIGINAL_SOURCE_URL=$(grep -E '^\s+source:' "$CORE_YAML" | head -1 | sed 's/.*source: //')
-    echo "   → Originale URL: $ORIGINAL_SOURCE_URL"
+    echo "   → Originale update.source URL: $ORIGINAL_SOURCE_URL"
 fi
 
 # Ersetze URL mit lokaler URL
 if ! grep -q "source: http://$PC_IP:$HTTP_PORT/manifest.json" "$CORE_YAML"; then
     sed -i '' "s|source: .*manifest.json|source: http://$PC_IP:$HTTP_PORT/manifest.json|g" "$CORE_YAML"
-    echo -e "${GREEN}✅ core.yaml → lokale URL${NC}"
+    echo -e "${GREEN}✅ core.yaml → lokale update.source URL${NC}"
 else
-    echo "   → Bereits konfiguriert"
+    echo "   → update.source bereits konfiguriert"
+fi
+
+# Prüfe ob homeassistant_dev.yaml existiert, sonst erstellen
+HA_DEV_YAML="${PROJECT_DIR}/src/common/homeassistant_dev.yaml"
+HA_YAML="${PROJECT_DIR}/src/common/homeassistant.yaml"
+
+if [ ! -f "$HA_DEV_YAML" ]; then
+    cp "$HA_YAML" "$HA_DEV_YAML"
+    echo -e "${GREEN}✅ homeassistant_dev.yaml erstellt (Kopie von homeassistant.yaml)${NC}"
+else
+    echo "   → homeassistant_dev.yaml existiert bereits"
+fi
+
+# Wechsle homeassistant include zu dev-Version
+if grep -q "homeassistant: !include common/homeassistant.yaml" "$MAIN_YAML"; then
+    sed -i '' "s|homeassistant: !include common/homeassistant.yaml|homeassistant: !include common/homeassistant_dev.yaml|g" "$MAIN_YAML"
+    echo -e "${GREEN}✅ main.yaml → homeassistant_dev.yaml${NC}"
+else
+    echo "   → homeassistant_dev bereits konfiguriert"
 fi
 echo ""
 

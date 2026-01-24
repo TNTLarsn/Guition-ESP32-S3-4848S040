@@ -13,3 +13,4 @@
 _codeql_detected_source_root
 .http_server.pid
 .local_dev_state
+src/common/homeassistant_dev.yaml

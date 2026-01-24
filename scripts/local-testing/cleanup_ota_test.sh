@@ -25,6 +25,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
 STATE_FILE="${PROJECT_DIR}/.local_dev_state"
 CORE_YAML="${PROJECT_DIR}/src/common/core.yaml"
+MAIN_YAML="${PROJECT_DIR}/src/main.yaml"
 HTTP_PORT=8000
 
 echo -e "${BLUE}╔════════════════════════════════════════════════════════════╗${NC}"
@@ -57,9 +58,9 @@ fi
 echo ""
 
 # ============================================================================
-# 2. core.yaml update.source wiederherstellen
+# 2. core.yaml und main.yaml wiederherstellen
 # ============================================================================
-echo -e "${YELLOW}📍 Schritt 2: update.source wiederherstellen...${NC}"
+echo -e "${YELLOW}📍 Schritt 2: Konfigurationsdateien wiederherstellen...${NC}"
 
 if [ -n "${ORIGINAL_SOURCE_URL:-}" ]; then
     # Nur die URL ersetzen, Rest der Datei bleibt unverändert
@@ -71,6 +72,14 @@ else
     GITHUB_URL='https://github.com/tntlarsn/guition-esp32-s3-4848s040/releases/latest/download/\${display_name}.manifest.json'
     sed -i '' "s|source: http://[^/]*/manifest.json|source: $GITHUB_URL|g" "$CORE_YAML"
     echo -e "${GREEN}✅ update.source auf GitHub-URL zurückgesetzt${NC}"
+fi
+
+# Wechsle homeassistant include zurück zur normalen Version
+if grep -q "homeassistant: !include common/homeassistant_dev.yaml" "$MAIN_YAML"; then
+    sed -i '' "s|homeassistant: !include common/homeassistant_dev.yaml|homeassistant: !include common/homeassistant.yaml|g" "$MAIN_YAML"
+    echo -e "${GREEN}✅ main.yaml → homeassistant.yaml${NC}"
+else
+    echo "   → homeassistant bereits auf Normalzustand"
 fi
 echo ""
 
