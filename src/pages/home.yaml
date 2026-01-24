@@ -1,78 +1,172 @@
 lvgl:
   pages:
+    # ========================================================================
+    # HOME PAGE - Modern Hero Layout
+    # ========================================================================
+    # Design-Konzept: Große Uhrzeit als Hero, Wetter als Accent,
+    # Datum als Subtitle - klare visuelle Hierarchie
+    # ========================================================================
     - id: home_page
+      bg_color: color_bg_dark
       widgets:
+        # Hintergrundbild
         - image:
             align: CENTER
             src: see_img
-        - obj: # Container mit GRID Layout für Button-Widgets
+        
+        # Hauptcontainer mit Grid Layout
+        - obj:
+            id: home_main_container
             layout:
               type: GRID
               grid_columns: [FR(1)]
-              grid_rows: [FR(30), FR(15), FR(5), FR(25), FR(25)]
+              grid_rows: [56, FR(1)]
             width: 100%
             height: ${content_height}
-            pad_all: 10
-            pad_top: 22
+            pad_all: 0
             bg_opa: TRANSP
             border_opa: TRANSP
             widgets:
-                - label:
-                    grid_cell_column_pos: 0
-                    grid_cell_row_pos: 0
-                    grid_cell_x_align: CENTER
-                    grid_cell_y_align: CENTER
-                    id: homeassistant_btn_7_icon
-                    text: ha_entity_7_icon
-                    text_color: color_text_light_primary
-                    bg_opa: TRANSP
-                    text_font: weather_icons
-                
-                - label:
-                    grid_cell_column_pos: 0
-                    grid_cell_row_pos: 1
-                    grid_cell_x_align: CENTER
-                    grid_cell_y_align: START
-                    id: homeassistant_btn_7_label
-                    text: "Wetter bei -- °C"
-                    text_font: roboto24
-                    text_color: color_text_light_primary
+              
+              # ============================================================
+              # TOP BAR - Wetter & Status (mit Glassmorphism Backdrop)
+              # ============================================================
+              - obj:
+                  grid_cell_column_pos: 0
+                  grid_cell_row_pos: 0
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: START
+                  width: 100%
+                  height: 56
+                  pad_left: 16
+                  pad_right: 16
+                  pad_top: 12
+                  bg_color: color_bg_dark
+                  bg_opa: 70%
+                  border_opa: TRANSP
+                  scrollbar_mode: "OFF"
+                  layout:
+                    type: GRID
+                    grid_columns: [FR(1), FR(1)]
+                    grid_rows: [FR(1)]
+                  widgets:
+                    # Wetter Info (links)
+                    - obj:
+                        grid_cell_column_pos: 0
+                        grid_cell_row_pos: 0
+                        grid_cell_x_align: START
+                        grid_cell_y_align: CENTER
+                        width: SIZE_CONTENT
+                        height: SIZE_CONTENT
+                        bg_opa: TRANSP
+                        border_opa: TRANSP
+                        layout:
+                          type: GRID
+                          grid_columns: [36, SIZE_CONTENT]
+                          grid_rows: [FR(1)]
+                          pad_column: 10
+                        widgets:
+                          - label:
+                              grid_cell_column_pos: 0
+                              grid_cell_row_pos: 0
+                              grid_cell_x_align: CENTER
+                              grid_cell_y_align: CENTER
+                              id: homeassistant_btn_7_icon
+                              text: "\U000F0599"
+                              text_color: color_secondary
+                              text_font: weather_icons
+                          - label:
+                              grid_cell_column_pos: 1
+                              grid_cell_row_pos: 0
+                              grid_cell_x_align: START
+                              grid_cell_y_align: CENTER
+                              id: homeassistant_btn_7_label
+                              text: "-- °C"
+                              text_font: roboto24
+                              text_color: color_white
+                    
+                    # Innentemperatur (rechts)
+                    - obj:
+                        grid_cell_column_pos: 1
+                        grid_cell_row_pos: 0
+                        grid_cell_x_align: END
+                        grid_cell_y_align: CENTER
+                        width: SIZE_CONTENT
+                        height: SIZE_CONTENT
+                        bg_opa: TRANSP
+                        border_opa: TRANSP
+                        layout:
+                          type: GRID
+                          grid_columns: [SIZE_CONTENT, SIZE_CONTENT]
+                          grid_rows: [FR(1)]
+                          pad_column: 8
+                        widgets:
+                          - label:
+                              grid_cell_column_pos: 0
+                              grid_cell_row_pos: 0
+                              grid_cell_x_align: END
+                              grid_cell_y_align: CENTER
+                              text: "\U000F050F"
+                              text_color: color_primary_light
+                              text_font: mdi_icons_24
+                          - label:
+                              grid_cell_column_pos: 1
+                              grid_cell_row_pos: 0
+                              grid_cell_x_align: START
+                              grid_cell_y_align: CENTER
+                              id: display_house_temp
+                              text: "-- °C"
+                              text_font: roboto24
+                              text_color: color_white
 
-                - label:
-                    grid_cell_column_pos: 0
-                    grid_cell_row_pos: 3
-                    grid_cell_x_align: CENTER
-                    grid_cell_y_align: END
-                    id: display_time
-                    text: !lambda |-
-                      auto now = id(sntp_time).now();
-                      if (!now.is_valid()) return std::string("--:--");
-                      return DateTimeHelper::format_time_simple(now.hour, now.minute);
-                    text_font: roboto90
-                    text_color: color_text_light_primary
+              # ============================================================
+              # HERO SECTION - Uhrzeit & Datum (oberer Bereich)
+              # Spacing-Prinzip: Zusammengehörige Elemente haben engen Abstand
+              # ============================================================
+              - obj:
+                  grid_cell_column_pos: 0
+                  grid_cell_row_pos: 1
+                  grid_cell_x_align: CENTER
+                  grid_cell_y_align: START
+                  width: SIZE_CONTENT
+                  height: SIZE_CONTENT
+                  bg_opa: TRANSP
+                  border_opa: TRANSP
+                  scrollbar_mode: "OFF"
+                  pad_top: 24
+                  layout:
+                    type: GRID
+                    grid_columns: [FR(1)]
+                    grid_rows: [90, SIZE_CONTENT]
+                  widgets:
+                    # Große Uhrzeit - HERO Element
+                    - label:
+                        grid_cell_column_pos: 0
+                        grid_cell_row_pos: 0
+                        grid_cell_x_align: CENTER
+                        grid_cell_y_align: CENTER
+                        id: display_time
+                        text: !lambda |-
+                          auto now = id(sntp_time).now();
+                          if (!now.is_valid()) return std::string("--:--");
+                          return DateTimeHelper::format_time_simple(now.hour, now.minute);
+                        text_font: roboto90
+                        text_color: color_gray_800
                     
-                - label:
-                    grid_cell_column_pos: 0
-                    grid_cell_row_pos: 2
-                    grid_cell_x_align: CENTER
-                    grid_cell_y_align: START
-                    id: display_date
-                    text: !lambda |-
-                      auto now = id(sntp_time).now();
-                      if (!now.is_valid()) return std::string("---");
-                      return DateTimeHelper::format_date_short(now.day_of_month, now.month, now.year);
-                    text_font: roboto24
-                    text_color: color_text_light_primary
-                    
-                - label:
-                    grid_cell_column_pos: 0
-                    grid_cell_row_pos: 4
-                    grid_cell_x_align: CENTER
-                    grid_cell_y_align: CENTER
-                    id: display_house_temp
-                    text: house temp
-                    text_font: roboto24
-                    text_color: color_text_light_primary
+                    # Datum - Subheading (direkt unter Uhrzeit)
+                    - label:
+                        grid_cell_column_pos: 0
+                        grid_cell_row_pos: 1
+                        grid_cell_x_align: CENTER
+                        grid_cell_y_align: START
+                        y: -12
+                        id: display_date
+                        text: !lambda |-
+                          auto now = id(sntp_time).now();
+                          if (!now.is_valid()) return std::string("---");
+                          return DateTimeHelper::format_date_short(now.day_of_month, now.month, now.year);
+                        text_font: roboto24
+                        text_color: color_gray_700
 
 script: 
     # Aktualisierung von Zeit- und Datums-Display

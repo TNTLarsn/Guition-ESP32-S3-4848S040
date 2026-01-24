@@ -1,0 +1,353 @@
+# ============================================================================
+# MODERN GLASSMORPHISM THEME - 2026 Edition
+# ============================================================================
+# Design-Prinzipien:
+# - 8dp Baseline Grid für konsistentes Spacing
+# - Glassmorphism-Effekte mit semi-transparenten Hintergründen
+# - Weiche Schatten für natürliche Tiefe
+# - Großzügiges Whitespace
+# - Touch-freundliche Buttons (min 48dp)
+# - Smooth Transitions für alle Interaktionen
+# ============================================================================
+
+# Farbpalette (basierend auf Home Assistant)
+color:
+  # Primary Colors - Home Assistant Blue
+  - id: color_primary
+    hex: "3B82F6"
+  - id: color_primary_dark
+    hex: "1E40AF"
+  - id: color_primary_light
+    hex: "60A5FA"
+
+  # Secondary Colors
+  - id: color_secondary
+    hex: "F59E0B"
+  - id: color_secondary_dark
+    hex: "D97706"
+
+  # Status Colors
+  - id: color_success
+    hex: "10B981"
+  - id: color_success_dark
+    hex: "059669"
+  - id: color_warning
+    hex: "F59E0B"
+  - id: color_error
+    hex: "EF4444"
+  - id: color_error_dark
+    hex: "DC2626"
+  - id: color_info
+    hex: "06B6D4"
+
+  # Neutral Colors
+  - id: color_white
+    hex: "FFFFFF"
+  - id: color_black
+    hex: "000000"
+  - id: color_gray_50
+    hex: "F9FAFB"
+  - id: color_gray_100
+    hex: "F3F4F6"
+  - id: color_gray_200
+    hex: "E5E7EB"
+  - id: color_gray_300
+    hex: "D1D5DB"
+  - id: color_gray_400
+    hex: "9CA3AF"
+  - id: color_gray_500
+    hex: "6B7280"
+  - id: color_gray_600
+    hex: "4B5563"
+  - id: color_gray_700
+    hex: "374151"
+  - id: color_gray_800
+    hex: "1F2937"
+  - id: color_gray_900
+    hex: "111827"
+
+  # Background Colors
+  - id: color_bg_light
+    hex: "FFFFFF"
+  - id: color_bg_light_secondary
+    hex: "F9FAFB"
+  - id: color_bg_dark
+    hex: "111827"
+  - id: color_bg_dark_secondary
+    hex: "1F2937"
+  - id: color_bg_dark_tertiary
+    hex: "374151"
+
+  # Text Colors - Light Mode
+  - id: color_text_light_primary
+    hex: "111827"
+  - id: color_text_light_secondary
+    hex: "6B7280"
+  - id: color_text_light_disabled
+    hex: "9CA3AF"
+
+  # Text Colors - Dark Mode
+  - id: color_text_dark_primary
+    hex: "F9FAFB"
+  - id: color_text_dark_secondary
+    hex: "D1D5DB"
+  - id: color_text_dark_disabled
+    hex: "9CA3AF"
+
+  # Surface Colors
+  - id: color_surface
+    hex: "FFFFFF"
+  - id: color_surface_dark
+    hex: "1F2937"
+
+# LVGL Theme & Style Definitions
+lvgl:
+  theme:
+    # Basis-Label Styling
+    label:
+      text_font: roboto24
+      text_color: color_text_dark_primary
+    
+    # Modern Button mit Glassmorphism
+    button:
+      radius: 16
+      bg_color: color_gray_800
+      bg_opa: 70%
+      border_color: color_gray_600
+      border_width: 1
+      border_opa: 30%
+      text_color: color_text_dark_primary
+      shadow_width: 12
+      shadow_ofs_x: 0
+      shadow_ofs_y: 4
+      shadow_color: color_black
+      shadow_opa: 40%
+      pad_all: 16
+      # Transition für smooth Hover/Press
+      pressed:
+        bg_color: color_gray_700
+        bg_opa: 90%
+        shadow_width: 8
+        shadow_ofs_y: 2
+        border_color: color_primary
+        border_opa: 60%
+      checked:
+        bg_color: color_primary_dark
+        bg_opa: 85%
+        border_color: color_primary
+        border_opa: 80%
+        text_color: color_white
+        shadow_width: 16
+        shadow_color: color_primary_dark
+        shadow_opa: 50%
+    
+    # Button Matrix - Grid-Style
+    buttonmatrix:
+      bg_opa: TRANSP
+      border_width: 0
+      text_color: color_white
+      pad_all: 8
+      items:
+        radius: 12
+        bg_color: color_gray_800
+        bg_opa: 60%
+        border_color: color_gray_600
+        border_width: 1
+        border_opa: 25%
+        text_color: color_white
+        pressed:
+          bg_color: color_gray_700
+          bg_opa: 80%
+          border_color: color_primary
+        checked:
+          bg_color: color_primary_dark
+          bg_opa: 75%
+          text_color: color_white
+          border_color: color_primary
+    
+    # Modern Switch
+    switch:
+      radius: 999
+      border_width: 0
+      outline_opa: TRANSP
+      shadow_width: 8
+      shadow_color: color_black
+      shadow_opa: 30%
+      bg_color: color_gray_600
+      bg_opa: COVER
+      checked:
+        bg_color: color_primary
+        bg_opa: COVER
+        border_width: 0
+        shadow_color: color_primary
+        shadow_opa: 40%
+      indicator:
+        bg_opa: TRANSP
+        border_width: 0
+        checked:
+          bg_color: color_primary
+          bg_opa: COVER
+      knob:
+        radius: 999
+        bg_color: color_white
+        bg_opa: COVER
+        border_width: 0
+        shadow_width: 4
+        shadow_color: color_black
+        shadow_opa: 30%
+        checked:
+          bg_color: color_white
+    
+    # Elegant Slider
+    slider:
+      radius: 8
+      border_width: 0
+      bg_color: color_gray_700
+      bg_opa: 50%
+      indicator:
+        radius: 8
+        bg_color: color_primary
+        bg_grad_color: color_primary_light
+        bg_grad_dir: HOR
+        bg_opa: COVER
+      knob:
+        radius: 999
+        bg_color: color_white
+        bg_opa: COVER
+        border_width: 0
+        shadow_width: 8
+        shadow_color: color_black
+        shadow_opa: 40%
+
+  # ============================================================================
+  # STYLE DEFINITIONS - Glassmorphism & Card System
+  # ============================================================================
+  style_definitions:
+    # Glass Card - Hauptcontainer für Content
+    - id: glass_card
+      radius: 24
+      bg_color: color_gray_800
+      bg_opa: 65%
+      border_color: color_gray_500
+      border_width: 1
+      border_opa: 20%
+      shadow_width: 20
+      shadow_ofs_x: 0
+      shadow_ofs_y: 8
+      shadow_color: color_black
+      shadow_opa: 35%
+      pad_all: 24
+    
+    # Glass Card Small - Für kleinere Elemente
+    - id: glass_card_small
+      radius: 16
+      bg_color: color_gray_800
+      bg_opa: 55%
+      border_color: color_gray_500
+      border_width: 1
+      border_opa: 15%
+      shadow_width: 12
+      shadow_ofs_y: 4
+      shadow_color: color_black
+      shadow_opa: 25%
+      pad_all: 16
+    
+    # Navigation Bar Style - Modern Floating
+    - id: nav_bar_modern
+      radius: 20
+      bg_color: color_gray_900
+      bg_opa: 80%
+      border_color: color_gray_600
+      border_width: 1
+      border_opa: 30%
+      shadow_width: 16
+      shadow_ofs_y: -4
+      shadow_color: color_black
+      shadow_opa: 40%
+      pad_all: 8
+      pad_left: 16
+      pad_right: 16
+    
+    # Header/Footer - Dezent
+    - id: header_footer
+      bg_color: color_gray_800
+      bg_opa: 70%
+      radius: 0
+      pad_all: 8
+      pad_row: 0
+      pad_column: 4
+      border_width: 0
+      width: 100%
+      height: 48
+    
+    # Button im Header/Footer
+    - id: header_footer_btn
+      bg_color: color_gray_700
+      bg_opa: 50%
+      radius: 12
+      border_width: 0
+      pad_all: 8
+      height: 40
+      width: 80
+    
+    # Status-Karte für Fehler
+    - id: status_error
+      radius: 12
+      border_width: 1
+      border_opa: 40%
+      border_color: color_error
+      bg_color: color_error
+      bg_opa: 15%
+    
+    # Status-Karte für Erfolg
+    - id: status_success
+      radius: 12
+      border_width: 1
+      border_opa: 40%
+      border_color: color_success
+      bg_color: color_success
+      bg_opa: 15%
+    
+    # Primary Accent Button
+    - id: btn_primary
+      radius: 14
+      bg_color: color_primary
+      bg_opa: 90%
+      border_width: 0
+      shadow_width: 12
+      shadow_color: color_primary_dark
+      shadow_opa: 50%
+      text_color: color_white
+    
+    # Icon Button - Rund
+    - id: btn_icon_round
+      radius: 999
+      width: 56
+      height: 56
+      bg_color: color_gray_800
+      bg_opa: 60%
+      border_color: color_gray_600
+      border_width: 1
+      border_opa: 25%
+      shadow_width: 8
+      shadow_ofs_y: 2
+      shadow_color: color_black
+      shadow_opa: 30%
+    
+    # Divider Line
+    - id: divider
+      height: 1
+      bg_color: color_gray_600
+      bg_opa: 30%
+      radius: 0
+      border_width: 0
+    
+    # Large Time Display
+    - id: time_display
+      text_color: color_white
+      text_font: roboto90
+    
+    # Subtitle Text
+    - id: subtitle_text
+      text_color: color_gray_400
+      text_font: roboto24

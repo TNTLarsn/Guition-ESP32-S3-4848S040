@@ -1,24 +1,35 @@
 lvgl:
   pages:
+    # ========================================================================
+    # SWITCHES PAGE - Modern Card Grid Layout
+    # ========================================================================
+    # Design-Konzept: Glassmorphism Cards mit klarer Hierarchie
+    # Icon zentriert, Label darunter, Status-Anzeige integriert
+    # ========================================================================
     - id: switches_page
+      bg_color: color_bg_dark
       widgets:
+        # Hintergrundbild
         - image:
             align: CENTER
             src: see_img
-        - obj: # Container mit GRID Layout für Button-Widgets
+
+        # Hauptcontainer mit 2x3 Grid
+        - obj:
             layout:
               type: GRID
               grid_columns: [FR(1), FR(1), FR(1)]
-              grid_rows: [FR(50), FR(50)]
+              grid_rows: [FR(1), FR(1)]
+              pad_row: 16
+              pad_column: 16
             width: 100%
-            height: ${content_height}
-            pad_all: 15
-            pad_top: 22
+            height: 340
+            pad_all: 20
+            pad_top: 24
             bg_opa: TRANSP
             border_opa: TRANSP
             widgets:
               # Buttons via Template-Include (col 0-2, row 0-1)
-              # default_icon ist optional, Standard ist "mdi:lightbulb"
               - !include { file: ../templates/ha_button.yaml, vars: { num: "1", col: "0", row: "0" } }
               - !include { file: ../templates/ha_button.yaml, vars: { num: "2", col: "0", row: "1" } }
               - !include { file: ../templates/ha_button.yaml, vars: { num: "3", col: "1", row: "0" } }

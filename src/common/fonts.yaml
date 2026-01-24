@@ -295,6 +295,7 @@
     "\U000F12D4", # garage_opened
     "\U000F00AC", # blinds_closed 
     "\U000F1011", # blinds_opened
+    "\U000F050F", # thermometer
   ]
 
 
@@ -409,6 +410,15 @@
 
 # ROBOTO FONTS (für Home Assistant Labels)
 
+# Roboto 16 für kleine Labels (Cards)
+- file: "gfonts://Roboto"
+  id: roboto16
+  size: 16
+  bpp: 4
+  glyphsets:
+    - GF_Latin_Kernel
+  glyphs: "äöüÄÖÜß°"
+
 - file: "gfonts://Roboto"
   id: roboto24
   size: 24
@@ -439,7 +449,7 @@
 
 - file: "gfonts://Roboto"
   id: weather_icons
-  size: 120
+  size: 24
   bpp: 4
   extras:
     - file: 'assets/fonts/materialdesignicons-webfont.ttf' # http://materialdesignicons.com/cdn/7.4.47/ 
