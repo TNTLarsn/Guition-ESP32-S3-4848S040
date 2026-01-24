@@ -7,7 +7,7 @@ packages:
   switches_page: !include pages/switches.yaml
   ota_page: !include pages/ota.yaml
   navigation: !include pages/navigation.yaml
-  theme: !include themes/homeassistant.yaml
+  theme: !include themes/modern.yaml
 
 substitutions: !include common/substitutions.yaml
 font: !include common/fonts.yaml

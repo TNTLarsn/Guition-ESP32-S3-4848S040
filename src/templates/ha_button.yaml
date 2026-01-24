@@ -1,6 +1,7 @@
 # Template für Home Assistant LVGL Button Widget
 # Variablen: num, col, row, default_icon (optional, MDI-Format z.B. "mdi:lightbulb")
 # Die Entity-ID wird dynamisch aus dem Text-Sensor ha_entity_${num}_id gelesen
+# Design: Glassmorphism Card mit Icon oben, Label unten
 
 defaults:
   num: "1"
@@ -15,19 +16,42 @@ button:
   grid_cell_row_pos: ${row}
   grid_cell_x_align: STRETCH
   grid_cell_y_align: STRETCH
+  # Glassmorphism Card Styling
+  radius: 20
+  bg_color: color_gray_800
+  bg_opa: 55%
+  border_color: color_gray_600
+  border_width: 1
+  border_opa: 20%
+  shadow_width: 16
+  shadow_ofs_y: 6
+  shadow_color: color_black
+  shadow_opa: 35%
+  # Grid Layout für Icon + Label
+  layout:
+    type: GRID
+    grid_columns: [FR(1)]
+    grid_rows: [FR(3), FR(1)]
   widgets:
     - label:
         id: homeassistant_btn_${num}_icon
+        grid_cell_column_pos: 0
+        grid_cell_row_pos: 0
+        grid_cell_x_align: CENTER
+        grid_cell_y_align: CENTER
         text_font: btn_icons_font
         text: !lambda return id(ha_entity_${num}_icon)->state;
-        align: CENTER
-        y: -10
+        text_color: color_white
     - label:
         id: homeassistant_btn_${num}_label
+        grid_cell_column_pos: 0
+        grid_cell_row_pos: 1
+        grid_cell_x_align: CENTER
+        grid_cell_y_align: CENTER
         text: "${num}"
+        text_font: roboto16
+        text_color: color_gray_200
         long_mode: dot
-        align: CENTER
-        y: 30
   on_click:
     # Domains mit nativer .toggle-Unterstützung behandeln
     - if:

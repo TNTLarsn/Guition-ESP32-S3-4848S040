@@ -1,5 +1,6 @@
 # Globale Navigation für alle Pages
 # Wird als top_layer über allen Seiten angezeigt (außer Boot/OTA)
+# Modern Floating Design mit Page Name
 
 # Page-Index für Navigation
 # 0 = home_page
@@ -20,32 +21,48 @@ globals:
 lvgl:
   top_layer:
     widgets:
-      # Navigation Bar am unteren Rand
+      # Navigation Bar - Modern Floating Style
       - obj:
           id: navigation_bar
           align: BOTTOM_MID
-          width: 100%
-          height: ${navigation_bar_height}
-          pad_all: 2
-          bg_color: color_bg_light_secondary
+          y: -12
+          width: 460
+          height: 64
+          radius: 20
+          bg_color: color_gray_900
           bg_opa: 80%
-          radius: 0
-          border_opa: TRANSP
-          shadow_opa: TRANSP
+          border_color: color_gray_600
+          border_width: 1
+          border_opa: 30%
+          shadow_width: 16
+          shadow_ofs_y: -4
+          shadow_color: color_black
+          shadow_opa: 40%
+          pad_all: 8
+          pad_left: 12
+          pad_right: 12
           hidden: true
+          scrollbar_mode: "OFF"
           layout:
             type: GRID
-            grid_columns: [FR(1), FR(1)]
+            grid_columns: [48, FR(1), 48]
             grid_rows: [FR(1)]
+            pad_row: 0
+            pad_column: 12
           widgets:
             # Zurück-Button (links)
             - button:
                 id: nav_btn_prev
                 grid_cell_column_pos: 0
                 grid_cell_row_pos: 0
-                grid_cell_x_align: STRETCH
-                grid_cell_y_align: STRETCH
-                radius: 10
+                grid_cell_x_align: CENTER
+                grid_cell_y_align: CENTER
+                width: 48
+                height: 48
+                radius: 14
+                bg_color: color_gray_800
+                bg_opa: 60%
+                border_opa: TRANSP
                 shadow_opa: TRANSP
                 on_click:
                   then:
@@ -55,16 +72,32 @@ lvgl:
                       id: nav_btn_prev_icon
                       align: CENTER
                       text_font: mdi_icons_40
-                      text_color: color_text_light_primary
+                      text_color: color_gray_300
+
+            # Page Name (Mitte)
+            - label:
+                id: page_name_label
+                grid_cell_column_pos: 1
+                grid_cell_row_pos: 0
+                grid_cell_x_align: CENTER
+                grid_cell_y_align: CENTER
+                text: "Home"
+                text_font: roboto24
+                text_color: color_white
 
             # Vor-Button (rechts)
             - button:
                 id: nav_btn_next
-                grid_cell_column_pos: 1
+                grid_cell_column_pos: 2
                 grid_cell_row_pos: 0
-                grid_cell_x_align: STRETCH
-                grid_cell_y_align: STRETCH
-                radius: 10
+                grid_cell_x_align: CENTER
+                grid_cell_y_align: CENTER
+                width: 48
+                height: 48
+                radius: 14
+                bg_color: color_gray_800
+                bg_opa: 60%
+                border_opa: TRANSP
                 shadow_opa: TRANSP
                 on_click:
                   then:
@@ -74,7 +107,7 @@ lvgl:
                       id: nav_btn_next_icon
                       align: CENTER
                       text_font: mdi_icons_40
-                      text_color: color_text_light_primary
+                      text_color: color_gray_300
 
 # Icons via MdiIconHelper setzen (on_boot)
 esphome:
@@ -110,7 +143,7 @@ script:
       - script.execute: show_current_page
 
   # Aktuelle Seite basierend auf Index anzeigen
-  # Ab ESPHome 2026.1.x: Navigation erfolgt über lvgl.page.show (anstatt lv_disp_load_scr())
+  # Page-Name wird direkt hier gesetzt (Single Source of Truth)
   - id: show_current_page
     then:
       - if:
@@ -118,16 +151,25 @@ script:
             lambda: 'return id(current_page_index) == 0;'
           then:
             - lvgl.page.show: home_page
+            - lvgl.label.update:
+                id: page_name_label
+                text: "Home"
           else:
             - if:
                 condition:
                   lambda: 'return id(current_page_index) == 1;'
                 then:
                   - lvgl.page.show: switches_page
+                  - lvgl.label.update:
+                      id: page_name_label
+                      text: "Geräte"
                 else:
                   # Fallback: Zurück zur Home-Seite
                   - lambda: 'id(current_page_index) = 0;'
                   - lvgl.page.show: home_page
+                  - lvgl.label.update:
+                      id: page_name_label
+                      text: "Home"
 
   # Navigation Bar ein-/ausblenden
   - id: show_navigation
