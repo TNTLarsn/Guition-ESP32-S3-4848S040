@@ -115,10 +115,7 @@ lvgl:
                               grid_cell_x_align: START
                               grid_cell_y_align: CENTER
                               id: display_house_temp
-                              text: !lambda |-
-                                auto temp = id(ha_entity_8_state_text).state;
-                                if (temp.empty()) return std::string("-- °C");
-                                return temp + " °C";
+                              text: "-- °C"
                               text_font: roboto24
                               text_color: color_white
 
