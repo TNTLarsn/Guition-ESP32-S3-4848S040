@@ -44,4 +44,4 @@ text_sensor:
       if (pos != std::string::npos) {
         return entity_id.substr(0, pos);
       }
-      return std::string("unknown");;
+      return std::string("unknown");
