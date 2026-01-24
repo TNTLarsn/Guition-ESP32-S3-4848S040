@@ -62,8 +62,8 @@ display:
   - platform: sdl
     id: simulator_display
     dimensions:
-      width: 480
-      height: 480
+      width: ${display_width}
+      height: ${display_height}
     window_options:
       always_on_top: true
 
