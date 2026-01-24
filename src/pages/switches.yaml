@@ -23,9 +23,10 @@ lvgl:
               pad_row: 16
               pad_column: 16
             width: 100%
-            height: 340
+            height: ${content_height}
             pad_all: 20
             pad_top: 24
+            pad_bottom: 36
             bg_opa: TRANSP
             border_opa: TRANSP
             widgets:
