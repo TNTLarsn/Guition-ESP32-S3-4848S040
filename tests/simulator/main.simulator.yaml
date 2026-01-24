@@ -1,0 +1,1194 @@
+# ============================================================================
+# ESPHome SDL Simulator für LVGL Page Design
+# ============================================================================
+# Ermöglicht schnelles UI-Testing ohne Hardware-Upload!
+# 
+# Diese Version inkludiert die ECHTEN Fonts, Colors und Images aus dem Projekt.
+# Die Kompilierzeit ist dadurch länger (~30-60 Sekunden), aber das visuelle
+# Ergebnis entspricht 1:1 der Hardware.
+#
+# Usage:
+#   esphome run tests/simulator/main.simulator.yaml
+#
+# ============================================================================
+
+substitutions:
+  display_name: displaysimulator
+  display_friendly_name: "Display Simulator"
+  project_name: tnt_larsn.esphome_display_simulator
+  version: "SIM-DEV"
+  timezone: "Europe/Berlin"
+  display_width: "480"
+  display_height: "480"
+  navigation_bar_height: "60"
+  # Berechnete Höhe für Content-Bereich (display_height - navigation_bar_height)
+  content_height: "420"
+
+esphome:
+  name: ${display_name}
+  friendly_name: ${display_friendly_name}
+  includes:
+    - ../../src/helper/mdi_icon_map.h
+    - ../../src/helper/datetime_helper.h
+  on_boot:
+    - priority: 400
+      then:
+        # Bootscreen starten (wie auf echter Hardware)
+        - script.execute: update_loading_page
+    - priority: -50
+      then:
+        # Navigation Icons setzen
+        - lambda: |-
+            static MdiIconHelper helper;
+            lv_label_set_text(id(nav_btn_prev_icon), helper.convert_mdi_icon("mdi:chevron-left").c_str());
+            lv_label_set_text(id(nav_btn_next_icon), helper.convert_mdi_icon("mdi:chevron-right").c_str());
+        # Zeit initial setzen
+        - script.execute: update_datetime_display
+        # Simuliere HA-Verbindung nach 2 Sekunden (im Simulator)
+        - delay: 2s
+        - script.execute: on_ha_connected
+
+# Host-Plattform für native Ausführung auf Mac/Linux/Windows
+host:
+
+# Logger für Debugging
+logger:
+  level: DEBUG
+  logs:
+    lvgl: INFO
+
+# SDL Display - simuliert das 480x480 Display
+display:
+  - platform: sdl
+    id: simulator_display
+    dimensions:
+      width: 480
+      height: 480
+    window_options:
+      always_on_top: true
+
+# SDL Touchscreen - ermöglicht Maus-Interaktion
+touchscreen:
+  - platform: sdl
+    id: simulator_touchscreen
+
+# ============================================================================
+# ECHTE Colors aus src/common/colors.yaml
+# ============================================================================
+color:
+  # Primary Colors - Home Assistant Blue
+  - id: color_primary
+    hex: "3B82F6"
+  - id: color_primary_dark
+    hex: "1E40AF"
+  - id: color_primary_light
+    hex: "60A5FA"
+  
+  # Secondary Colors
+  - id: color_secondary
+    hex: "F59E0B"
+  - id: color_secondary_dark
+    hex: "D97706"
+  
+  # Status Colors
+  - id: color_success
+    hex: "10B981"
+  - id: color_success_dark
+    hex: "059669"
+  - id: color_warning
+    hex: "F59E0B"
+  - id: color_error
+    hex: "EF4444"
+  - id: color_error_dark
+    hex: "DC2626"
+  - id: color_info
+    hex: "06B6D4"
+  
+  # Neutral Colors
+  - id: color_white
+    hex: "FFFFFF"
+  - id: color_black
+    hex: "000000"
+  - id: color_gray_50
+    hex: "F9FAFB"
+  - id: color_gray_100
+    hex: "F3F4F6"
+  - id: color_gray_200
+    hex: "E5E7EB"
+  - id: color_gray_300
+    hex: "D1D5DB"
+  - id: color_gray_400
+    hex: "9CA3AF"
+  - id: color_gray_500
+    hex: "6B7280"
+  - id: color_gray_600
+    hex: "4B5563"
+  - id: color_gray_700
+    hex: "374151"
+  - id: color_gray_800
+    hex: "1F2937"
+  - id: color_gray_900
+    hex: "111827"
+  
+  # Background Colors - Light Mode
+  - id: color_bg_light
+    hex: "FFFFFF"
+  - id: color_bg_light_secondary
+    hex: "F9FAFB"
+  
+  # Background Colors - Dark Mode
+  - id: color_bg_dark
+    hex: "111827"
+  - id: color_bg_dark_secondary
+    hex: "1F2937"
+  - id: color_bg_dark_tertiary
+    hex: "374151"
+  
+  # Text Colors - Light Mode
+  - id: color_text_light_primary
+    hex: "111827"
+  - id: color_text_light_secondary
+    hex: "6B7280"
+  - id: color_text_light_disabled
+    hex: "9CA3AF"
+  
+  # Text Colors - Dark Mode
+  - id: color_text_dark_primary
+    hex: "F9FAFB"
+  - id: color_text_dark_secondary
+    hex: "D1D5DB"
+  - id: color_text_dark_disabled
+    hex: "9CA3AF"
+  
+  # Surface Colors
+  - id: color_surface
+    hex: "FFFFFF"
+  - id: color_surface_dark
+    hex: "1F2937"
+
+# ============================================================================
+# ECHTE Images aus src/common/image.yaml (Pfade angepasst)
+# ============================================================================
+image:
+  - file: '../../src/assets/images/ha_logo.png'
+    id: ha_logo
+    type: rgb565
+    resize: 400x82
+    transparency: alpha_channel
+
+  - file: '../../src/assets/images/homeassistant.png'
+    id: ha_img
+    type: rgb565
+    resize: 400x82
+    transparency: alpha_channel
+
+  - file: '../../src/assets/images/esphome.png'
+    id: esphome_img
+    type: rgb565
+    resize: 320x95
+    transparency: alpha_channel
+
+  - file: '../../src/assets/images/see.png'
+    id: see_img
+    type: rgb565
+    resize: ${display_width}x${display_height}
+    transparency: alpha_channel
+
+# ============================================================================
+# ECHTE Fonts aus src/common/fonts.yaml (Pfade angepasst)
+# ============================================================================
+font:
+  # Roboto 24 für Labels
+  - file: "gfonts://Roboto"
+    id: roboto24
+    size: 24
+    bpp: 4
+    glyphsets:
+      - GF_Latin_Kernel
+    glyphs: "äöüÄÖÜß°"
+    extras:
+      - file: '../../src/assets/fonts/materialdesignicons-webfont.ttf'
+        glyphs: [
+          "\U000F004B",
+          "\U000F006E",
+          "\U000F012C",
+          "\U000F179B",
+          "\U000F0748",
+          "\U000F1A1B",
+          "\U000F02DC",
+          "\U000F02D7",
+          "\U000F0A02",
+          "\U000F035F",
+          "\U000F0156",
+          "\U000F0C5F", 
+          "\U000f0084",
+          "\U000f0091",
+          "\U000F050F",
+          "\U000F0F55",
+        ]
+  
+  # Roboto 90 für große Uhrzeit
+  - file: "gfonts://Roboto"
+    id: roboto90
+    size: 90
+    bpp: 4
+    glyphsets:
+      - GF_Latin_Kernel
+  
+  # Weather Icons Font
+  - file: "gfonts://Roboto"
+    id: weather_icons
+    size: 120
+    bpp: 4
+    extras:
+      - file: '../../src/assets/fonts/materialdesignicons-webfont.ttf'
+        glyphs: [
+          "\U000F0590", # cloudy
+          "\U000F0F2F", # cloudyalert
+          "\U000F0E6E", # cloudyarrowright
+          "\U000F0591", # fog
+          "\U000F0AC1", # hail
+          "\U000F0F30", # hazy
+          "\U000F0898", # hurricane
+          "\U000F0593", # lightning
+          "\U000F067E", # lightningrainy
+          "\U000F0594", # night
+          "\U000F0F31", # nightpartlycloudy
+          "\U000F0595", # partlycloudy
+          "\U000F0F32", # partlylightning
+          "\U000F0F33", # partlyrainy
+          "\U000F0F34", # partlysnowy
+          "\U000F0F35", # partlysnowyrainy
+          "\U000F0596", # pouring
+          "\U000F0597", # rainy
+          "\U000F0598", # snowy
+          "\U000F0F36", # snowyheavy
+          "\U000F067F", # snowyrainy
+          "\U000F0599", # sunny
+          "\U000F0F37", # sunnyalert
+          "\U000F14E4", # sunnyoff
+          "\U000F059A", # sunset
+          "\U000F059B", # sunsetdown
+          "\U000F059C", # sunsetup
+          "\U000F0F38", # tornado
+          "\U000F059D", # windy
+          "\U000F059E", # windyvariant
+          "\U000F01F5", # happyface
+          "\U000F02D7", # weather-cloudy
+        ]
+  
+  # MDI Icons 40 für Navigation
+  - file: '../../src/assets/fonts/materialdesignicons-webfont.ttf'
+    id: mdi_icons_40
+    size: 40
+    bpp: 4
+    glyphs: [
+      "\U000F0141", # chevron-left
+      "\U000F0142", # chevron-right
+      "\U000F004D", # chevron-up
+      "\U000F0140", # chevron-down
+      "\U000F02DC", # home
+      "\U000F0493", # settings
+    ]
+  
+  # Button Icons Font (64px für große Buttons)
+  - file: '../../src/assets/fonts/materialdesignicons-webfont.ttf'
+    id: btn_icons_font
+    size: 64
+    bpp: 4
+    glyphs: [
+      # Lichter
+      "\U000F0335", # lightbulb
+      "\U000F0336", # lightbulb-outline
+      "\U000F06E8", # lightbulb-on
+      "\U000F06E9", # lightbulb-on-outline
+      "\U000F06B5", # lamp
+      "\U000F08DD", # floor-lamp
+      "\U000F095F", # desk-lamp
+      "\U000F0769", # ceiling-light
+      "\U000F17C7", # ceiling-light-outline
+      # Schalter & Steckdosen
+      "\U000F0425", # power
+      "\U000F06A5", # power-plug
+      "\U000F06A6", # power-plug-off
+      "\U000F07E7", # power-socket-eu
+      "\U000F0521", # toggle-switch
+      "\U000F0522", # toggle-switch-off
+      # Heizung & Klima
+      "\U000F050F", # thermometer
+      "\U000F0393", # thermostat
+      "\U000F0238", # fire
+      "\U000F0438", # radiator
+      "\U000F001B", # air-conditioner
+      "\U000F0210", # fan
+      "\U000F081D", # fan-off
+      "\U000F0717", # snowflake
+      # Jalousien & Rollos
+      "\U000F00AC", # blinds
+      "\U000F1011", # blinds-open
+      "\U000F111C", # window-shutter
+      "\U000F111D", # window-shutter-alert
+      "\U000F111E", # window-shutter-open
+      # Garage & Türen
+      "\U000F06D9", # garage
+      "\U000F06DA", # garage-open
+      "\U000F081A", # door
+      "\U000F081C", # door-open
+      "\U000F081B", # door-closed
+      # Fenster
+      "\U000F05AE", # window-closed
+      "\U000F05B1", # window-open
+      # Sicherheit
+      "\U000F033E", # lock
+      "\U000F033F", # lock-open
+      "\U000F0498", # shield
+      "\U000F068A", # shield-home
+      # Sonstiges
+      "\U000F02DC", # home
+      "\U000F0493", # settings / cog
+    ]
+
+# ============================================================================
+# Globale Variablen
+# ============================================================================
+globals:
+  # Navigation
+  - id: current_page_index
+    type: int
+    restore_value: no
+    initial_value: '0'
+  - id: total_pages
+    type: int
+    restore_value: no
+    initial_value: '2'
+  # Mock HA Connection Status (startet mit false für Bootscreen)
+  - id: ha_connected
+    type: bool
+    initial_value: 'false'
+  # Zeit-Simulation
+  - id: sim_hour
+    type: int
+    initial_value: '14'
+  - id: sim_minute
+    type: int
+    initial_value: '30'
+  - id: sim_day
+    type: int
+    initial_value: '24'
+  - id: sim_month
+    type: int
+    initial_value: '1'
+  - id: sim_year
+    type: int
+    initial_value: '2026'
+
+# ============================================================================
+# Mock Home Assistant Text Sensoren
+# ============================================================================
+text_sensor:
+  # Entity 1 - Wohnzimmer Licht
+  - platform: template
+    id: ha_entity_1_id
+    internal: true
+    lambda: return std::string("light.wohnzimmer");
+  - platform: template
+    id: ha_entity_1_icon
+    internal: true
+    lambda: |-
+      static MdiIconHelper helper;
+      return helper.convert_mdi_icon("mdi:lightbulb");
+  - platform: template
+    id: ha_entity_1_state_text
+    internal: true
+    lambda: return std::string("on");
+  - platform: template
+    id: ha_entity_1_domain
+    internal: true
+    lambda: return std::string("light");
+
+  # Entity 2 - Schlafzimmer Licht
+  - platform: template
+    id: ha_entity_2_id
+    internal: true
+    lambda: return std::string("light.schlafzimmer");
+  - platform: template
+    id: ha_entity_2_icon
+    internal: true
+    lambda: |-
+      static MdiIconHelper helper;
+      return helper.convert_mdi_icon("mdi:lamp");
+  - platform: template
+    id: ha_entity_2_state_text
+    internal: true
+    lambda: return std::string("off");
+  - platform: template
+    id: ha_entity_2_domain
+    internal: true
+    lambda: return std::string("light");
+
+  # Entity 3 - Küche Licht
+  - platform: template
+    id: ha_entity_3_id
+    internal: true
+    lambda: return std::string("light.kueche");
+  - platform: template
+    id: ha_entity_3_icon
+    internal: true
+    lambda: |-
+      static MdiIconHelper helper;
+      return helper.convert_mdi_icon("mdi:ceiling-light");
+  - platform: template
+    id: ha_entity_3_state_text
+    internal: true
+    lambda: return std::string("on");
+  - platform: template
+    id: ha_entity_3_domain
+    internal: true
+    lambda: return std::string("light");
+
+  # Entity 4 - Steckdose
+  - platform: template
+    id: ha_entity_4_id
+    internal: true
+    lambda: return std::string("switch.steckdose_1");
+  - platform: template
+    id: ha_entity_4_icon
+    internal: true
+    lambda: |-
+      static MdiIconHelper helper;
+      return helper.convert_mdi_icon("mdi:power-socket-de");
+  - platform: template
+    id: ha_entity_4_state_text
+    internal: true
+    lambda: return std::string("off");
+  - platform: template
+    id: ha_entity_4_domain
+    internal: true
+    lambda: return std::string("switch");
+
+  # Entity 5 - Ventilator
+  - platform: template
+    id: ha_entity_5_id
+    internal: true
+    lambda: return std::string("fan.ventilator");
+  - platform: template
+    id: ha_entity_5_icon
+    internal: true
+    lambda: |-
+      static MdiIconHelper helper;
+      return helper.convert_mdi_icon("mdi:fan");
+  - platform: template
+    id: ha_entity_5_state_text
+    internal: true
+    lambda: return std::string("on");
+  - platform: template
+    id: ha_entity_5_domain
+    internal: true
+    lambda: return std::string("fan");
+
+  # Entity 6 - Rollladen
+  - platform: template
+    id: ha_entity_6_id
+    internal: true
+    lambda: return std::string("cover.rollladen");
+  - platform: template
+    id: ha_entity_6_icon
+    internal: true
+    lambda: |-
+      static MdiIconHelper helper;
+      return helper.convert_mdi_icon("mdi:window-shutter");
+  - platform: template
+    id: ha_entity_6_state_text
+    internal: true
+    lambda: return std::string("open");
+  - platform: template
+    id: ha_entity_6_domain
+    internal: true
+    lambda: return std::string("cover");
+
+  # Entity 7 - Wetter (für Home Page)
+  - platform: template
+    id: ha_entity_7_id
+    internal: true
+    lambda: return std::string("weather.zuhause");
+  - platform: template
+    id: ha_entity_7_icon
+    internal: true
+    lambda: return std::string("\U000F0599");  # sunny icon
+  - platform: template
+    id: ha_entity_7_state_text
+    internal: true
+    lambda: return std::string("sunny");
+  - platform: template
+    id: ha_entity_7_domain
+    internal: true
+    lambda: return std::string("weather");
+
+# ============================================================================
+# Scripts
+# ============================================================================
+script:
+  # ========================================================================
+  # BOOTSCREEN Scripts (1:1 wie src/pages/boot.yaml)
+  # ========================================================================
+  - id: update_loading_page
+    then:
+      - lvgl.widget.hide: navigation_bar
+      - lvgl.label.update:
+          id: boot_synchronization_label
+          text: "Synchronisiere..."
+      - lvgl.label.update:
+          id: boot_homeassistant_label
+          text: "Verbinde Home Assistant..."
+
+  - id: check_boot_status
+    then:
+      - lambda: |-
+          if (id(ha_connected)) {
+            lv_obj_add_flag(id(boot_homeassistant), LV_OBJ_FLAG_HIDDEN);
+            lv_obj_clear_flag(id(boot_synchronization), LV_OBJ_FLAG_HIDDEN);
+            id(start_sync_animation).execute();
+          }
+
+  - id: start_sync_animation
+    then:
+      - delay: 1s
+      - lvgl.bar.update:
+          id: boot_synchronization_bar
+          value: 25
+
+      - delay: 1s
+      - lvgl.bar.update:
+          id: boot_synchronization_bar
+          value: 50
+
+      - delay: 1s
+      - lvgl.bar.update:
+          id: boot_synchronization_bar
+          value: 75
+
+      - delay: 1s
+      - lvgl.bar.update:
+          id: boot_synchronization_bar
+          value: 100
+
+      - delay: 1s
+      - lvgl.widget.hide: loading_page
+      - lambda: 'id(current_page_index) = 0;'
+      - lvgl.page.show:
+          id: home_page
+      - lvgl.widget.show: navigation_bar
+
+  - id: on_ha_connected
+    then:
+      - lambda: |-
+          if (!id(ha_connected)) {
+            id(ha_connected) = true;
+            lv_label_set_text(id(boot_homeassistant_label), "Home Assistant Connected!");
+            lv_obj_add_flag(id(boot_homeassistant_spinner), LV_OBJ_FLAG_HIDDEN);
+            id(check_boot_status).execute();
+          }
+
+  # ========================================================================
+  # Zeit-Display Update (ohne echte sntp_time)
+  # ========================================================================
+  - id: update_datetime_display
+    mode: single
+    then:
+      - lvgl.label.update:
+          id: display_time
+          text: !lambda |-
+            char buf[16];
+            snprintf(buf, sizeof(buf), "%02d:%02d", id(sim_hour), id(sim_minute));
+            return std::string(buf);
+      - lvgl.label.update:
+          id: display_date
+          text: !lambda |-
+            const char* months[] = {"", "Januar", "Februar", "März", "April", "Mai", 
+                                     "Juni", "Juli", "August", "September", "Oktober", 
+                                     "November", "Dezember"};
+            char buf[32];
+            snprintf(buf, sizeof(buf), "%d. %s %d", id(sim_day), months[id(sim_month)], id(sim_year));
+            return std::string(buf);
+
+  # Navigation Scripts
+  - id: navigate_prev
+    then:
+      - lambda: |-
+          int current = id(current_page_index);
+          int total = id(total_pages);
+          current = (current - 1 + total) % total;
+          id(current_page_index) = current;
+      - script.execute: show_current_page
+
+  - id: navigate_next
+    then:
+      - lambda: |-
+          int current = id(current_page_index);
+          int total = id(total_pages);
+          current = (current + 1) % total;
+          id(current_page_index) = current;
+      - script.execute: show_current_page
+
+  - id: show_current_page
+    then:
+      - if:
+          condition:
+            lambda: 'return id(current_page_index) == 0;'
+          then:
+            - lvgl.page.show: home_page
+          else:
+            - if:
+                condition:
+                  lambda: 'return id(current_page_index) == 1;'
+                then:
+                  - lvgl.page.show: switches_page
+                else:
+                  - lambda: 'id(current_page_index) = 0;'
+                  - lvgl.page.show: home_page
+
+  - id: show_navigation
+    then:
+      - lvgl.widget.show: navigation_bar
+
+  - id: hide_navigation
+    then:
+      - lvgl.widget.hide: navigation_bar
+
+# Zeit-Simulation: Jede Minute erhöhen
+interval:
+  - interval: 60s
+    then:
+      - lambda: |-
+          id(sim_minute)++;
+          if (id(sim_minute) >= 60) {
+            id(sim_minute) = 0;
+            id(sim_hour)++;
+            if (id(sim_hour) >= 24) {
+              id(sim_hour) = 0;
+              id(sim_day)++;
+              if (id(sim_day) > 28) {
+                id(sim_day) = 1;
+                id(sim_month)++;
+                if (id(sim_month) > 12) {
+                  id(sim_month) = 1;
+                  id(sim_year)++;
+                }
+              }
+            }
+          }
+      - script.execute: update_datetime_display
+
+# ============================================================================
+# LVGL Konfiguration
+# ============================================================================
+lvgl:
+  displays:
+    - simulator_display
+  touchscreens:
+    - simulator_touchscreen
+  
+  # Idle-Handling deaktiviert für Simulator
+  on_idle:
+    timeout: 0ms
+    then: []
+
+  # ============================================================================
+  # ECHTES Theme aus src/themes/homeassistant.yaml
+  # ============================================================================
+  theme:
+    label:
+      text_font: roboto24
+    button:
+      bg_color: color_gray_700
+      bg_opa: 85%
+      border_color: color_gray_700
+      border_width: 0
+      text_color: color_text_dark_primary
+      pressed:
+        bg_color: color_gray_900
+        bg_grad_color: color_gray_900
+      checked:
+        bg_color: color_gray_900
+        bg_grad_color: color_gray_900
+        text_color: color_primary
+    buttonmatrix:
+      bg_opa: TRANSP
+      border_color: color_gray_700
+      border_width: 0
+      text_color: color_white
+      pad_all: 0
+      items:
+        bg_color: color_gray_700
+        bg_grad_color: color_gray_700
+        bg_grad_dir: VER
+        bg_opa: COVER
+        border_color: color_gray_700
+        border_width: 1
+        text_color: color_white
+        pressed:
+          bg_color: color_gray_900
+          bg_grad_color: color_gray_900
+        checked:
+          bg_color: color_gray_900
+          bg_grad_color: color_gray_900
+          text_color: color_gray_100
+    switch:
+      border_width: 0
+      outline_opa: TRANSP
+      shadow_width: 0
+      bg_color: color_success
+      bg_opa: COVER
+      checked:
+        bg_color: color_secondary
+        bg_opa: COVER
+        border_width: 0
+        outline_opa: TRANSP
+        shadow_width: 0
+      indicator:
+        bg_opa: TRANSP
+        border_width: 0
+        outline_opa: TRANSP
+        shadow_width: 0
+        checked:
+          bg_color: color_secondary
+          bg_opa: COVER
+          border_width: 0
+          outline_opa: TRANSP
+          shadow_width: 0
+      knob:
+        bg_color: color_white
+        bg_opa: COVER
+        border_width: 0
+        outline_opa: TRANSP
+        shadow_width: 0
+        checked:
+          bg_color: color_white
+          bg_opa: COVER
+          border_width: 0
+          outline_opa: TRANSP
+          shadow_width: 0
+    slider:
+      border_width: 1
+      border_opa: 30%
+      bg_color: color_gray_500
+      bg_opa: 15%
+      indicator:
+        bg_color: color_gray_700
+        bg_grad_color: color_gray_700
+        bg_opa: COVER
+      knob:
+        bg_color: color_gray_600
+        bg_grad_color: color_gray_600
+        bg_opa: COVER
+        border_color: color_gray_600
+        border_width: 1
+        text_color: color_white
+
+  # ============================================================================
+  # ECHTE Style Definitions aus src/themes/homeassistant.yaml
+  # ============================================================================
+  style_definitions:
+    - id: header_footer
+      bg_color: color_gray_600
+      bg_opa: COVER
+      radius: 0
+      pad_all: 0
+      pad_row: 0
+      pad_column: 2
+      border_width: 0
+      width: 100%
+      height: 40
+    - id: header_footer_btn
+      bg_color: color_gray_600
+      bg_opa: COVER
+      radius: 0
+      border_width: 0
+      pad_all: 0
+      height: 40
+      width: 160
+    - id: red_s
+      border_width: 1
+      border_opa: 30%
+      bg_color: color_error
+      bg_opa: 15%
+
+  # Top Layer: Loading Page (Bootscreen) + Navigation Bar
+  top_layer:
+    widgets:
+      # ========================================================================
+      # BOOTSCREEN (1:1 wie src/pages/boot.yaml)
+      # ========================================================================
+      - obj:
+          id: loading_page
+          bg_color: color_surface_dark
+          shadow_opa: transp
+          width: ${display_width}
+          height: ${display_height}
+          outline_width: 0
+          border_width: 0
+          radius: 0
+          widgets:
+            - image:
+                y: 30
+                align: top_mid
+                src: ha_img
+            - obj:
+                id: boot_homeassistant
+                y: 180
+                width: 300
+                height: 100
+                pad_all: 0
+                align: top_mid
+                bg_opa: transp
+                shadow_opa: transp
+                border_opa: transp
+                border_width: 0
+                radius: 10
+                widgets:
+                  - label:
+                      id: boot_homeassistant_label
+                      align: top_mid
+                      y: 0
+                      text_font: roboto24
+                      text_color: color_text_dark_primary
+                      text: " "
+                  - spinner:
+                      id: boot_homeassistant_spinner
+                      y: 0
+                      width: 50
+                      height: 50
+                      align: bottom_mid
+                      spin_time: 2s
+                      arc_length: 60deg
+                      arc_width: 5
+                      arc_color: color_primary_dark
+                      indicator:
+                        arc_color: color_primary
+                        arc_width: 5
+            - obj:
+                id: boot_synchronization
+                y: 180
+                width: 300
+                height: 60
+                pad_all: 0
+                align: top_mid
+                bg_opa: transp
+                shadow_opa: transp
+                border_opa: transp
+                border_width: 0
+                radius: 10
+                hidden: true
+                widgets:
+                  - label:
+                      id: boot_synchronization_label
+                      align: top_mid
+                      y: 0
+                      text_font: roboto24
+                      text_color: color_text_dark_primary
+                      text: " "
+                  - bar:
+                      id: boot_synchronization_bar
+                      y: 0
+                      width: 300
+                      value: 0
+                      align: bottom_mid
+                      min_value: 0
+                      max_value: 100
+                      animated: true
+                      bg_color: color_primary_dark
+                      indicator:
+                        bg_color: color_primary
+            - image:
+                y: -30
+                align: bottom_mid
+                src: esphome_img
+
+      # ========================================================================
+      # NAVIGATION BAR
+      # ========================================================================
+      - obj:
+          id: navigation_bar
+          align: BOTTOM_MID
+          width: 100%
+          height: ${navigation_bar_height}
+          pad_all: 2
+          bg_color: color_bg_light_secondary
+          bg_opa: 80%
+          radius: 0
+          border_opa: TRANSP
+          shadow_opa: TRANSP
+          hidden: true
+          layout:
+            type: GRID
+            grid_columns: [FR(1), FR(1)]
+            grid_rows: [FR(1)]
+          widgets:
+            # Zurück-Button
+            - button:
+                id: nav_btn_prev
+                grid_cell_column_pos: 0
+                grid_cell_row_pos: 0
+                grid_cell_x_align: STRETCH
+                grid_cell_y_align: STRETCH
+                radius: 10
+                shadow_opa: TRANSP
+                on_click:
+                  then:
+                    - script.execute: navigate_prev
+                widgets:
+                  - label:
+                      id: nav_btn_prev_icon
+                      align: CENTER
+                      text_font: mdi_icons_40
+                      text: "\U000F0141"
+                      text_color: color_text_light_primary
+
+            # Vor-Button
+            - button:
+                id: nav_btn_next
+                grid_cell_column_pos: 1
+                grid_cell_row_pos: 0
+                grid_cell_x_align: STRETCH
+                grid_cell_y_align: STRETCH
+                radius: 10
+                shadow_opa: TRANSP
+                on_click:
+                  then:
+                    - script.execute: navigate_next
+                widgets:
+                  - label:
+                      id: nav_btn_next_icon
+                      align: CENTER
+                      text_font: mdi_icons_40
+                      text: "\U000F0142"
+                      text_color: color_text_light_primary
+
+  # Seiten
+  pages:
+    # ========================================================================
+    # HOME PAGE (1:1 wie src/pages/home.yaml)
+    # ========================================================================
+    - id: home_page
+      widgets:
+        - image:
+            align: CENTER
+            src: see_img
+        - obj:
+            layout:
+              type: GRID
+              grid_columns: [FR(1)]
+              grid_rows: [FR(30), FR(15), FR(5), FR(25), FR(25)]
+            width: 100%
+            height: ${content_height}
+            pad_all: 10
+            pad_top: 22
+            bg_opa: TRANSP
+            border_opa: TRANSP
+            widgets:
+              # Wetter Icon
+              - label:
+                  grid_cell_column_pos: 0
+                  grid_cell_row_pos: 0
+                  grid_cell_x_align: CENTER
+                  grid_cell_y_align: CENTER
+                  id: homeassistant_btn_7_icon
+                  text: "\U000F0599"
+                  text_color: color_text_light_primary
+                  text_font: weather_icons
+              
+              # Wetter Text
+              - label:
+                  grid_cell_column_pos: 0
+                  grid_cell_row_pos: 1
+                  grid_cell_x_align: CENTER
+                  grid_cell_y_align: START
+                  id: homeassistant_btn_7_label
+                  text: "Sonnig bei 22 °C"
+                  text_font: roboto24
+                  text_color: color_text_light_primary
+
+              # Datum
+              - label:
+                  grid_cell_column_pos: 0
+                  grid_cell_row_pos: 2
+                  grid_cell_x_align: CENTER
+                  grid_cell_y_align: START
+                  id: display_date
+                  text: "24. Januar 2026"
+                  text_font: roboto24
+                  text_color: color_text_light_primary
+
+              # Uhrzeit
+              - label:
+                  grid_cell_column_pos: 0
+                  grid_cell_row_pos: 3
+                  grid_cell_x_align: CENTER
+                  grid_cell_y_align: END
+                  id: display_time
+                  text: "14:30"
+                  text_font: roboto90
+                  text_color: color_text_light_primary
+                  
+              # Haustemperatur
+              - label:
+                  grid_cell_column_pos: 0
+                  grid_cell_row_pos: 4
+                  grid_cell_x_align: CENTER
+                  grid_cell_y_align: CENTER
+                  id: display_house_temp
+                  text: "Innen: 21.5 °C"
+                  text_font: roboto24
+                  text_color: color_text_light_primary
+
+    # ========================================================================
+    # SWITCHES PAGE (1:1 wie src/pages/switches.yaml)
+    # ========================================================================
+    - id: switches_page
+      widgets:
+        - image:
+            align: CENTER
+            src: see_img
+        - obj:
+            layout:
+              type: GRID
+              grid_columns: [FR(1), FR(1), FR(1)]
+              grid_rows: [FR(50), FR(50)]
+            width: 100%
+            height: ${content_height}
+            pad_all: 15
+            pad_top: 22
+            bg_opa: TRANSP
+            border_opa: TRANSP
+            widgets:
+              # Button 1 - Wohnzimmer
+              - button:
+                  id: homeassistant_btn_1
+                  checkable: true
+                  grid_cell_column_pos: 0
+                  grid_cell_row_pos: 0
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  widgets:
+                    - label:
+                        id: homeassistant_btn_1_icon
+                        text_font: btn_icons_font
+                        text: "\U000F0335"
+                        align: CENTER
+                        y: -10
+                    - label:
+                        id: homeassistant_btn_1_label
+                        text: "Wohnzimmer"
+                        text_font: roboto24
+                        align: CENTER
+                        y: 30
+
+              # Button 2 - Schlafzimmer
+              - button:
+                  id: homeassistant_btn_2
+                  checkable: true
+                  grid_cell_column_pos: 0
+                  grid_cell_row_pos: 1
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  widgets:
+                    - label:
+                        id: homeassistant_btn_2_icon
+                        text_font: btn_icons_font
+                        text: "\U000F06B5"
+                        align: CENTER
+                        y: -10
+                    - label:
+                        id: homeassistant_btn_2_label
+                        text: "Schlafzimmer"
+                        text_font: roboto24
+                        align: CENTER
+                        y: 30
+
+              # Button 3 - Küche
+              - button:
+                  id: homeassistant_btn_3
+                  checkable: true
+                  grid_cell_column_pos: 1
+                  grid_cell_row_pos: 0
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  widgets:
+                    - label:
+                        id: homeassistant_btn_3_icon
+                        text_font: btn_icons_font
+                        text: "\U000F0769"
+                        align: CENTER
+                        y: -10
+                    - label:
+                        id: homeassistant_btn_3_label
+                        text: "Küche"
+                        text_font: roboto24
+                        align: CENTER
+                        y: 30
+
+              # Button 4 - Steckdose
+              - button:
+                  id: homeassistant_btn_4
+                  checkable: true
+                  grid_cell_column_pos: 1
+                  grid_cell_row_pos: 1
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  widgets:
+                    - label:
+                        id: homeassistant_btn_4_icon
+                        text_font: btn_icons_font
+                        text: "\U000F07E7"
+                        align: CENTER
+                        y: -10
+                    - label:
+                        id: homeassistant_btn_4_label
+                        text: "Steckdose"
+                        text_font: roboto24
+                        align: CENTER
+                        y: 30
+
+              # Button 5 - Ventilator
+              - button:
+                  id: homeassistant_btn_5
+                  checkable: true
+                  grid_cell_column_pos: 2
+                  grid_cell_row_pos: 0
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  widgets:
+                    - label:
+                        id: homeassistant_btn_5_icon
+                        text_font: btn_icons_font
+                        text: "\U000F0210"
+                        align: CENTER
+                        y: -10
+                    - label:
+                        id: homeassistant_btn_5_label
+                        text: "Ventilator"
+                        text_font: roboto24
+                        align: CENTER
+                        y: 30
+
+              # Button 6 - Rollladen
+              - button:
+                  id: homeassistant_btn_6
+                  checkable: true
+                  grid_cell_column_pos: 2
+                  grid_cell_row_pos: 1
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  widgets:
+                    - label:
+                        id: homeassistant_btn_6_icon
+                        text_font: btn_icons_font
+                        text: "\U000F111C"
+                        align: CENTER
+                        y: -10
+                    - label:
+                        id: homeassistant_btn_6_label
+                        text: "Rollladen"
+                        text_font: roboto24
+                        align: CENTER
+                        y: 30
