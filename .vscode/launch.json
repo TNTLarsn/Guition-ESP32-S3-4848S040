@@ -5,7 +5,7 @@
     "version": "0.2.0",
     "configurations": [
       // ════════════════════════════════════════════════════════════════
-      // �️ SDL SIMULATOR - Schnelles UI Testing
+      // 🖥️ SDL SIMULATOR - Schnelles UI Testing
       // ════════════════════════════════════════════════════════════════
       {
         "name": "🖥️ SDL Simulator starten",
@@ -23,7 +23,7 @@
       },
 
       // ════════════════════════════════════════════════════════════════
-      // �🚀 LOCAL DEV MODE - Compound Tasks
+      // 🚀 LOCAL DEV MODE - Compound Tasks
       // ════════════════════════════════════════════════════════════════
       {
         "name": "🚀 Local Dev Mode starten",
