@@ -207,8 +207,8 @@ main.factory.yaml          # Factory mit improv_serial & dashboard_import
 
 #### LVGL Idle Handling
 
-- Timeout: Konfigurierbar über `display_timeout_backlight` (0-720 Minuten)
-- Bei Idle: Backlight aus + LVGL pausiert
+- Timeout: Konfigurierbar über `display_timeout_backlight` (-1-720 Minuten, `-1` deaktiviert Idle-Handling)
+- Bei Idle (Wert >= 0): Backlight aus + LVGL pausiert nach Ablauf des Timeouts
 - Bei Touch: LVGL resume + Backlight ein
 - Antiburn-Modus: Automatisch zwischen 2:05 und 5:35 Uhr
 
