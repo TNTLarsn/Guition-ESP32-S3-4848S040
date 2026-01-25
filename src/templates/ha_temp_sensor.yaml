@@ -1,0 +1,94 @@
+# Template für Home Assistant Temperatur-Sensor Entity (mit Icon-Farb-Update)
+# Spezielles Template für Temperatur-Sensoren mit dynamischer Icon-Farbe
+# basierend auf dem Temperaturwert
+#
+# Variablen: num, entity_id
+# Liefert: State-Text, Domain, Friendly Name, Unit of Measurement
+# Aktualisiert: temp_icon_${num} mit temperaturabhängiger Farbe
+#
+# Farbskala:
+#   < 16°C  → Blau (color_info) - Kalt
+#   16-22°C → Grün (color_success) - Angenehm
+#   22-26°C → Orange (color_warning) - Warm
+#   > 26°C  → Rot (color_error) - Heiß
+
+defaults:
+  num: "8"
+  entity_id: "sensor.placeholder"
+
+text_sensor:
+  # Unit of Measurement (Einheit aus Home Assistant)
+  - platform: homeassistant
+    id: ha_entity_${num}_unit
+    entity_id: ${entity_id}
+    attribute: unit_of_measurement
+    internal: true
+    on_value:
+      then:
+        - lambda: |-
+            ESP_LOGD("ha_temp_sensor", "Sensor ${num} unit: %s", x.c_str());
+
+  # State Text (Sensor-Wert als String)
+  - platform: homeassistant
+    id: ha_entity_${num}_state_text
+    entity_id: ${entity_id}
+    internal: true
+    on_value:
+      then:
+        - lambda: |-
+            ESP_LOGD("ha_temp_sensor", "Sensor ${num} state: %s", x.c_str());
+        # LVGL Label aktualisieren
+        - lvgl.label.update:
+            id: ha_temp_value_${num}
+            text: !lambda |-
+              std::string value = id(ha_entity_${num}_state_text).state;
+              std::string unit = id(ha_entity_${num}_unit).state;
+              if (value.empty()) {
+                if (unit.empty()) return std::string("--");
+                return std::string("-- ") + unit;
+              }
+              if (unit.empty()) return value;
+              return value + " " + unit;
+        # Icon-Farbe basierend auf Temperaturwert aktualisieren
+        - lvgl.widget.update:
+            id: temp_icon_${num}
+            text_color: !lambda |-
+              std::string value_str = id(ha_entity_${num}_state_text).state;
+              if (value_str.empty()) return id(color_gray_500);
+              
+              float temp = atof(value_str.c_str());
+              
+              // Farbskala: Kalt → Angenehm → Warm → Heiß
+              if (temp < 16.0f) {
+                return id(color_info);      // Blau - Kalt
+              } else if (temp < 22.0f) {
+                return id(color_success);   // Grün - Angenehm
+              } else if (temp < 26.0f) {
+                return id(color_warning);   // Orange - Warm
+              } else {
+                return id(color_error);     // Rot - Heiß
+              }
+
+  # Friendly Name
+  - platform: homeassistant
+    id: ha_entity_${num}_friendly_name
+    entity_id: ${entity_id}
+    attribute: friendly_name
+    internal: true
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: ha_sensor_label_${num}
+            text: !lambda return x.c_str();
+
+  # Domain (extrahiert aus entity_id)
+  - platform: template
+    id: ha_entity_${num}_domain
+    internal: true
+    lambda: |-
+      std::string entity_id = "${entity_id}";
+      size_t pos = entity_id.find('.');
+      if (pos != std::string::npos) {
+        return entity_id.substr(0, pos);
+      }
+      return std::string("unknown");

@@ -50,7 +50,8 @@ lvgl:
             widgets:
               # Temperatur-Cards via Template-Include (col 0-1, row 0-1)
               # Temperatur-Sensoren: Entities 9, 11, 13, 15; Feuchte-Sensoren: Entities 10, 12, 14, 16 (definiert in homeassistant.yaml)
-              - !include { file: ../templates/ha_temp.yaml, vars: { temp: "9", hum: "10", col: "0", row: "0", icon_color: "color_secondary" } }
-              - !include { file: ../templates/ha_temp.yaml, vars: { temp: "11", hum: "12", col: "1", row: "0", icon_color: "color_info" } }
-              - !include { file: ../templates/ha_temp.yaml, vars: { temp: "13", hum: "14", col: "0", row: "1", icon_color: "color_secondary" } }
-              - !include { file: ../templates/ha_temp.yaml, vars: { temp: "15", hum: "16", col: "1", row: "1", icon_color: "color_error" } }
+              # Icon-Farbe wird automatisch durch ha_temp_sensor.yaml basierend auf Temperatur gesetzt
+              - !include { file: ../templates/ha_temp.yaml, vars: { temp: "9", hum: "10", col: "0", row: "0" } }
+              - !include { file: ../templates/ha_temp.yaml, vars: { temp: "11", hum: "12", col: "1", row: "0" } }
+              - !include { file: ../templates/ha_temp.yaml, vars: { temp: "13", hum: "14", col: "0", row: "1" } }
+              - !include { file: ../templates/ha_temp.yaml, vars: { temp: "15", hum: "16", col: "1", row: "1" } }

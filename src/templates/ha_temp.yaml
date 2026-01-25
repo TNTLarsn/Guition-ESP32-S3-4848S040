@@ -9,7 +9,6 @@ defaults:
   hum: "9"
   col: "0"
   row: "0"
-  icon_color: "color_secondary"
 
 obj:
   id: temp_card_${temp}
@@ -38,7 +37,7 @@ obj:
     pad_row: 4
     pad_column: 12
   widgets:
-    # Thermometer Icon (farbig)
+    # Thermometer Icon (Farbe wird dynamisch durch ha_temp_sensor.yaml aktualisiert)
     - label:
         id: temp_icon_${temp}
         grid_cell_column_pos: 0
@@ -48,7 +47,7 @@ obj:
         grid_cell_y_align: CENTER
         text: "\U000F050F"
         text_font: btn_icons_font
-        text_color: ${icon_color}
+        text_color: color_gray_500
     # Raumname (aus friendly_name)
     - label:
         id: ha_sensor_label_${temp}
