@@ -48,7 +48,7 @@ obj:
         text: "\U000F050F"
         text_font: btn_icons_font
         text_color: color_gray_500
-    # Raumname (aus friendly_name)
+    # Raumname
     - label:
         id: ha_sensor_label_${temp}
         grid_cell_column_pos: 1
@@ -56,8 +56,8 @@ obj:
         grid_cell_x_align: START
         grid_cell_y_align: CENTER
         text: !lambda |-
-          if (id(ha_entity_${temp}_friendly_name).has_state()) {
-            return id(ha_entity_${temp}_friendly_name).state;
+          if (id(ha_entity_${temp}_room).has_state()) {
+            return id(ha_entity_${temp}_room).state;
           }
           return std::string("Sensor ${temp}");
         text_font: roboto16

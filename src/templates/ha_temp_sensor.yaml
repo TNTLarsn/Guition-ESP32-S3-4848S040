@@ -15,6 +15,7 @@
 defaults:
   num: "8"
   entity_id: "sensor.placeholder"
+  room: "Raum"
 
 text_sensor:
   # Unit of Measurement (Einheit aus Home Assistant)
@@ -91,11 +92,6 @@ text_sensor:
     entity_id: ${entity_id}
     attribute: friendly_name
     internal: true
-    on_value:
-      then:
-        - lvgl.label.update:
-            id: ha_sensor_label_${num}
-            text: !lambda return x.c_str();
 
   # Domain (extrahiert aus entity_id)
   - platform: template
@@ -108,3 +104,14 @@ text_sensor:
         return entity_id.substr(0, pos);
       }
       return std::string("unknown");
+
+  - platform: template
+    id: ha_entity_${num}_room
+    internal: true
+    lambda: 'return std::string("${room}");'
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: ha_sensor_label_${num}
+            text: !lambda return x.c_str();
+      
