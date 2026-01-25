@@ -48,16 +48,32 @@ text_sensor:
                 return std::string("-- ") + unit;
               }
               if (unit.empty()) return value;
-              return value + " " + unit;
+              return value + "" + unit;
         # Icon-Farbe basierend auf Temperaturwert aktualisieren
         - lvgl.widget.update:
             id: temp_icon_${num}
             text_color: !lambda |-
               std::string value_str = id(ha_entity_${num}_state_text).state;
               if (value_str.empty()) return id(color_gray_500);
-              
-              float temp = atof(value_str.c_str());
-              
+
+              const char *cstr = value_str.c_str();
+              char *endptr = nullptr;
+              float temp = strtof(cstr, &endptr);
+
+              // Prüfen, ob überhaupt etwas geparst wurde
+              if (cstr == endptr) {
+                return id(color_gray_500);
+              }
+
+              // Optionale nachfolgende Whitespaces überspringen
+              while (*endptr == ' ' || *endptr == '\t') {
+                ++endptr;
+              }
+
+              // Wenn noch nicht das Stringende erreicht ist, ist der Wert nicht rein numerisch
+              if (*endptr != '\0') {
+                return id(color_gray_500);
+              }
               // Farbskala: Kalt → Angenehm → Warm → Heiß
               if (temp < 16.0f) {
                 return id(color_info);      // Blau - Kalt

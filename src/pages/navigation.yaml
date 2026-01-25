@@ -16,7 +16,7 @@ globals:
   - id: total_pages
     type: int
     restore_value: no
-    initial_value: '2'
+    initial_value: '3'
 
 lvgl:
   top_layer:
