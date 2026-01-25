@@ -1,6 +1,7 @@
 # Template für Home Assistant Temperatur-Sensor Widget (LVGL Card)
 # Variablen: temp, col, row, icon_color (optional)
-# Die Entity-ID wird dynamisch aus dem Text-Sensor ha_entity_${temp}_id gelesen
+# Der Anzeigename wird dynamisch aus dem Text-Sensor ha_entity_${temp}_friendly_name gelesen
+# Temperatur- und Feuchtewerte werden über die Labels ha_temp_value_${temp} / ha_temp_value_${hum} aktualisiert
 # Design: Glassmorphism Card mit farbigem Thermometer-Icon links, Name + Wert rechts
 
 defaults:
@@ -97,7 +98,7 @@ obj:
                 pad_right: 6
             - label:
                 id: ha_temp_value_${hum}
-                text: "72 %"
+                text: "-- %"
                 text_font: roboto16
                 text_color: color_gray_300
 

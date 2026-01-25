@@ -15,7 +15,7 @@ lvgl:
             align: CENTER
             src: see_img
         
-        # Hidden placeholder für ha_sensor_label_8 (wird nur für Templates benötigt)
+        # Hidden placeholder für ha_sensor_label_10-16 (wird nur für Templates benötigt aber in der page nicht verwendet)
         - label:
             id: ha_sensor_label_10
             hidden: true
@@ -49,7 +49,7 @@ lvgl:
             border_opa: TRANSP
             widgets:
               # Temperatur-Cards via Template-Include (col 0-1, row 0-1)
-              # Entity 9-12 sind die Temperatur-Sensoren (definiert in homeassistant.yaml)
+              # Temperatur-Sensoren: Entities 9, 11, 13, 15; Feuchte-Sensoren: Entities 10, 12, 14, 16 (definiert in homeassistant.yaml)
               - !include { file: ../templates/ha_temp.yaml, vars: { temp: "9", hum: "10", col: "0", row: "0", icon_color: "color_secondary" } }
               - !include { file: ../templates/ha_temp.yaml, vars: { temp: "11", hum: "12", col: "1", row: "0", icon_color: "color_info" } }
               - !include { file: ../templates/ha_temp.yaml, vars: { temp: "13", hum: "14", col: "0", row: "1", icon_color: "color_secondary" } }

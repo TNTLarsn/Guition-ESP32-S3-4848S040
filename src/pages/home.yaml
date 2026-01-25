@@ -85,7 +85,7 @@ lvgl:
                               grid_cell_x_align: START
                               grid_cell_y_align: CENTER
                               id: homeassistant_btn_7_label
-                              text: "°C --"
+                              text: "-- °C --"
                               text_font: roboto24
                               text_color: color_white
                     
