@@ -54,6 +54,7 @@ packages:
     file: ../templates/ha_temp_sensor.yaml
     vars:
       num: "9"
+      room: "Bad"
       entity_id: sensor.bthome_sensor_081d_temperatur #Bad  
   ha_sensor_10: !include
     file: ../templates/ha_sensor.yaml
@@ -64,6 +65,7 @@ packages:
     file: ../templates/ha_temp_sensor.yaml
     vars:
       num: "11"
+      room: "Wohnzimmer"
       entity_id: sensor.bthome_sensor_7920_temperatur #Wohnzimmer
   ha_sensor_12: !include
     file: ../templates/ha_sensor.yaml
@@ -74,6 +76,7 @@ packages:
     file: ../templates/ha_temp_sensor.yaml
     vars:
       num: "13"
+      room: "Schlafzimmer"
       entity_id: sensor.bthome_sensor_d35e_temperatur #Schlafzimmer
   ha_sensor_14: !include
     file: ../templates/ha_sensor.yaml
@@ -84,6 +87,7 @@ packages:
     file: ../templates/ha_temp_sensor.yaml
     vars:
       num: "15"
+      room: "Küche"
       entity_id: sensor.bthome_sensor_fccb_temperatur #Kueche
   ha_sensor_16: !include
     file: ../templates/ha_sensor.yaml
