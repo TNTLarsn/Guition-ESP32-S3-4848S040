@@ -2,7 +2,7 @@
 # Spezielles Template für Temperatur-Sensoren mit dynamischer Icon-Farbe
 # basierend auf dem Temperaturwert
 #
-# Variablen: num, entity_id
+# Variablen: num, entity_id, room
 # Liefert: State-Text, Domain, Friendly Name, Unit of Measurement
 # Aktualisiert: temp_icon_${num} mit temperaturabhängiger Farbe
 #
