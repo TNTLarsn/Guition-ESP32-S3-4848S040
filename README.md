@@ -294,7 +294,7 @@ Gesteuert durch `sensor.jahreszeit` aus Home Assistant.
 
 - **Home Assistant**: Native API (verschlüsselt)
 - **OTA-Updates**: Dual-Path (ESPHome Dashboard + HTTP Request für externe Updates)
-- **WiFi-Provisioning**: Captive Portal
+- **WiFi-Provisioning**: Improv Serial (Web-Flash) + Captive Portal (klassische Installation)
 - **Web-Flash**: ESP Web Tools via GitHub Pages
 
 ## 📚 Dokumentation
