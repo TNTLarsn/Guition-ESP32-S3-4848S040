@@ -19,7 +19,7 @@ Pixel LCD und kapazitivem Touchscreen.
 - **Deutsche Lokalisierung** - Datum, Wochentage, Monate in Deutsch
 - **Home Assistant Integration** - Dynamische Labels, Icons und States via Native API
 - **OTA Updates** via HTTP Request und ESPHome Dashboard
-- **WiFi Provisioning** über Captive Portal
+- **WiFi Provisioning** über Improv Serial (USB) und Captive Portal
 - **Web-basierte Installation** mit ESP Web Tools
 - **Integriertes 240V Relais** - Schaltbarer Relaisausgang
 
@@ -294,7 +294,7 @@ Gesteuert durch `sensor.jahreszeit` aus Home Assistant.
 
 - **Home Assistant**: Native API (verschlüsselt)
 - **OTA-Updates**: Dual-Path (ESPHome Dashboard + HTTP Request für externe Updates)
-- **WiFi-Provisioning**: Improv Serial (Web-Flash) + Captive Portal (klassische Installation)
+- **WiFi-Provisioning**: Improv Serial (USB, Web-Flash) + Captive Portal (AP-Modus)
 - **Web-Flash**: ESP Web Tools via GitHub Pages
 
 ## 📚 Dokumentation
