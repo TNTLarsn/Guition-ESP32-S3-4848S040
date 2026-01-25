@@ -311,6 +311,7 @@ font:
     glyphs: [
       "\U000F0599", # weather-sunny
       "\U000F050F", # thermometer
+      "\U000F058C", # water-percent (humidity)
     ]
   
   # Button Icons Font (64px für große Buttons)
@@ -382,7 +383,7 @@ globals:
   - id: total_pages
     type: int
     restore_value: no
-    initial_value: '2'
+    initial_value: '3'
   # Mock HA Connection Status (startet mit false für Bootscreen)
   - id: ha_connected
     type: bool
@@ -546,6 +547,119 @@ text_sensor:
     internal: true
     lambda: return std::string("weather");
 
+  # Entity 8 - Raumtemperatur Wohnzimmer (ha_sensor Template)
+  - platform: template
+    id: ha_entity_8_state_text
+    internal: true
+    lambda: return std::string("21.5");
+  - platform: template
+    id: ha_entity_8_friendly_name
+    internal: true
+    lambda: return std::string("Wohnzimmer Temperatur");
+  - platform: template
+    id: ha_entity_8_domain
+    internal: true
+    lambda: return std::string("sensor");
+
+  # Entity 9 - Raumtemperatur Schlafzimmer (ha_sensor Template)
+  - platform: template
+    id: ha_entity_9_state_text
+    internal: true
+    lambda: return std::string("19.8");
+  - platform: template
+    id: ha_entity_9_friendly_name
+    internal: true
+    lambda: return std::string("Schlafzimmer Temperatur");
+  - platform: template
+    id: ha_entity_9_domain
+    internal: true
+    lambda: return std::string("sensor");
+
+  # Entity 10 - Raumtemperatur Küche (ha_sensor Template)
+  - platform: template
+    id: ha_entity_10_state_text
+    internal: true
+    lambda: return std::string("22.3");
+  - platform: template
+    id: ha_entity_10_friendly_name
+    internal: true
+    lambda: return std::string("Küche Temperatur");
+  - platform: template
+    id: ha_entity_10_domain
+    internal: true
+    lambda: return std::string("sensor");
+
+  # Entity 11 - Raumtemperatur Bad (ha_sensor Template)
+  - platform: template
+    id: ha_entity_11_state_text
+    internal: true
+    lambda: return std::string("24.1");
+  - platform: template
+    id: ha_entity_11_friendly_name
+    internal: true
+    lambda: return std::string("Bad Temperatur");
+  - platform: template
+    id: ha_entity_11_domain
+    internal: true
+    lambda: return std::string("sensor");
+
+  # Entity 13 - Luftfeuchtigkeit Wohnzimmer
+  - platform: template
+    id: ha_entity_13_state_text
+    internal: true
+    lambda: return std::string("58");
+  - platform: template
+    id: ha_entity_13_friendly_name
+    internal: true
+    lambda: return std::string("Wohnzimmer Luftfeuchtigkeit");
+  - platform: template
+    id: ha_entity_13_domain
+    internal: true
+    lambda: return std::string("sensor");
+
+  # Entity 14 - Luftfeuchtigkeit Schlafzimmer
+  - platform: template
+    id: ha_entity_14_state_text
+    internal: true
+    lambda: return std::string("62");
+  - platform: template
+    id: ha_entity_14_friendly_name
+    internal: true
+    lambda: return std::string("Schlafzimmer Luftfeuchtigkeit");
+  - platform: template
+    id: ha_entity_14_domain
+    internal: true
+    lambda: return std::string("sensor");
+
+  # Entity 15 - Luftfeuchtigkeit Küche
+  - platform: template
+    id: ha_entity_15_state_text
+    internal: true
+    lambda: return std::string("65");
+  - platform: template
+    id: ha_entity_15_friendly_name
+    internal: true
+    lambda: return std::string("Küche Luftfeuchtigkeit");
+  - platform: template
+    id: ha_entity_15_domain
+    internal: true
+    lambda: return std::string("sensor");
+
+  # Entity 16 - Luftfeuchtigkeit Bad
+  - platform: template
+    id: ha_entity_16_state_text
+    internal: true
+    lambda: return std::string("72");
+  - platform: template
+    id: ha_entity_16_friendly_name
+    internal: true
+    lambda: return std::string("Bad Luftfeuchtigkeit");
+  - platform: template
+    id: ha_entity_16_domain
+    internal: true
+    lambda: return std::string("sensor");
+
+
 # ============================================================================
 # Scripts
 # ============================================================================
@@ -634,24 +748,30 @@ script:
             return std::string(buf);
 
   # Navigation Scripts
+  # Navigation zur vorherigen Seite
   - id: navigate_prev
     then:
       - lambda: |-
           int current = id(current_page_index);
           int total = id(total_pages);
+          // Wrap-around: von 0 zurück zu letzter Seite
           current = (current - 1 + total) % total;
           id(current_page_index) = current;
       - script.execute: show_current_page
 
+  # Navigation zur nächsten Seite
   - id: navigate_next
     then:
       - lambda: |-
           int current = id(current_page_index);
           int total = id(total_pages);
+          // Wrap-around: von letzter Seite weiter zu 0
           current = (current + 1) % total;
           id(current_page_index) = current;
       - script.execute: show_current_page
 
+  # Aktuelle Seite basierend auf Index anzeigen
+  # Page-Name wird direkt hier gesetzt (Single Source of Truth)
   - id: show_current_page
     then:
       - if:
@@ -659,16 +779,36 @@ script:
             lambda: 'return id(current_page_index) == 0;'
           then:
             - lvgl.page.show: home_page
+            - lvgl.label.update:
+                id: page_name_label
+                text: "Home"
           else:
             - if:
                 condition:
                   lambda: 'return id(current_page_index) == 1;'
                 then:
                   - lvgl.page.show: switches_page
+                  - lvgl.label.update:
+                      id: page_name_label
+                      text: "Schalter"
                 else:
-                  - lambda: 'id(current_page_index) = 0;'
-                  - lvgl.page.show: home_page
+                  - if:
+                      condition:
+                        lambda: 'return id(current_page_index) == 2;'
+                      then:
+                        - lvgl.page.show: temperature_page
+                        - lvgl.label.update:
+                            id: page_name_label
+                            text: "Temperaturen"
+                      else:
+                        # Fallback: Zurück zur Home-Seite
+                        - lambda: 'id(current_page_index) = 0;'
+                        - lvgl.page.show: home_page
+                        - lvgl.label.update:
+                            id: page_name_label
+                            text: "Home"
 
+  # Navigation Bar ein-/ausblenden
   - id: show_navigation
     then:
       - lvgl.widget.show: navigation_bar
@@ -676,6 +816,18 @@ script:
   - id: hide_navigation
     then:
       - lvgl.widget.hide: navigation_bar
+
+  # Navigation zu bestimmter Seite (Index)
+  - id: navigate_to_page
+    parameters:
+      page_index: int
+    then:
+      - lambda: |-
+          int total = id(total_pages);
+          if (page_index >= 0 && page_index < total) {
+            id(current_page_index) = page_index;
+          }
+      - script.execute: show_current_page
 
 # Zeit-Simulation: Jede Minute erhöhen
 interval:
@@ -1119,18 +1271,30 @@ lvgl:
           align: BOTTOM_MID
           y: -12
           width: 460
-          height: 56
-          styles: nav_bar_modern
+          height: 64
+          radius: 20
+          bg_color: color_gray_900
+          bg_opa: 80%
+          border_color: color_gray_600
+          border_width: 1
+          border_opa: 30%
+          shadow_width: 16
+          shadow_ofs_y: -4
+          shadow_color: color_black
+          shadow_opa: 40%
+          pad_all: 8
+          pad_left: 12
+          pad_right: 12
           hidden: true
           scrollbar_mode: "OFF"
           layout:
             type: GRID
-            grid_columns: [FR(1), FR(2), FR(1)]
+            grid_columns: [48, FR(1), 48]
             grid_rows: [FR(1)]
             pad_row: 0
-            pad_column: 8
+            pad_column: 12
           widgets:
-            # Zurück-Button
+            # Zurück-Button (links)
             - button:
                 id: nav_btn_prev
                 grid_cell_column_pos: 0
@@ -1152,53 +1316,20 @@ lvgl:
                       id: nav_btn_prev_icon
                       align: CENTER
                       text_font: mdi_icons_40
-                      text: "\U000F0141"
                       text_color: color_gray_300
 
-            # Page Indicator (Mitte)
-            - obj:
+            # Page Name (Mitte)
+            - label:
+                id: page_name_label
                 grid_cell_column_pos: 1
                 grid_cell_row_pos: 0
                 grid_cell_x_align: CENTER
                 grid_cell_y_align: CENTER
-                width: 80
-                height: 8
-                bg_opa: TRANSP
-                border_opa: TRANSP
-                layout:
-                  type: GRID
-                  grid_columns: [FR(1), FR(1)]
-                  grid_rows: [FR(1)]
-                  pad_column: 8
-                widgets:
-                  # Dot 1
-                  - obj:
-                      id: page_dot_1
-                      grid_cell_column_pos: 0
-                      grid_cell_row_pos: 0
-                      grid_cell_x_align: CENTER
-                      grid_cell_y_align: CENTER
-                      width: 32
-                      height: 6
-                      radius: 3
-                      bg_color: color_primary
-                      bg_opa: COVER
-                      border_opa: TRANSP
-                  # Dot 2
-                  - obj:
-                      id: page_dot_2
-                      grid_cell_column_pos: 1
-                      grid_cell_row_pos: 0
-                      grid_cell_x_align: CENTER
-                      grid_cell_y_align: CENTER
-                      width: 8
-                      height: 6
-                      radius: 3
-                      bg_color: color_gray_600
-                      bg_opa: COVER
-                      border_opa: TRANSP
+                text: "Home"
+                text_font: roboto24
+                text_color: color_white
 
-            # Vor-Button
+            # Vor-Button (rechts)
             - button:
                 id: nav_btn_next
                 grid_cell_column_pos: 2
@@ -1220,8 +1351,8 @@ lvgl:
                       id: nav_btn_next_icon
                       align: CENTER
                       text_font: mdi_icons_40
-                      text: "\U000F0142"
                       text_color: color_gray_300
+
 
   # Seiten
   pages:
@@ -1306,7 +1437,7 @@ lvgl:
                               grid_cell_x_align: START
                               grid_cell_y_align: CENTER
                               id: homeassistant_btn_7_label
-                              text: "22°C  Sonnig"
+                              text: "°C --"
                               text_font: roboto24
                               text_color: color_white
                     
@@ -1340,7 +1471,7 @@ lvgl:
                               grid_cell_x_align: START
                               grid_cell_y_align: CENTER
                               id: display_house_temp
-                              text: "21.5°C"
+                              text: "-- °C"
                               text_font: roboto24
                               text_color: color_white
 
@@ -1400,26 +1531,7 @@ lvgl:
         - image:
             align: CENTER
             src: see_img
-        
-        # Page Title mit Backdrop
-        - obj:
-            align: TOP_MID
-            y: 12
-            width: SIZE_CONTENT
-            height: 40
-            pad_left: 20
-            pad_right: 20
-            radius: 20
-            bg_color: color_bg_dark
-            bg_opa: 70%
-            border_opa: TRANSP
-            widgets:
-              - label:
-                  align: CENTER
-                  text: "Geräte"
-                  text_font: roboto24
-                  text_color: color_white
-        
+
         # Hauptcontainer mit 2x3 Grid
         - obj:
             layout:
@@ -1429,10 +1541,10 @@ lvgl:
               pad_row: 16
               pad_column: 16
             width: 100%
-            height: 340
-            y: 48
+            height: ${content_height}
             pad_all: 20
             pad_top: 24
+            pad_bottom: 36
             bg_opa: TRANSP
             border_opa: TRANSP
             widgets:
@@ -1695,3 +1807,382 @@ lvgl:
                         text: "Rollladen"
                         text_font: roboto16
                         text_color: color_gray_200
+
+    # ========================================================================
+    # TEMPERATURE PAGE - Raumtemperaturen Übersicht
+    # ========================================================================
+    # Design-Konzept: Moderne Cards mit farbigen Thermometer-Icons
+    # 2x2 Grid für 4 Räume, Temperaturwert prominent angezeigt
+    # ========================================================================
+    - id: temperature_page
+      bg_color: color_bg_dark
+      widgets:
+        # Hintergrundbild
+        - image:
+            align: CENTER
+            src: see_img
+
+        # Hauptcontainer mit 2x2 Grid
+        - obj:
+            layout:
+              type: GRID
+              grid_columns: [FR(1), FR(1)]
+              grid_rows: [FR(1), FR(1)]
+              pad_row: 16
+              pad_column: 16
+            width: 100%
+            height: ${content_height}
+            pad_all: 20
+            pad_top: 24
+            pad_bottom: 36
+            bg_opa: TRANSP
+            border_opa: TRANSP
+            widgets:
+              # ============================================================
+              # Card 1 - Wohnzimmer Temperatur (oben links)
+              # ============================================================
+              - obj:
+                  id: temp_card_wohnzimmer
+                  grid_cell_column_pos: 0
+                  grid_cell_row_pos: 0
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  radius: 24
+                  bg_color: color_gray_800
+                  bg_opa: 60%
+                  border_color: color_gray_600
+                  border_width: 1
+                  border_opa: 20%
+                  shadow_width: 16
+                  shadow_ofs_y: 6
+                  shadow_color: color_black
+                  shadow_opa: 35%
+                  pad_all: 20
+                  scrollbar_mode: "OFF"
+                  layout:
+                    type: GRID
+                    grid_columns: [60, FR(1)]
+                    grid_rows: [SIZE_CONTENT, 6, SIZE_CONTENT, SIZE_CONTENT]
+                    pad_row: 0
+                    pad_column: 12
+                  widgets:
+                    # Thermometer Icon (farbig - Orange/Warm)
+                    - label:
+                        id: temp_icon_8
+                        grid_cell_column_pos: 0
+                        grid_cell_row_pos: 0
+                        grid_cell_row_span: 4
+                        grid_cell_x_align: CENTER
+                        grid_cell_y_align: CENTER
+                        text: "\U000F050F"
+                        text_font: btn_icons_font
+                        text_color: color_secondary
+                    # Raumname (oben)
+                    - label:
+                        id: temp_label_8
+                        grid_cell_column_pos: 1
+                        grid_cell_row_pos: 0
+                        grid_cell_x_align: START
+                        grid_cell_y_align: CENTER
+                        text: "Wohnzimmer"
+                        text_font: roboto16
+                        text_color: color_gray_300
+                    # Spacer (Zeile 1 = 6px)
+                    # Temperaturwert
+                    - label:
+                        id: temp_value_8
+                        grid_cell_column_pos: 1
+                        grid_cell_row_pos: 2
+                        grid_cell_x_align: START
+                        grid_cell_y_align: CENTER
+                        text: "21.5 °C"
+                        text_font: roboto24
+                        text_color: color_white
+                    # Luftfeuchtigkeit (direkt unter Temperatur)
+                    - obj:
+                        grid_cell_column_pos: 1
+                        grid_cell_row_pos: 3
+                        grid_cell_x_align: START
+                        grid_cell_y_align: START
+                        width: SIZE_CONTENT
+                        height: SIZE_CONTENT
+                        bg_opa: TRANSP
+                        border_opa: TRANSP
+                        pad_all: 0
+                        layout:
+                          type: FLEX
+                          flex_flow: ROW
+                          flex_align_main: START
+                          flex_align_cross: CENTER
+                        widgets:
+                          - label:
+                              text: "\U000F058C"
+                              text_font: mdi_icons_24
+                              text_color: color_info
+                              pad_right: 6
+                          - label:
+                              id: humidity_value_8
+                              text: "58 %"
+                              text_font: roboto16
+                              text_color: color_gray_300
+
+              # ============================================================
+              # Card 2 - Schlafzimmer Temperatur (oben rechts)
+              # ============================================================
+              - obj:
+                  id: temp_card_schlafzimmer
+                  grid_cell_column_pos: 1
+                  grid_cell_row_pos: 0
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  radius: 24
+                  bg_color: color_gray_800
+                  bg_opa: 60%
+                  border_color: color_gray_600
+                  border_width: 1
+                  border_opa: 20%
+                  shadow_width: 16
+                  shadow_ofs_y: 6
+                  shadow_color: color_black
+                  shadow_opa: 35%
+                  pad_all: 20
+                  scrollbar_mode: "OFF"
+                  layout:
+                    type: GRID
+                    grid_columns: [60, FR(1)]
+                    grid_rows: [SIZE_CONTENT, 6, SIZE_CONTENT, SIZE_CONTENT]
+                    pad_row: 0
+                    pad_column: 12
+                  widgets:
+                    # Thermometer Icon (farbig - Blau/Kühl)
+                    - label:
+                        id: temp_icon_9
+                        grid_cell_column_pos: 0
+                        grid_cell_row_pos: 0
+                        grid_cell_row_span: 4
+                        grid_cell_x_align: CENTER
+                        grid_cell_y_align: CENTER
+                        text: "\U000F050F"
+                        text_font: btn_icons_font
+                        text_color: color_info
+                    # Raumname
+                    - label:
+                        id: temp_label_9
+                        grid_cell_column_pos: 1
+                        grid_cell_row_pos: 0
+                        grid_cell_x_align: START
+                        grid_cell_y_align: CENTER
+                        text: "Schlafzimmer"
+                        text_font: roboto16
+                        text_color: color_gray_300
+                    # Temperaturwert
+                    - label:
+                        id: temp_value_9
+                        grid_cell_column_pos: 1
+                        grid_cell_row_pos: 2
+                        grid_cell_x_align: START
+                        grid_cell_y_align: CENTER
+                        text: "19.8 °C"
+                        text_font: roboto24
+                        text_color: color_white
+                    # Luftfeuchtigkeit
+                    - obj:
+                        grid_cell_column_pos: 1
+                        grid_cell_row_pos: 3
+                        grid_cell_x_align: START
+                        grid_cell_y_align: START
+                        width: SIZE_CONTENT
+                        height: SIZE_CONTENT
+                        bg_opa: TRANSP
+                        border_opa: TRANSP
+                        pad_all: 0
+                        layout:
+                          type: FLEX
+                          flex_flow: ROW
+                          flex_align_main: START
+                          flex_align_cross: CENTER
+                        widgets:
+                          - label:
+                              text: "\U000F058C"
+                              text_font: mdi_icons_24
+                              text_color: color_info
+                              pad_right: 6
+                          - label:
+                              id: humidity_value_9
+                              text: "62 %"
+                              text_font: roboto16
+                              text_color: color_gray_300
+
+              # ============================================================
+              # Card 3 - Küche Temperatur (unten links)
+              # ============================================================
+              - obj:
+                  id: temp_card_kueche
+                  grid_cell_column_pos: 0
+                  grid_cell_row_pos: 1
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  radius: 24
+                  bg_color: color_gray_800
+                  bg_opa: 60%
+                  border_color: color_gray_600
+                  border_width: 1
+                  border_opa: 20%
+                  shadow_width: 16
+                  shadow_ofs_y: 6
+                  shadow_color: color_black
+                  shadow_opa: 35%
+                  pad_all: 20
+                  scrollbar_mode: "OFF"
+                  layout:
+                    type: GRID
+                    grid_columns: [60, FR(1)]
+                    grid_rows: [SIZE_CONTENT, 6, SIZE_CONTENT, SIZE_CONTENT]
+                    pad_row: 0
+                    pad_column: 12
+                  widgets:
+                    # Thermometer Icon (farbig - Orange/Warm)
+                    - label:
+                        id: temp_icon_10
+                        grid_cell_column_pos: 0
+                        grid_cell_row_pos: 0
+                        grid_cell_row_span: 4
+                        grid_cell_x_align: CENTER
+                        grid_cell_y_align: CENTER
+                        text: "\U000F050F"
+                        text_font: btn_icons_font
+                        text_color: color_secondary
+                    # Raumname
+                    - label:
+                        id: temp_label_10
+                        grid_cell_column_pos: 1
+                        grid_cell_row_pos: 0
+                        grid_cell_x_align: START
+                        grid_cell_y_align: CENTER
+                        text: "Küche"
+                        text_font: roboto16
+                        text_color: color_gray_300
+                    # Temperaturwert
+                    - label:
+                        id: temp_value_10
+                        grid_cell_column_pos: 1
+                        grid_cell_row_pos: 2
+                        grid_cell_x_align: START
+                        grid_cell_y_align: CENTER
+                        text: "22.3 °C"
+                        text_font: roboto24
+                        text_color: color_white
+                    # Luftfeuchtigkeit
+                    - obj:
+                        grid_cell_column_pos: 1
+                        grid_cell_row_pos: 3
+                        grid_cell_x_align: START
+                        grid_cell_y_align: START
+                        width: SIZE_CONTENT
+                        height: SIZE_CONTENT
+                        bg_opa: TRANSP
+                        border_opa: TRANSP
+                        pad_all: 0
+                        layout:
+                          type: FLEX
+                          flex_flow: ROW
+                          flex_align_main: START
+                          flex_align_cross: CENTER
+                        widgets:
+                          - label:
+                              text: "\U000F058C"
+                              text_font: mdi_icons_24
+                              text_color: color_info
+                              pad_right: 6
+                          - label:
+                              id: humidity_value_10
+                              text: "65 %"
+                              text_font: roboto16
+                              text_color: color_gray_300
+
+              # ============================================================
+              # Card 4 - Bad Temperatur (unten rechts)
+              # ============================================================
+              - obj:
+                  id: temp_card_bad
+                  grid_cell_column_pos: 1
+                  grid_cell_row_pos: 1
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  radius: 24
+                  bg_color: color_gray_800
+                  bg_opa: 60%
+                  border_color: color_gray_600
+                  border_width: 1
+                  border_opa: 20%
+                  shadow_width: 16
+                  shadow_ofs_y: 6
+                  shadow_color: color_black
+                  shadow_opa: 35%
+                  pad_all: 20
+                  scrollbar_mode: "OFF"
+                  layout:
+                    type: GRID
+                    grid_columns: [60, FR(1)]
+                    grid_rows: [SIZE_CONTENT, 6, SIZE_CONTENT, SIZE_CONTENT]
+                    pad_row: 0
+                    pad_column: 12
+                  widgets:
+                    # Thermometer Icon (farbig - Rot/Warm)
+                    - label:
+                        id: temp_icon_11
+                        grid_cell_column_pos: 0
+                        grid_cell_row_pos: 0
+                        grid_cell_row_span: 4
+                        grid_cell_x_align: CENTER
+                        grid_cell_y_align: CENTER
+                        text: "\U000F050F"
+                        text_font: btn_icons_font
+                        text_color: color_error
+                    # Raumname
+                    - label:
+                        id: temp_label_11
+                        grid_cell_column_pos: 1
+                        grid_cell_row_pos: 0
+                        grid_cell_x_align: START
+                        grid_cell_y_align: CENTER
+                        text: "Bad"
+                        text_font: roboto16
+                        text_color: color_gray_300
+                    # Temperaturwert
+                    - label:
+                        id: temp_value_11
+                        grid_cell_column_pos: 1
+                        grid_cell_row_pos: 2
+                        grid_cell_x_align: START
+                        grid_cell_y_align: CENTER
+                        text: "24.1 °C"
+                        text_font: roboto24
+                        text_color: color_white
+                    # Luftfeuchtigkeit
+                    - obj:
+                        grid_cell_column_pos: 1
+                        grid_cell_row_pos: 3
+                        grid_cell_x_align: START
+                        grid_cell_y_align: START
+                        width: SIZE_CONTENT
+                        height: SIZE_CONTENT
+                        bg_opa: TRANSP
+                        border_opa: TRANSP
+                        pad_all: 0
+                        layout:
+                          type: FLEX
+                          flex_flow: ROW
+                          flex_align_main: START
+                          flex_align_cross: CENTER
+                        widgets:
+                          - label:
+                              text: "\U000F058C"
+                              text_font: mdi_icons_24
+                              text_color: color_info
+                              pad_right: 6
+                          - label:
+                              id: humidity_value_11
+                              text: "72 %"
+                              text_font: roboto16
+                              text_color: color_gray_300

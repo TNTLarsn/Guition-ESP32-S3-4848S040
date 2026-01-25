@@ -81,9 +81,9 @@ text_sensor:
             // Kombiniertes Label aktualisieren
             char buf[64];
             if (std::isnan(id(weather_${num}_temp_value))) {
-              snprintf(buf, sizeof(buf), "%s bei -- °C", translated.c_str());
+              snprintf(buf, sizeof(buf), "-- °C %s", translated.c_str());
             } else {
-              snprintf(buf, sizeof(buf), "%s bei %.1f °C", translated.c_str(), id(weather_${num}_temp_value));
+              snprintf(buf, sizeof(buf), "%.1f °C %s", id(weather_${num}_temp_value), translated.c_str());
             }
             if (lv_is_initialized()) {
               lv_label_set_text(id(homeassistant_btn_${num}_label), buf);
@@ -119,9 +119,9 @@ sensor:
             char buf[64];
             std::string weather_text = id(weather_${num}_state_text);
             if (weather_text.empty() || weather_text == "--") {
-              snprintf(buf, sizeof(buf), "-- bei %.1f °C", x);
+              snprintf(buf, sizeof(buf), "%.1f °C --", x);
             } else {
-              snprintf(buf, sizeof(buf), "%s bei %.1f °C", weather_text.c_str(), x);
+              snprintf(buf, sizeof(buf), "%.1f °C %s", x, weather_text.c_str());
             }
             if (lv_is_initialized()) {
               lv_label_set_text(id(homeassistant_btn_${num}_label), buf);

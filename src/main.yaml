@@ -5,6 +5,7 @@ packages:
   boot_screen: !include pages/boot.yaml
   home_page: !include pages/home.yaml
   switches_page: !include pages/switches.yaml
+  temperatures_page: !include pages/temperatures.yaml
   ota_page: !include pages/ota.yaml
   navigation: !include pages/navigation.yaml
   theme: !include themes/modern.yaml

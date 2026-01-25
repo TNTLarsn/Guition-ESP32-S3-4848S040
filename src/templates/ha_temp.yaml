@@ -1,0 +1,106 @@
+# Template für Home Assistant Temperatur-Sensor Widget (LVGL Card)
+# Variablen: temp, col, row, icon_color (optional)
+# Der Anzeigename wird dynamisch aus dem Text-Sensor ha_entity_${temp}_friendly_name gelesen
+# Temperatur- und Feuchtewerte werden über die Labels ha_temp_value_${temp} / ha_temp_value_${hum} aktualisiert
+# Design: Glassmorphism Card mit farbigem Thermometer-Icon links, Name + Wert rechts
+
+defaults:
+  temp: "8"
+  hum: "9"
+  col: "0"
+  row: "0"
+
+obj:
+  id: temp_card_${temp}
+  grid_cell_column_pos: ${col}
+  grid_cell_row_pos: ${row}
+  grid_cell_x_align: STRETCH
+  grid_cell_y_align: STRETCH
+  # Glassmorphism Card Styling
+  radius: 24
+  bg_color: color_gray_800
+  bg_opa: 60%
+  border_color: color_gray_600
+  border_width: 1
+  border_opa: 20%
+  shadow_width: 16
+  shadow_ofs_y: 6
+  shadow_color: color_black
+  shadow_opa: 35%
+  pad_all: 16
+  scrollbar_mode: "OFF"
+  # Grid Layout für Icon + Name/Wert
+  layout:
+    type: GRID
+    grid_columns: [48, FR(1)]
+    grid_rows: [SIZE_CONTENT, 6, SIZE_CONTENT, SIZE_CONTENT]
+    pad_row: 4
+    pad_column: 12
+  widgets:
+    # Thermometer Icon (Farbe wird dynamisch durch ha_temp_sensor.yaml aktualisiert)
+    - label:
+        id: temp_icon_${temp}
+        grid_cell_column_pos: 0
+        grid_cell_row_pos: 0
+        grid_cell_row_span: 4
+        grid_cell_x_align: CENTER
+        grid_cell_y_align: CENTER
+        text: "\U000F050F"
+        text_font: btn_icons_font
+        text_color: color_gray_500
+    # Raumname (aus friendly_name)
+    - label:
+        id: ha_sensor_label_${temp}
+        grid_cell_column_pos: 1
+        grid_cell_row_pos: 0
+        grid_cell_x_align: START
+        grid_cell_y_align: CENTER
+        text: !lambda |-
+          if (id(ha_entity_${temp}_friendly_name).has_state()) {
+            return id(ha_entity_${temp}_friendly_name).state;
+          }
+          return std::string("Sensor ${temp}");
+        text_font: roboto16
+        text_color: color_gray_300
+    # Temperaturwert (groß)
+    - label:
+        id: ha_temp_value_${temp}
+        grid_cell_column_pos: 1
+        grid_cell_row_pos: 2
+        grid_cell_x_align: START
+        grid_cell_y_align: CENTER
+        text: "-- °C"
+        text_font: roboto24
+        text_color: color_white
+    
+    # Luftfeuchtigkeit
+    - obj:
+        grid_cell_column_pos: 1
+        grid_cell_row_pos: 3
+        grid_cell_x_align: START
+        grid_cell_y_align: START
+        width: SIZE_CONTENT
+        height: SIZE_CONTENT
+        bg_opa: TRANSP
+        border_opa: TRANSP
+        pad_all: 0
+        layout:
+            type: FLEX
+            flex_flow: ROW
+            flex_align_main: START
+            flex_align_cross: CENTER
+        widgets:
+            - label:
+                text: "\U000F058C"
+                text_font: mdi_icons_24
+                text_color: color_info
+                pad_right: 6
+            - label:
+                id: ha_temp_value_${hum}
+                text: "-- %"
+                text_font: roboto16
+                text_color: color_gray_300
+
+
+
+                    

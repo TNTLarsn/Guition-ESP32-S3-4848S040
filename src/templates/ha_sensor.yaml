@@ -3,13 +3,24 @@
 # ohne zugehörigen LVGL-Button auf der Switches-Seite
 #
 # Variablen: num, entity_id
-# Liefert: State-Text, Domain, Friendly Name
+# Liefert: State-Text, Domain, Friendly Name, Unit of Measurement
 
 defaults:
   num: "8"
   entity_id: "sensor.placeholder"
 
 text_sensor:
+  # Unit of Measurement (Einheit aus Home Assistant)
+  - platform: homeassistant
+    id: ha_entity_${num}_unit
+    entity_id: ${entity_id}
+    attribute: unit_of_measurement
+    internal: true
+    on_value:
+      then:
+        - lambda: |-
+            ESP_LOGD("ha_sensor", "Sensor ${num} unit: %s", x.c_str());
+
   # State Text (Sensor-Wert als String)
   - platform: homeassistant
     id: ha_entity_${num}_state_text
@@ -21,11 +32,18 @@ text_sensor:
             ESP_LOGD("ha_sensor", "Sensor ${num} state: %s", x.c_str());
         # LVGL Label aktualisieren wenn vorhanden
         - lvgl.label.update:
-            id: display_house_temp
+            id: ha_temp_value_${num}
             text: !lambda |-
-              std::string temp = id(ha_entity_${num}_state_text).state;
-              if (temp.empty()) return std::string("-- °C");
-              return temp + " °C";
+              std::string value = id(ha_entity_${num}_state_text).state;
+              std::string unit = id(ha_entity_${num}_unit).state;
+              if (value.empty()) {
+                // Fallback mit Einheit oder Standardwert
+                if (unit.empty()) return std::string("--");
+                return std::string("-- ") + unit;
+              }
+              // Wert mit dynamischer Einheit zurückgeben
+              if (unit.empty()) return value;
+              return value + "" + unit;
 
   # Friendly Name
   - platform: homeassistant
@@ -33,6 +51,11 @@ text_sensor:
     entity_id: ${entity_id}
     attribute: friendly_name
     internal: true
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: ha_sensor_label_${num}
+            text: !lambda return x.c_str();
 
   # Domain (extrahiert aus entity_id)
   - platform: template

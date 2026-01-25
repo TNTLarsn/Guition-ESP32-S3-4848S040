@@ -49,3 +49,44 @@ packages:
     vars:
       num: "8"
       entity_id: sensor.durchschnitts_innentemperatur
+  # Temperatur-Sensoren (9, 11, 13, 15) mit dynamischer Icon-Farbe
+  ha_sensor_9: !include
+    file: ../templates/ha_temp_sensor.yaml
+    vars:
+      num: "9"
+      entity_id: sensor.bthome_sensor_081d_temperatur #Bad  
+  ha_sensor_10: !include
+    file: ../templates/ha_sensor.yaml
+    vars:
+      num: "10"
+      entity_id: sensor.bthome_sensor_081d_luftfeuchtigkeit #Bad  
+  ha_sensor_11: !include
+    file: ../templates/ha_temp_sensor.yaml
+    vars:
+      num: "11"
+      entity_id: sensor.bthome_sensor_7920_temperatur #Wohnzimmer
+  ha_sensor_12: !include
+    file: ../templates/ha_sensor.yaml
+    vars:
+      num: "12"
+      entity_id: sensor.bthome_sensor_7920_luftfeuchtigkeit #Wohnzimmer
+  ha_sensor_13: !include
+    file: ../templates/ha_temp_sensor.yaml
+    vars:
+      num: "13"
+      entity_id: sensor.bthome_sensor_d35e_temperatur #Schlafzimmer
+  ha_sensor_14: !include
+    file: ../templates/ha_sensor.yaml
+    vars:
+      num: "14"
+      entity_id: sensor.bthome_sensor_d35e_luftfeuchtigkeit #Schlafzimmer
+  ha_sensor_15: !include
+    file: ../templates/ha_temp_sensor.yaml
+    vars:
+      num: "15"
+      entity_id: sensor.bthome_sensor_fccb_temperatur #Kueche
+  ha_sensor_16: !include
+    file: ../templates/ha_sensor.yaml
+    vars:
+      num: "16"
+      entity_id: sensor.bthome_sensor_fccb_luftfeuchtigkeit #Kueche
