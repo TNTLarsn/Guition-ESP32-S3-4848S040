@@ -91,7 +91,9 @@ esphome run src/main.factory.yaml
 │   ├── templates/             # Wiederverwendbare YAML-Templates
 │   │   ├── ha_entity.yaml     # Template: HA Entity Sensoren
 │   │   ├── ha_button.yaml     # Template: LVGL Button Widget
+│   │   ├── ha_button_entity.yaml # Template: Button mit HA Entity
 │   │   ├── ha_sensor.yaml     # Template: HA Sensor
+│   │   ├── ha_temp.yaml       # Template: Temperatur-Anzeige
 │   │   ├── ha_temp_sensor.yaml # Template: Temperatur-Sensor
 │   │   ├── ha_weather.yaml    # Template: Wetter-Entity
 │   │   └── ha_season_sensor.yaml # Template: Jahreszeit-Sensor
