@@ -90,3 +90,9 @@ packages:
     vars:
       num: "16"
       entity_id: sensor.bthome_sensor_fccb_luftfeuchtigkeit #Kueche
+  # Jahreszeit-Sensor mit speziellem Template (aktualisiert Hintergrundbilder dynamisch)
+  ha_sensor_17: !include
+    file: ../templates/ha_season_sensor.yaml
+    vars:
+      num: "17"
+      entity_id: sensor.jahreszeit

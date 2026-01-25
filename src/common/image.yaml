@@ -20,8 +20,26 @@
   resize: 320x95
   transparency: alpha_channel
 
-- file: 'assets/images/see.png'
-  id: see_img
+- file: 'assets/images/see_spring.png'
+  id: see_spring_img
+  type: rgb565
+  resize: ${display_width}x${display_height}
+  transparency: alpha_channel
+
+- file: 'assets/images/see_summer.png'
+  id: see_summer_img
+  type: rgb565
+  resize: ${display_width}x${display_height}
+  transparency: alpha_channel
+
+- file: 'assets/images/see_autumn.png'
+  id: see_autumn_img
+  type: rgb565
+  resize: ${display_width}x${display_height}
+  transparency: alpha_channel
+
+- file: 'assets/images/see_winter.png'
+  id: see_winter_img
   type: rgb565
   resize: ${display_width}x${display_height}
   transparency: alpha_channel
