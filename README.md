@@ -210,7 +210,7 @@ main.factory.yaml          # Factory mit improv_serial & dashboard_import
 - Timeout: Konfigurierbar über `display_timeout_backlight` (-1-720 Minuten, `-1` deaktiviert Idle-Handling)
 - Bei Idle (Wert >= 0): Backlight aus + LVGL pausiert nach Ablauf des Timeouts
 - Bei Touch: LVGL resume + Backlight ein
-- Antiburn-Modus: Automatisch zwischen 2:05 und 5:35 Uhr
+- Antiburn-Modus: Automatisch jeweils von 2:05–2:35, 3:05–3:35, 4:05–4:35 und 5:05–5:35 Uhr aktiv
 
 ## 🏠 Home Assistant Integration
 
