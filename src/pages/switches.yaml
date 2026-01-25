@@ -9,10 +9,11 @@ lvgl:
     - id: switches_page
       bg_color: color_bg_dark
       widgets:
-        # Hintergrundbild
+        # Hintergrundbild (dynamisch basierend auf Jahreszeit, Default: Sommer)
         - image:
+            id: switches_bg_image
             align: CENTER
-            src: see_img
+            src: see_summer_img
 
         # Hauptcontainer mit 2x3 Grid
         - obj:

@@ -13,10 +13,11 @@ lvgl:
         - label:
             id: ha_sensor_label_8
             hidden: true
-        # Hintergrundbild
+        # Hintergrundbild (dynamisch basierend auf Jahreszeit, Default: Sommer)
         - image:
+            id: home_bg_image
             align: CENTER
-            src: see_img
+            src: see_summer_img
         
         # Hauptcontainer mit Grid Layout
         - obj:

@@ -1,0 +1,41 @@
+# Template für Home Assistant Jahreszeiten-Sensor
+# Spezielles Template das bei Wertänderung die Hintergrundbilder aktualisiert
+#
+# Variablen: num, entity_id
+# Liefert: State-Text (Jahreszeit) und aktualisiert dynamisch die Hintergrundbilder
+
+defaults:
+  num: "17"
+  entity_id: "sensor.jahreszeit"
+
+text_sensor:
+  # State Text (Jahreszeit als String: spring/summer/autumn/winter)
+  - platform: homeassistant
+    id: ha_entity_${num}_state_text
+    entity_id: ${entity_id}
+    internal: true
+    on_value:
+      then:
+        - lambda: |-
+            ESP_LOGD("ha_season", "Jahreszeit geändert auf: %s", x.c_str());
+        # Hintergrundbilder aktualisieren
+        - script.execute: update_season_background
+
+  # Friendly Name (nur für interne Referenz, kein UI-Label)
+  - platform: homeassistant
+    id: ha_entity_${num}_friendly_name
+    entity_id: ${entity_id}
+    attribute: friendly_name
+    internal: true
+
+  # Domain (extrahiert aus entity_id)
+  - platform: template
+    id: ha_entity_${num}_domain
+    internal: true
+    lambda: |-
+      std::string entity_id = "${entity_id}";
+      size_t pos = entity_id.find('.');
+      if (pos != std::string::npos) {
+        return entity_id.substr(0, pos);
+      }
+      return std::string("unknown");

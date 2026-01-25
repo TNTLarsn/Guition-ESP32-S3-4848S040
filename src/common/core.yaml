@@ -554,6 +554,59 @@ script:
       - delay: 500ms
       - update.perform: firmware_update
 
+  # Script für dynamische Jahreszeiten-Hintergrundbilder
+  - id: update_season_background
+    mode: single
+    then:
+      - lambda: |-
+          // Jahreszeit aus ha_entity_17_state_text lesen
+          std::string season = id(ha_entity_17_state_text).state;
+          ESP_LOGD("season", "Aktualisiere Hintergrundbild für Jahreszeit: %s", season.c_str());
+          
+          // Zu Kleinbuchstaben konvertieren für Vergleich (nur ASCII-sicher)
+          std::transform(season.begin(), season.end(), season.begin(),
+                         [](unsigned char c) -> char {
+                           if (c >= 'A' && c <= 'Z') {
+                             return static_cast<char>(c + ('a' - 'A'));
+                           }
+                           return static_cast<char>(c);
+                         });
+          
+          // Entsprechendes Bild basierend auf Jahreszeit setzen
+          lv_obj_t* images[] = {
+            id(home_bg_image),
+            id(switches_bg_image),
+            id(temperature_bg_image)
+          };
+          
+          esphome::image::Image* img_src = nullptr;
+          
+          if (season == "spring" || season == "frühling" || season == "fruehling") {
+            img_src = id(see_spring_img);
+            ESP_LOGI("season", "Setze Frühlings-Hintergrundbild");
+          } else if (season == "summer" || season == "sommer") {
+            img_src = id(see_summer_img);
+            ESP_LOGI("season", "Setze Sommer-Hintergrundbild");
+          } else if (season == "autumn" || season == "fall" || season == "herbst") {
+            img_src = id(see_autumn_img);
+            ESP_LOGI("season", "Setze Herbst-Hintergrundbild");
+          } else if (season == "winter") {
+            img_src = id(see_winter_img);
+            ESP_LOGI("season", "Setze Winter-Hintergrundbild");
+          } else {
+            // Fallback auf Sommer
+            img_src = id(see_summer_img);
+            ESP_LOGW("season", "Unbekannte Jahreszeit '%s', verwende Sommer als Fallback", season.c_str());
+          }
+          
+          if (img_src != nullptr) {
+            for (auto* img_obj : images) {
+              if (img_obj != nullptr) {
+                lv_img_set_src(img_obj, img_src->get_lv_img_dsc());
+              }
+            }
+          }
+
 # WiFi Configuration
 wifi:
   # Set up a wifi access point using the device name above
