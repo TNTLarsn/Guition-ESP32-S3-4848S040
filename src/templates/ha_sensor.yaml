@@ -21,7 +21,7 @@ text_sensor:
             ESP_LOGD("ha_sensor", "Sensor ${num} state: %s", x.c_str());
         # LVGL Label aktualisieren wenn vorhanden
         - lvgl.label.update:
-            id: display_house_temp
+            id: ha_temp_value_${num}
             text: !lambda |-
               std::string temp = id(ha_entity_${num}_state_text).state;
               if (temp.empty()) return std::string("-- °C");
@@ -33,6 +33,11 @@ text_sensor:
     entity_id: ${entity_id}
     attribute: friendly_name
     internal: true
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: ha_sensor_label_${num}
+            text: !lambda return x.c_str();
 
   # Domain (extrahiert aus entity_id)
   - platform: template

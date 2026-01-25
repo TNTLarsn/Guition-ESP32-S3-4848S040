@@ -258,6 +258,7 @@
     "\U000F099E", # shield off
     "\U000F0498", # shield
     "\U000F0493", # settings
+    "\U000F058C", # water (humidity)
     "\U000F032A", # preset eco
     "\U000F0F9B", # preset away
     "\U000F14DE", # preset boost     

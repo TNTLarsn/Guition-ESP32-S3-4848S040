@@ -9,6 +9,10 @@ lvgl:
     - id: home_page
       bg_color: color_bg_dark
       widgets:
+        # Hidden placeholder für ha_sensor_label_8 (wird nur für Templates benötigt)
+        - label:
+            id: ha_sensor_label_8
+            hidden: true
         # Hintergrundbild
         - image:
             align: CENTER
@@ -81,7 +85,7 @@ lvgl:
                               grid_cell_x_align: START
                               grid_cell_y_align: CENTER
                               id: homeassistant_btn_7_label
-                              text: "-- °C"
+                              text: "°C --"
                               text_font: roboto24
                               text_color: color_white
                     
@@ -114,7 +118,7 @@ lvgl:
                               grid_cell_row_pos: 0
                               grid_cell_x_align: START
                               grid_cell_y_align: CENTER
-                              id: display_house_temp
+                              id: ha_temp_value_8
                               text: "-- °C"
                               text_font: roboto24
                               text_color: color_white

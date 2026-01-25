@@ -1,0 +1,56 @@
+# ========================================================================
+# TEMPERATURE PAGE - Raumtemperaturen Übersicht
+# ========================================================================
+# Design-Konzept: Moderne Cards mit farbigen Thermometer-Icons
+# 2x2 Grid für 4 Räume, Temperaturwert prominent angezeigt
+# ========================================================================
+
+lvgl:
+  pages:
+    - id: temperature_page
+      bg_color: color_bg_dark
+      widgets:
+        # Hintergrundbild
+        - image:
+            align: CENTER
+            src: see_img
+        
+        # Hidden placeholder für ha_sensor_label_8 (wird nur für Templates benötigt)
+        - label:
+            id: ha_sensor_label_10
+            hidden: true
+        
+        - label:
+            id: ha_sensor_label_12
+            hidden: true
+
+        - label:
+            id: ha_sensor_label_14
+            hidden: true
+        
+        - label:
+            id: ha_sensor_label_16
+            hidden: true
+
+        # Hauptcontainer mit 2x2 Grid
+        - obj:
+            layout:
+              type: GRID
+              grid_columns: [FR(1), FR(1)]
+              grid_rows: [FR(1), FR(1)]
+              pad_row: 16
+              pad_column: 16
+            width: 100%
+            height: ${content_height}
+            pad_all: 20
+            pad_top: 24
+            pad_bottom: 36
+            bg_opa: TRANSP
+            border_opa: TRANSP
+            widgets:
+              # Temperatur-Cards via Template-Include (col 0-1, row 0-1)
+              # Entity 9-12 sind die Temperatur-Sensoren (definiert in homeassistant.yaml)
+              - !include { file: ../templates/ha_temp.yaml, vars: { temp: "9", hum: "10", col: "0", row: "0", icon_color: "color_secondary" } }
+              - !include { file: ../templates/ha_temp.yaml, vars: { temp: "11", hum: "12", col: "1", row: "0", icon_color: "color_info" } }
+              - !include { file: ../templates/ha_temp.yaml, vars: { temp: "13", hum: "14", col: "0", row: "1", icon_color: "color_secondary" } }
+              - !include { file: ../templates/ha_temp.yaml, vars: { temp: "15", hum: "16", col: "1", row: "1", icon_color: "color_error" } }
