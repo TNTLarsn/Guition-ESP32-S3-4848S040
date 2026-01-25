@@ -12,12 +12,16 @@ Pixel LCD und kapazitivem Touchscreen.
 - **4.8" LCD Display** (480x480 Pixel, ST7701S Treiber)
 - **Kapazitiver Touchscreen** (GT911, I2C)
 - **LVGL Integration** für moderne Benutzeroberflächen
-- **Automatische Domain-Icons** - Icons basierend auf Home Assistant Entity-Domain (24 unterstützte Domains)
-- **Dynamische MDI Icons** - Automatische Icon-Konvertierung aus Home Assistant
+- **Multi-Page UI** - Home, Switches, Temperaturen mit Navigation
+- **Dynamische Jahreszeiten-Hintergrundbilder** - Automatische Bildwechsel basierend auf Jahreszeit
+- **Automatische Domain-Icons** - Icons basierend auf Home Assistant Entity-Domain
+- **Dynamische MDI Icons** - Automatische Icon-Konvertierung (~190 unterstützte Icons)
+- **Deutsche Lokalisierung** - Datum, Wochentage, Monate in Deutsch
 - **Home Assistant Integration** - Dynamische Labels, Icons und States via Native API
 - **OTA Updates** via HTTP Request und ESPHome Dashboard
-- **WiFi Provisioning** über Bluetooth LE oder Captive Portal
-- **Web-basierte Installation** mit ESP Web Tools (kein Tool-Download nötig)
+- **WiFi Provisioning** über Captive Portal
+- **Web-basierte Installation** mit ESP Web Tools
+- **Integriertes 240V Relais** - Schaltbarer Relaisausgang
 
 ## 📦 Hardware-Spezifikationen
 
@@ -29,6 +33,7 @@ Pixel LCD und kapazitivem Touchscreen.
 | **Display** | 4.8" RGB LCD, 480x480 px |
 | **Touch** | GT911 (I2C, 100 kHz) |
 | **Backlight** | LEDC PWM @ 100 Hz |
+| **Relais** | 240V, GPIO40 |
 
 ## 🚀 Schnellstart
 
@@ -63,22 +68,38 @@ esphome run src/main.factory.yaml
 ├── src/
 │   ├── main.yaml              # Basis-Konfiguration (nach Adoption)
 │   ├── main.factory.yaml      # Factory-Version mit Provisioning
+│   ├── assets/
+│   │   ├── fonts/             # Custom Fonts
+│   │   └── images/            # Jahreszeiten-Hintergrundbilder
 │   ├── common/
 │   │   ├── core.yaml          # Hardware-Konfiguration
 │   │   ├── substitutions.yaml # Projekt-Variablen
 │   │   ├── fonts.yaml         # Font-Definitionen inkl. MDI Icons
-│   │   ├── homeassistant.yaml # Home Assistant Entity-Definitionen (via Templates)
+│   │   ├── homeassistant.yaml # Home Assistant Entity-Definitionen
+│   │   ├── image.yaml         # Bild-Definitionen
 │   │   └── colors.yaml        # Farbdefinitionen
 │   ├── helper/
-│   │   └── mdi_icon_map.h     # MDI Icon zu Unicode Konverter
+│   │   ├── mdi_icon_map.h     # MDI Icon zu Unicode Konverter
+│   │   └── datetime_helper.h  # Deutsche Datums-/Zeitformatierung
 │   ├── pages/
 │   │   ├── boot.yaml          # Boot-Screen
-│   │   └── home.yaml          # Hauptseite mit HA-Buttons (via Templates)
+│   │   ├── home.yaml          # Hauptseite mit Wetter
+│   │   ├── switches.yaml      # Schalter-Seite
+│   │   ├── temperatures.yaml  # Temperatur-Übersicht
+│   │   ├── navigation.yaml    # Navigationsleiste
+│   │   └── ota.yaml           # OTA-Update Seite
 │   ├── templates/             # Wiederverwendbare YAML-Templates
 │   │   ├── ha_entity.yaml     # Template: HA Entity Sensoren
-│   │   └── ha_button.yaml     # Template: LVGL Button Widget
+│   │   ├── ha_button.yaml     # Template: LVGL Button Widget
+│   │   ├── ha_sensor.yaml     # Template: HA Sensor
+│   │   ├── ha_temp_sensor.yaml # Template: Temperatur-Sensor
+│   │   ├── ha_weather.yaml    # Template: Wetter-Entity
+│   │   └── ha_season_sensor.yaml # Template: Jahreszeit-Sensor
 │   └── themes/
-│       └── homeassistant.yaml # Home Assistant Theme (Farben & Styles)
+│       ├── modern.yaml        # Modernes Theme (Standard)
+│       └── homeassistant.yaml # Home Assistant Theme
+├── tests/
+│   └── simulator/             # SDL-Simulator für UI-Testing
 ├── .github/workflows/
 │   ├── ci.yml                 # Automatische Tests bei PRs
 │   ├── publish-firmware.yml   # Release-Builds
@@ -92,25 +113,35 @@ esphome run src/main.factory.yaml
 
 ```bash
 # Python-Skript (empfohlen)
-python3 test_ci.py
+python3 scripts/test_ci.py
 
 # Makefile (schnellste Option)
 make test
 
 # Bash-Skript
-bash test_ci.sh
+bash scripts/test_ci.sh
 ```
 
 Details siehe [LOCAL_TESTING.md](LOCAL_TESTING.md).
 
+### SDL Simulator (UI-Testing ohne Hardware)
+
+```bash
+# Simulator kompilieren und starten
+esphome run tests/simulator/main.simulator.yaml
+
+# Oder via VS Code Task: "🖥️ Simulator starten"
+```
+
 ### Häufige Änderungen
 
-| Änderung | Datei | Zeilen |
-| --------- | ------- | -------- |
-| Display-Parameter | [core.yaml](src/common/core.yaml#L87-L124) | 87-124 |
-| Touch-Kalibrierung | [core.yaml](src/common/core.yaml#L56-L63) | 56-63 |
-| Backlight-Timeout | [core.yaml](src/common/core.yaml#L171-L183) | 171-183 |
-| Projektversion | [substitutions.yaml](src/common/substitutions.yaml) | 2-5 |
+| Änderung | Datei |
+| --------- | ------- |
+| Display-Parameter | [core.yaml](src/common/core.yaml) (ST7701S-Config) |
+| Touch-Kalibrierung | [core.yaml](src/common/core.yaml) (GT911 transform) |
+| Backlight-Timeout | [core.yaml](src/common/core.yaml) (Number-Component) |
+| Projektversion | [substitutions.yaml](src/common/substitutions.yaml) |
+| Home Assistant Entities | [homeassistant.yaml](src/common/homeassistant.yaml) |
 
 ### Build & Flash
 
@@ -118,8 +149,11 @@ Details siehe [LOCAL_TESTING.md](LOCAL_TESTING.md).
 # Firmware kompilieren
 make compile
 
-# Auf Gerät flashen (Port: /dev/cu.usbserial-110)
+# Auf Gerät flashen (USB, mit Flash-Erase)
 make flash
+
+# Firmware updaten (USB, ohne Erase)
+make update
 
 # Logs anzeigen
 make monitor
@@ -128,21 +162,34 @@ make monitor
 make clean
 ```
 
-Hinweise zum Flash:
+### Local Dev Mode
 
-- Beim Target `make flash` wird der Chipspeicher vor dem Upload mit `esptool.py` vollständig gelöscht (`erase_flash`).
-- Voraussetzung: `esptool.py` ist installiert (z. B. über `pip install esptool`).
-- Standard-Port: `/dev/cu.usbserial-110` (Passe ihn im [Makefile](Makefile) an, falls dein Gerät einen anderen Port nutzt.)
+Für iterative Entwicklung ohne GitHub Release:
+
+```bash
+# Gerät in Local Dev Mode versetzen
+make local-release-test [DEVICE-IP]
+
+# Nach Code-Änderungen: Neue Firmware bereitstellen
+make localupdate
+
+# Zurück zum Normalzustand
+make localcleanup
+```
+
+Detaillierte Anleitung: [LOCAL_TESTING.md](LOCAL_TESTING.md)
 
 ## 🔧 Konfiguration
 
 ### YAML-Hierarchie (Package-System)
 
 ```yaml
-main.factory.yaml          # Factory mit improv_serial
-  └── includes main.yaml   # Basis-Config
-        └── includes common/core.yaml  # Hardware-Config
-              └── includes common/substitutions.yaml
+main.factory.yaml          # Factory mit improv_serial & dashboard_import
+  └── includes main.yaml   # Basis-Config mit allen Pages
+        └── includes common/core.yaml      # Hardware-Config
+        └── includes common/homeassistant.yaml  # HA Entities
+        └── includes pages/*.yaml          # UI Pages
+        └── includes themes/modern.yaml    # Theme
 ```
 
 ### Wichtige Einstellungen
@@ -160,21 +207,26 @@ main.factory.yaml          # Factory mit improv_serial
 
 #### LVGL Idle Handling
 
-- Timeout: Konfigurierbar über `display_timeout_backlight`
+- Timeout: Konfigurierbar über `display_timeout_backlight` (0-720 Minuten)
 - Bei Idle: Backlight aus + LVGL pausiert
 - Bei Touch: LVGL resume + Backlight ein
+- Antiburn-Modus: Automatisch zwischen 2:05 und 5:35 Uhr
 
 ## 🏠 Home Assistant Integration
 
 ### Template-basierte Architektur
 
 Das Projekt nutzt ESPHome's "Packages as Templates" Pattern für maximale
-Wiederverwendbarkeit und reduzierte Code-Duplizierung:
+Wiederverwendbarkeit:
 
 ```text
 templates/
-├── ha_entity.yaml   # Generiert: binary_sensor + 3x text_sensor pro Entität
-└── ha_button.yaml   # Generiert: LVGL Button Widget mit Icon & Label
+├── ha_entity.yaml        # Binary Sensor + Text Sensoren für Entities
+├── ha_button.yaml        # LVGL Button Widget
+├── ha_sensor.yaml        # Sensor-Template (ohne UI-Button)
+├── ha_temp_sensor.yaml   # Temperatur-Sensor mit dynamischer Icon-Farbe
+├── ha_weather.yaml       # Wetter-Entity Template
+└── ha_season_sensor.yaml # Jahreszeit-Sensor (steuert Hintergrundbilder)
 ```
 
 ### Entity-Template (`ha_entity.yaml`)
@@ -183,96 +235,72 @@ Jedes Template-Include erstellt automatisch:
 
 - **binary_sensor**: State der Entität (für Button checked-State)
 - **text_sensor (friendly_name)**: Dynamisches Label aus Home Assistant
-- **text_sensor (icon)**: Dynamisches Icon aus HA oder Domain-Default (MDI → Unicode)
-- **text_sensor (default_icon)**: Domain-basiertes Default-Icon (switch → toggle-switch-variant, light → lightbulb, etc.)
-- **text_sensor (entity_id)**: Entity ID für Service-Aufrufe
+- **text_sensor (icon)**: Dynamisches Icon aus HA oder Domain-Default
 
 **Icon-Priorität:**
+
 1. Custom Icon aus Home Assistant (wenn manuell gesetzt)
 2. Domain-Default Icon (automatisch basierend auf Entity-Domain)
 3. Fallback: `help-circle`
-
-### Button-Template (`ha_button.yaml`)
-
-Generiert vollständige LVGL Button-Widgets mit:
-
-- Grid-Positionierung (Spalte/Zeile)
-- Icon-Label mit MDI Font
-- Text-Label für Entity-Name
-- Touch-Handler für `switch.toggle` Service
 
 ### Konfigurierbare Entitäten
 
 Ändere die Home Assistant Entitäten in [homeassistant.yaml](src/common/homeassistant.yaml):
 
 ```yaml
-# Packages as Templates - eine Zeile pro Entität
-# Icons werden automatisch basierend auf der Entity-Domain ermittelt
 packages:
   ha_entity_1: !include
     file: ../templates/ha_entity.yaml
     vars:
       num: "1"
       entity_id: switch.wohnzimmer_licht  # → Icon: toggle-switch-variant
-  ha_entity_2: !include
-    file: ../templates/ha_entity.yaml
+  ha_sensor_9: !include
+    file: ../templates/ha_temp_sensor.yaml
     vars:
-      num: "2"
-      entity_id: light.schlafzimmer_licht  # → Icon: lightbulb
-  # ... bis zu 6 Entitäten
+      num: "9"
+      entity_id: sensor.temperatur_bad
 ```
 
 ### MDI Icon Konvertierung
 
 Der `MdiIconHelper` in [mdi_icon_map.h](src/helper/mdi_icon_map.h) konvertiert
-Home Assistant Icon-Namen (z.B. `mdi:lightbulb`) automatisch zu Unicode-Codepoints:
-
-```cpp
-// Beispiel-Nutzung in Lambda
-static MdiIconHelper helper;
-return helper.convert_mdi_icon("mdi:lightbulb"); // → Unicode für 󰌵
-```
+Home Assistant Icon-Namen zu Unicode-Codepoints:
 
 **Unterstützte Icons**: ~190 häufig verwendete MDI Icons (Lichter, Schalter, Heizung,
 Jalousien, Sensoren, Media, Wetter, etc.)
 
-### Domain-basierte Default-Icons
+### Dynamische Jahreszeiten-Hintergrundbilder
 
-Das System erkennt automatisch die Entity-Domain und wählt das passende Icon:
+Das System wechselt automatisch das Hintergrundbild basierend auf der aktuellen Jahreszeit:
 
-| Domain | Default Icon |
-|--------|-------------|
-| `switch` | `toggle-switch-variant` |
-| `light` | `lightbulb` |
-| `sensor` | `eye` |
-| `binary_sensor` | `radiobox-blank` |
-| `climate` | `thermostat` |
-| `cover` | `window-shutter` |
-| `fan` | `fan` |
-| `lock` | `lock` |
-| `vacuum` | `robot-vacuum` |
-| `media_player` | `speaker` |
-| ... | *24 Domains insgesamt* |
+| Jahreszeit | Bild |
+| ---------- | ------ |
+| Frühling | `see_spring.png` |
+| Sommer | `see_summer.png` |
+| Herbst | `see_autumn.png` |
+| Winter | `see_winter.png` |
 
-**Quelle**: [Home Assistant Frontend Icons](https://github.com/home-assistant/frontend/blob/main/src/data/icons.ts)
+Gesteuert durch `sensor.jahreszeit` aus Home Assistant.
 
 ## 📝 Release-Prozess
 
-1. Tag erstellen: `git tag v1.0.0 && git push --tags`
-2. GitHub Actions baut automatisch die Firmware
-3. Manifest-Datei wird zum Release hochgeladen
-4. Web-Installation aktualisiert sich automatisch
+1. Version in [substitutions.yaml](src/common/substitutions.yaml) erhöhen
+2. Tag erstellen: `git tag v2026.1.7 && git push --tags`
+3. GitHub Actions baut automatisch die Firmware
+4. Manifest-Datei wird zum Release hochgeladen
+5. Web-Installation aktualisiert sich automatisch
 
 ## 🔗 Integration
 
 - **Home Assistant**: Native API (verschlüsselt)
-- **OTA-Updates**: Dual-Path (ESPHome + HTTP Request)
-- **WiFi-Provisioning**: Improv Serial + Captive Portal
+- **OTA-Updates**: Dual-Path (ESPHome Dashboard + HTTP Request für externe Updates)
+- **WiFi-Provisioning**: Captive Portal
 - **Web-Flash**: ESP Web Tools via GitHub Pages
 
 ## 📚 Dokumentation
 
-- [Local Testing Guide](LOCAL_TESTING.md) - Lokale Test-Optionen
+- [Local Testing Guide](LOCAL_TESTING.md) - Lokale Test-Optionen & Dev Mode
+- [Makefile Guide](static/MAKEFILE_GUIDE.md) - Alle Make-Targets
 - [ESPHome Documentation](https://esphome.io) - Offizielle ESPHome-Docs
 
 ## 🤝 Beiträge
@@ -306,7 +334,7 @@ Probleme oder Feature-Requests? Bitte öffne ein
 ---
 
 **Hinweis**: Dieses Projekt nutzt das ESP-IDF Framework (nicht Arduino).
-Stelle sicher, dass deine ESPHome-Version mindestens 2025.12.7 ist.
+Empfohlene ESPHome-Version: 2026.1.1 oder neuer.
 
 <!-- markdownlint-disable-next-line MD013 -->
 [ci-badge]: https://github.com/TNTLarsn/Guition-ESP32-S3-4848S040/actions/workflows/ci.yml/badge.svg
