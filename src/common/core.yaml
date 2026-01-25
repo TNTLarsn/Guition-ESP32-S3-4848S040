@@ -563,8 +563,14 @@ script:
           std::string season = id(ha_entity_17_state_text).state;
           ESP_LOGD("season", "Aktualisiere Hintergrundbild für Jahreszeit: %s", season.c_str());
           
-          // Zu Kleinbuchstaben konvertieren für Vergleich
-          std::transform(season.begin(), season.end(), season.begin(), ::tolower);
+          // Zu Kleinbuchstaben konvertieren für Vergleich (nur ASCII-sicher)
+          std::transform(season.begin(), season.end(), season.begin(),
+                         [](unsigned char c) -> char {
+                           if (c >= 'A' && c <= 'Z') {
+                             return static_cast<char>(c + ('a' - 'A'));
+                           }
+                           return static_cast<char>(c);
+                         });
           
           // Entsprechendes Bild basierend auf Jahreszeit setzen
           lv_obj_t* images[] = {
