@@ -1,15 +1,17 @@
 # Template für Home Assistant Climate Entity Integration
-# Erstellt Binary Sensor (State), Text Sensoren (Name, Icon, Entity ID) und Numeric Sensoren
+# Erstellt Text Sensoren (HVAC Action, Modus, Name, Icon) und Numeric Sensoren (Soll-/Ist-Temperatur, Min/Max, Schrittweite)
 # Variablen: num, entity_id
 #
 # Generierte IDs:
-# - ha_climate_${num}_state: Binary Sensor für HVAC Status (on wenn nicht "off")
 # - ha_climate_${num}_state_text: Text Sensor für HVAC Action (z.B. "heating", "cooling", "idle")
-# - ha_climate_${num}_target_temp: Numeric Sensor für Soll-Temperatur
-# - ha_climate_${num}_current_temp: Numeric Sensor für Ist-Temperatur
 # - ha_climate_${num}_hvac_mode: Text Sensor für HVAC Modus (heat, cool, off, etc.)
 # - ha_climate_${num}_friendly_name: Text Sensor für Anzeigename
 # - ha_climate_${num}_icon: Text Sensor für MDI Icon
+# - ha_climate_${num}_target_temp: Numeric Sensor für Soll-Temperatur
+# - ha_climate_${num}_current_temp: Numeric Sensor für Ist-Temperatur
+# - ha_climate_${num}_min_temp: Numeric Sensor für minimale Soll-Temperatur
+# - ha_climate_${num}_max_temp: Numeric Sensor für maximale Soll-Temperatur
+# - ha_climate_${num}_temp_step: Numeric Sensor für Temperatur-Schrittweite
 
 defaults:
   num: "1"
