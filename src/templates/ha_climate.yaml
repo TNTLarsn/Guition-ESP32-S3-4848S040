@@ -1,0 +1,84 @@
+# Template für Home Assistant Climate Entity Integration
+# Erstellt Binary Sensor (State), Text Sensoren (Name, Icon, Entity ID) und Numeric Sensoren
+# Variablen: num, entity_id
+#
+# Generierte IDs:
+# - ha_climate_${num}_state: Binary Sensor für HVAC Status (on wenn nicht "off")
+# - ha_climate_${num}_state_text: Text Sensor für HVAC Action (z.B. "heating", "cooling", "idle")
+# - ha_climate_${num}_target_temp: Numeric Sensor für Soll-Temperatur
+# - ha_climate_${num}_current_temp: Numeric Sensor für Ist-Temperatur
+# - ha_climate_${num}_hvac_mode: Text Sensor für HVAC Modus (heat, cool, off, etc.)
+# - ha_climate_${num}_friendly_name: Text Sensor für Anzeigename
+# - ha_climate_${num}_icon: Text Sensor für MDI Icon
+
+defaults:
+  num: "1"
+  entity_id: "climate.thermostat"
+
+# Text Sensor: HVAC Action
+text_sensor:
+  - platform: homeassistant
+    id: ha_climate_${num}_state_text
+    entity_id: ${entity_id}
+    attribute: hvac_action
+    on_value:
+      then:
+        - script.execute: climate_update_ui
+
+  # HVAC Mode
+  - platform: homeassistant
+    id: ha_climate_${num}_hvac_mode
+    entity_id: ${entity_id}
+    on_value:
+      then:
+        - script.execute: climate_update_ui
+
+  # Friendly Name
+  - platform: homeassistant
+    id: ha_climate_${num}_friendly_name
+    entity_id: ${entity_id}
+    attribute: friendly_name
+
+  # Icon
+  - platform: homeassistant
+    id: ha_climate_${num}_icon
+    entity_id: ${entity_id}
+    attribute: icon
+
+# Numeric Sensors
+sensor:
+  # Soll-Temperatur
+  - platform: homeassistant
+    id: ha_climate_${num}_target_temp
+    entity_id: ${entity_id}
+    attribute: temperature
+    on_value:
+      then:
+        - script.execute: climate_update_ui
+
+  # Ist-Temperatur
+  - platform: homeassistant
+    id: ha_climate_${num}_current_temp
+    entity_id: ${entity_id}
+    attribute: current_temperature
+    on_value:
+      then:
+        - script.execute: climate_update_ui
+
+  # Min-Temperatur
+  - platform: homeassistant
+    id: ha_climate_${num}_min_temp
+    entity_id: ${entity_id}
+    attribute: min_temp
+
+  # Max-Temperatur
+  - platform: homeassistant
+    id: ha_climate_${num}_max_temp
+    entity_id: ${entity_id}
+    attribute: max_temp
+
+  # Temperature Step
+  - platform: homeassistant
+    id: ha_climate_${num}_temp_step
+    entity_id: ${entity_id}
+    attribute: target_temp_step

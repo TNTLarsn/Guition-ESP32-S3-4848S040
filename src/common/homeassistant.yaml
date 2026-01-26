@@ -100,3 +100,9 @@ packages:
     vars:
       num: "17"
       entity_id: sensor.jahreszeit
+  # Climate Entity für Thermostat (Büro)
+  ha_climate_18: !include
+    file: ../templates/ha_climate.yaml
+    vars:
+      num: "18"
+      entity_id: climate.thermostat_buro
