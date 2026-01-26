@@ -16,7 +16,7 @@ globals:
   - id: total_pages
     type: int
     restore_value: no
-    initial_value: '3'
+    initial_value: '4'
 
 lvgl:
   top_layer:
@@ -168,17 +168,26 @@ script:
                       condition:
                         lambda: 'return id(current_page_index) == 2;'
                       then:
-                        - lvgl.page.show: switches_page
+                        - lvgl.page.show: thermostat_page
                         - lvgl.label.update:
                             id: page_name_label
-                            text: "Schalter"
+                            text: "Thermostat"
                       else:
-                        # Fallback: Zurück zur Home-Seite
-                        - lambda: 'id(current_page_index) = 0;'
-                        - lvgl.page.show: home_page
-                        - lvgl.label.update:
-                            id: page_name_label
-                            text: "Home"
+                        - if:
+                            condition:
+                              lambda: 'return id(current_page_index) == 3;'
+                            then:
+                              - lvgl.page.show: switches_page
+                              - lvgl.label.update:
+                                  id: page_name_label
+                                  text: "Schalter"
+                            else:
+                              # Fallback: Zurück zur Home-Seite
+                              - lambda: 'id(current_page_index) = 0;'
+                              - lvgl.page.show: home_page
+                              - lvgl.label.update:
+                                  id: page_name_label
+                                  text: "Home"
 # Navigation Bar ein-/ausblenden
   - id: show_navigation
     then:

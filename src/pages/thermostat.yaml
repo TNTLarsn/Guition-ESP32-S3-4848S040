@@ -1,0 +1,557 @@
+# ========================================================================
+# THERMOSTAT PAGE - Klimasteuerung für Home Assistant Climate Entity
+# ========================================================================
+# Design-Konzept: Zentraler Arc zur Temperaturanzeige mit Plus/Minus-Buttons,
+# HVAC-Modi als Buttons, Status-Anzeige und moderne Glassmorphism Cards
+# ========================================================================
+
+# Globale Variablen für Thermostat
+globals:
+  - id: climate_user_adjusting
+    type: bool
+    restore_value: no
+    initial_value: 'false'
+
+lvgl:
+  pages:
+    - id: thermostat_page
+      bg_color: color_bg_dark
+      widgets:
+        # ============================================================
+        # HEADER - HVAC Mode Buttons (kompakt)
+        # ============================================================
+        - obj:
+            width: 320
+            height: 52
+            align: TOP_MID
+            y: 8
+            bg_color: color_gray_800
+            bg_opa: 50%
+            border_color: color_gray_600
+            border_width: 1
+            border_opa: 20%
+            radius: 16
+            pad_all: 6
+            scrollbar_mode: "OFF"
+            layout:
+              type: GRID
+              grid_columns: [FR(1), FR(1), FR(1), FR(1)]
+              grid_rows: [FR(1)]
+              pad_column: 6
+            widgets:
+              # Heat Button
+              - button:
+                  id: climate_btn_heat
+                  grid_cell_column_pos: 0
+                  grid_cell_row_pos: 0
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  radius: 12
+                  bg_color: color_gray_700
+                  bg_opa: 60%
+                  border_opa: TRANSP
+                  shadow_opa: TRANSP
+                  checkable: true
+                  on_click:
+                    then:
+                      - homeassistant.action:
+                          action: climate.set_hvac_mode
+                          data:
+                            entity_id: climate.thermostat_buro
+                            hvac_mode: heat
+                  widgets:
+                    - label:
+                        id: climate_btn_heat_icon
+                        align: CENTER
+                        text: "\U000F0238"
+                        text_font: mdi_icons_28
+                        text_color: color_gray_400
+              
+              # Cool Button
+              - button:
+                  id: climate_btn_cool
+                  grid_cell_column_pos: 1
+                  grid_cell_row_pos: 0
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  radius: 12
+                  bg_color: color_gray_700
+                  bg_opa: 60%
+                  border_opa: TRANSP
+                  shadow_opa: TRANSP
+                  checkable: true
+                  on_click:
+                    then:
+                      - homeassistant.action:
+                          action: climate.set_hvac_mode
+                          data:
+                            entity_id: climate.thermostat_buro
+                            hvac_mode: cool
+                  widgets:
+                    - label:
+                        id: climate_btn_cool_icon
+                        align: CENTER
+                        text: "\U000F0717"
+                        text_font: mdi_icons_28
+                        text_color: color_gray_400
+              
+              # Auto Button
+              - button:
+                  id: climate_btn_auto
+                  grid_cell_column_pos: 2
+                  grid_cell_row_pos: 0
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  radius: 12
+                  bg_color: color_gray_700
+                  bg_opa: 60%
+                  border_opa: TRANSP
+                  shadow_opa: TRANSP
+                  checkable: true
+                  on_click:
+                    then:
+                      - homeassistant.action:
+                          action: climate.set_hvac_mode
+                          data:
+                            entity_id: climate.thermostat_buro
+                            hvac_mode: auto
+                  widgets:
+                    - label:
+                        id: climate_btn_auto_icon
+                        align: CENTER
+                        text: "\U000F1B18"
+                        text_font: mdi_icons_28
+                        text_color: color_gray_400
+              
+              # Off Button
+              - button:
+                  id: climate_btn_off
+                  grid_cell_column_pos: 3
+                  grid_cell_row_pos: 0
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  radius: 12
+                  bg_color: color_gray_700
+                  bg_opa: 60%
+                  border_opa: TRANSP
+                  shadow_opa: TRANSP
+                  checkable: true
+                  on_click:
+                    then:
+                      - homeassistant.action:
+                          action: climate.set_hvac_mode
+                          data:
+                            entity_id: climate.thermostat_buro
+                            hvac_mode: "off"
+                  widgets:
+                    - label:
+                        id: climate_btn_off_icon
+                        align: CENTER
+                        text: "\U000F0425"
+                        text_font: mdi_icons_28
+                        text_color: color_gray_400
+
+        # ============================================================
+        # MAIN CONTENT - Temperatur Arc + Controls
+        # ============================================================
+        - obj:
+            y: 80
+            width: 100%
+            height: 300
+            align: TOP_MID
+            bg_opa: TRANSP
+            border_opa: TRANSP
+            scrollbar_mode: "OFF"
+            widgets:
+              # Temperatur Arc Container mit Glow-Effekt für Aktivitätsstatus
+              - obj:
+                  id: climate_arc_glow_container
+                  width: 240
+                  height: 240
+                  align: CENTER
+                  y: 5
+                  bg_opa: TRANSP
+                  border_opa: TRANSP
+                  radius: 120
+                  shadow_width: 0
+                  shadow_spread: 0
+                  shadow_color: color_error
+                  shadow_opa: TRANSP
+                  scrollbar_mode: "OFF"
+                  widgets:
+                    # Background Arc (Grau)
+                    - arc:
+                        id: climate_arc_bg
+                        align: CENTER
+                        width: 220
+                        height: 220
+                        start_angle: 135
+                        end_angle: 45
+                        rotation: 0
+                        adjustable: false
+                        arc_width: 16
+                        arc_color: color_gray_700
+                        indicator:
+                          arc_opa: TRANSP
+                        knob:
+                          bg_opa: TRANSP
+                    
+                    # Active Arc (Farbig basierend auf Modus)
+                    - arc:
+                        id: climate_arc_active
+                        align: CENTER
+                        width: 220
+                        height: 220
+                        start_angle: 135
+                        end_angle: 45
+                        rotation: 0
+                        adjustable: false
+                        min_value: 50
+                        max_value: 300
+                        value: 210
+                        arc_width: 16
+                        arc_opa: TRANSP
+                        indicator:
+                          arc_color: color_primary
+                          arc_width: 16
+                        knob:
+                          bg_opa: TRANSP
+                    
+                    # Current Temperature Arc (Zeigt aktuelle Temp als Punkt)
+                    - arc:
+                        id: climate_arc_current
+                        align: CENTER
+                        width: 220
+                        height: 220
+                        start_angle: 135
+                        end_angle: 45
+                        rotation: 0
+                        adjustable: false
+                        min_value: 50
+                        max_value: 300
+                        value: 200
+                        arc_width: 16
+                        arc_opa: TRANSP
+                        indicator:
+                          arc_opa: TRANSP
+                        knob:
+                          width: 12
+                          height: 12
+                          radius: 6
+                          bg_color: color_white
+                          border_color: color_gray_600
+                          border_width: 2
+                    
+                    # Temperatur Display (Mitte)
+                    - obj:
+                        width: 140
+                        height: 80
+                        align: CENTER
+                        bg_opa: TRANSP
+                        border_opa: TRANSP
+                        scrollbar_mode: "OFF"
+                        widgets:
+                          # Soll-Temperatur (mittel)
+                          - label:
+                              id: climate_target_temp_label
+                              align: CENTER
+                              y: -10
+                              text: "21.0°"
+                              text_font: roboto40
+                              text_color: color_white
+                          
+                          # Ist-Temperatur (klein, darunter)
+                          - label:
+                              id: climate_current_temp_label
+                              align: CENTER
+                              y: 25
+                              text: "Aktuell: --°C"
+                              text_font: roboto16
+                              text_color: color_gray_400
+
+              # Minus Button (links)
+              - button:
+                  id: climate_btn_minus
+                  x: 15
+                  y: 100
+                  width: 50
+                  height: 50
+                  align: TOP_LEFT
+                  radius: 25
+                  bg_color: color_gray_800
+                  bg_opa: 80%
+                  border_color: color_gray_600
+                  border_width: 1
+                  border_opa: 30%
+                  shadow_width: 8
+                  shadow_ofs_y: 4
+                  shadow_color: color_black
+                  shadow_opa: 40%
+                  checkable: false
+                  on_click:
+                    then:
+                      - script.execute: climate_decrease_temp
+                  widgets:
+                    - label:
+                        align: CENTER
+                        text: "\U000F0374"
+                        text_font: mdi_icons_40
+                        text_color: color_primary_light
+
+              # Plus Button (rechts)
+              - button:
+                  id: climate_btn_plus
+                  x: -15
+                  y: 100
+                  width: 50
+                  height: 50
+                  align: TOP_RIGHT
+                  radius: 25
+                  bg_color: color_gray_800
+                  bg_opa: 80%
+                  border_color: color_gray_600
+                  border_width: 1
+                  border_opa: 30%
+                  shadow_width: 8
+                  shadow_ofs_y: 4
+                  shadow_color: color_black
+                  shadow_opa: 40%
+                  checkable: false
+                  on_click:
+                    then:
+                      - script.execute: climate_increase_temp
+                  widgets:
+                    - label:
+                        align: CENTER
+                        text: "\U000F0415"
+                        text_font: mdi_icons_40
+                        text_color: color_primary_light
+
+# ========================================================================
+# SCRIPTS
+# ========================================================================
+script:
+  # UI Update Script - wird bei jeder Änderung der Climate-Daten aufgerufen
+  - id: climate_update_ui
+    mode: restart
+    then:
+      - lambda: |-
+          ESP_LOGD("climate_ui", "climate_update_ui called, user_adjusting=%s", id(climate_user_adjusting) ? "true" : "false");
+          
+          // Nur updaten wenn nicht gerade vom User angepasst wird
+          if (id(climate_user_adjusting)) return;
+          
+          // Prüfen ob LVGL initialisiert ist (Race Condition vermeiden)
+          if (!lv_is_initialized()) {
+            ESP_LOGW("climate_ui", "LVGL not initialized yet, skipping UI update");
+            return;
+          }
+          
+          // HVAC Action -> Arc Glow Effekt
+          if (id(ha_climate_18_state_text).has_state()) {
+            std::string action = id(ha_climate_18_state_text).state;
+            ESP_LOGD("climate_ui", "HVAC Action: %s", action.c_str());
+            
+            // Glow-Effekt basierend auf Aktivität
+            if (action == "heating") {
+              // Roter Glow beim Heizen
+              lv_obj_set_style_shadow_width(id(climate_arc_glow_container), 40, 0);
+              lv_obj_set_style_shadow_spread(id(climate_arc_glow_container), 10, 0);
+              lv_obj_set_style_shadow_color(id(climate_arc_glow_container), lv_color_hex(0xEF4444), 0);
+              lv_obj_set_style_shadow_opa(id(climate_arc_glow_container), LV_OPA_60, 0);
+              ESP_LOGI("climate_ui", "Arc glow: heating (red)");
+            } else if (action == "cooling") {
+              // Blauer Glow beim Kühlen
+              lv_obj_set_style_shadow_width(id(climate_arc_glow_container), 40, 0);
+              lv_obj_set_style_shadow_spread(id(climate_arc_glow_container), 10, 0);
+              lv_obj_set_style_shadow_color(id(climate_arc_glow_container), lv_color_hex(0x3B82F6), 0);
+              lv_obj_set_style_shadow_opa(id(climate_arc_glow_container), LV_OPA_60, 0);
+              ESP_LOGI("climate_ui", "Arc glow: cooling (blue)");
+            } else {
+              // Kein Glow wenn idle oder off
+              lv_obj_set_style_shadow_width(id(climate_arc_glow_container), 0, 0);
+              lv_obj_set_style_shadow_opa(id(climate_arc_glow_container), LV_OPA_TRANSP, 0);
+              ESP_LOGI("climate_ui", "Arc glow: off");
+            }
+          }
+          
+          // Target Temperature
+          if (id(ha_climate_18_target_temp).has_state()) {
+            float target = id(ha_climate_18_target_temp).state;
+            char buf[16];
+            snprintf(buf, sizeof(buf), "%.1f°", target);
+            lv_label_set_text(id(climate_target_temp_label), buf);
+            
+            // Arc updaten
+            int arc_val = (int)(target * 10);
+            if (arc_val < 50) arc_val = 50;
+            if (arc_val > 300) arc_val = 300;
+            lv_arc_set_value(id(climate_arc_active), arc_val);
+          }
+          
+          // Current Temperature
+          if (id(ha_climate_18_current_temp).has_state()) {
+            float current = id(ha_climate_18_current_temp).state;
+            char buf[32];
+            snprintf(buf, sizeof(buf), "Aktuell: %.1f°C", current);
+            lv_label_set_text(id(climate_current_temp_label), buf);
+            
+            // Current Arc Knob Position
+            int arc_val = (int)(current * 10);
+            if (arc_val < 50) arc_val = 50;
+            if (arc_val > 300) arc_val = 300;
+            lv_arc_set_value(id(climate_arc_current), arc_val);
+          }
+          
+          // HVAC Mode -> Button Highlight & Arc Color
+          if (id(ha_climate_18_hvac_mode).has_state()) {
+            std::string mode = id(ha_climate_18_hvac_mode).state;
+            ESP_LOGD("climate_ui", "HVAC Mode: %s", mode.c_str());
+            
+            // Reset all buttons to inactive state
+            lv_obj_clear_state(id(climate_btn_heat), LV_STATE_CHECKED);
+            lv_obj_clear_state(id(climate_btn_cool), LV_STATE_CHECKED);
+            lv_obj_clear_state(id(climate_btn_auto), LV_STATE_CHECKED);
+            lv_obj_clear_state(id(climate_btn_off), LV_STATE_CHECKED);
+            
+            // Reset all icon colors to gray
+            lv_obj_set_style_text_color(id(climate_btn_heat_icon), lv_color_hex(0x9CA3AF), 0);
+            lv_obj_set_style_text_color(id(climate_btn_cool_icon), lv_color_hex(0x9CA3AF), 0);
+            lv_obj_set_style_text_color(id(climate_btn_auto_icon), lv_color_hex(0x9CA3AF), 0);
+            lv_obj_set_style_text_color(id(climate_btn_off_icon), lv_color_hex(0x9CA3AF), 0);
+            
+            // Reset all button backgrounds
+            lv_obj_set_style_bg_color(id(climate_btn_heat), lv_color_hex(0x374151), 0); // gray-700
+            lv_obj_set_style_bg_color(id(climate_btn_cool), lv_color_hex(0x374151), 0);
+            lv_obj_set_style_bg_color(id(climate_btn_auto), lv_color_hex(0x374151), 0);
+            lv_obj_set_style_bg_color(id(climate_btn_off), lv_color_hex(0x374151), 0);
+            
+            // Arc color based on mode
+            lv_color_t arc_color = lv_color_hex(0x3B82F6); // Default Blau
+            
+            if (mode == "heat") {
+              lv_obj_add_state(id(climate_btn_heat), LV_STATE_CHECKED);
+              lv_obj_set_style_text_color(id(climate_btn_heat_icon), lv_color_hex(0xEF4444), 0);
+              lv_obj_set_style_bg_color(id(climate_btn_heat), lv_color_hex(0x7F1D1D), 0); // red-900 dark
+              arc_color = lv_color_hex(0xEF4444); // Rot
+            } else if (mode == "cool") {
+              lv_obj_add_state(id(climate_btn_cool), LV_STATE_CHECKED);
+              lv_obj_set_style_text_color(id(climate_btn_cool_icon), lv_color_hex(0x3B82F6), 0);
+              lv_obj_set_style_bg_color(id(climate_btn_cool), lv_color_hex(0x1E3A5F), 0); // blue-900 dark
+              arc_color = lv_color_hex(0x3B82F6); // Blau
+            } else if (mode == "auto" || mode == "heat_cool") {
+              lv_obj_add_state(id(climate_btn_auto), LV_STATE_CHECKED);
+              lv_obj_set_style_text_color(id(climate_btn_auto_icon), lv_color_hex(0x10B981), 0);
+              lv_obj_set_style_bg_color(id(climate_btn_auto), lv_color_hex(0x064E3B), 0); // green-900 dark
+              arc_color = lv_color_hex(0x10B981); // Grün
+            } else if (mode == "off") {
+              lv_obj_add_state(id(climate_btn_off), LV_STATE_CHECKED);
+              lv_obj_set_style_text_color(id(climate_btn_off_icon), lv_color_hex(0x9CA3AF), 0);
+              lv_obj_set_style_bg_color(id(climate_btn_off), lv_color_hex(0x4B5563), 0); // gray-600
+              arc_color = lv_color_hex(0x6B7280); // Grau
+            }
+            
+            lv_obj_set_style_arc_color(id(climate_arc_active), arc_color, LV_PART_INDICATOR);
+          }
+
+  # Temperatur erhöhen
+  - id: climate_increase_temp
+    mode: restart
+    then:
+      - lambda: 'id(climate_user_adjusting) = true;'
+      - script.execute: climate_reset_user_adjusting
+      - lambda: |-
+          float step = 0.5f;
+          if (id(ha_climate_18_temp_step).has_state()) {
+            step = id(ha_climate_18_temp_step).state;
+          }
+          
+          float current_target = 21.0f;
+          if (id(ha_climate_18_target_temp).has_state()) {
+            current_target = id(ha_climate_18_target_temp).state;
+          }
+          
+          float max_temp = 30.0f;
+          if (id(ha_climate_18_max_temp).has_state()) {
+            max_temp = id(ha_climate_18_max_temp).state;
+          }
+          
+          float new_target = current_target + step;
+          if (new_target > max_temp) new_target = max_temp;
+          
+          // UI sofort updaten
+          char buf[16];
+          snprintf(buf, sizeof(buf), "%.1f°", new_target);
+          lv_label_set_text(id(climate_target_temp_label), buf);
+          
+          int arc_val = (int)(new_target * 10);
+          if (arc_val > 300) arc_val = 300;
+          lv_arc_set_value(id(climate_arc_active), arc_val);
+      - homeassistant.action:
+          action: climate.set_temperature
+          data:
+            entity_id: climate.thermostat_buro
+            temperature: !lambda |-
+              float step = 0.5f;
+              if (id(ha_climate_18_temp_step).has_state()) step = id(ha_climate_18_temp_step).state;
+              float current = id(ha_climate_18_target_temp).has_state() ? id(ha_climate_18_target_temp).state : 21.0f;
+              float max_t = id(ha_climate_18_max_temp).has_state() ? id(ha_climate_18_max_temp).state : 30.0f;
+              float new_t = current + step;
+              if (new_t > max_t) new_t = max_t;
+              return new_t;
+
+  # Temperatur verringern
+  - id: climate_decrease_temp
+    mode: restart
+    then:
+      - lambda: 'id(climate_user_adjusting) = true;'
+      - script.execute: climate_reset_user_adjusting
+      - lambda: |-
+          float step = 0.5f;
+          if (id(ha_climate_18_temp_step).has_state()) {
+            step = id(ha_climate_18_temp_step).state;
+          }
+          
+          float current_target = 21.0f;
+          if (id(ha_climate_18_target_temp).has_state()) {
+            current_target = id(ha_climate_18_target_temp).state;
+          }
+          
+          float min_temp = 5.0f;
+          if (id(ha_climate_18_min_temp).has_state()) {
+            min_temp = id(ha_climate_18_min_temp).state;
+          }
+          
+          float new_target = current_target - step;
+          if (new_target < min_temp) new_target = min_temp;
+          
+          // UI sofort updaten
+          char buf[16];
+          snprintf(buf, sizeof(buf), "%.1f°", new_target);
+          lv_label_set_text(id(climate_target_temp_label), buf);
+          
+          int arc_val = (int)(new_target * 10);
+          if (arc_val < 50) arc_val = 50;
+          lv_arc_set_value(id(climate_arc_active), arc_val);
+      - homeassistant.action:
+          action: climate.set_temperature
+          data:
+            entity_id: climate.thermostat_buro
+            temperature: !lambda |-
+              float step = 0.5f;
+              if (id(ha_climate_18_temp_step).has_state()) step = id(ha_climate_18_temp_step).state;
+              float current = id(ha_climate_18_target_temp).has_state() ? id(ha_climate_18_target_temp).state : 21.0f;
+              float min_t = id(ha_climate_18_min_temp).has_state() ? id(ha_climate_18_min_temp).state : 5.0f;
+              float new_t = current - step;
+              if (new_t < min_t) new_t = min_t;
+              return new_t;
+
+  # Reset user_adjusting Flag nach Verzögerung (restart mode um Timer zurückzusetzen bei erneutem Drücken)
+  - id: climate_reset_user_adjusting
+    mode: restart
+    then:
+      - delay: 1s
+      - lambda: |-
+          id(climate_user_adjusting) = false;
+          ESP_LOGD("climate_ui", "User adjusting reset to false");
+      - script.execute: climate_update_ui

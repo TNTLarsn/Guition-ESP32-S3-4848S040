@@ -6,6 +6,7 @@ packages:
   home_page: !include pages/home.yaml
   switches_page: !include pages/switches.yaml
   temperatures_page: !include pages/temperatures.yaml
+  thermostat_page: !include pages/thermostat.yaml
   ota_page: !include pages/ota.yaml
   navigation: !include pages/navigation.yaml
   theme: !include themes/modern.yaml
