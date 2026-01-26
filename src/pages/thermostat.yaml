@@ -341,6 +341,12 @@ script:
           // Nur updaten wenn nicht gerade vom User angepasst wird
           if (id(climate_user_adjusting)) return;
           
+          // Prüfen ob LVGL initialisiert ist (Race Condition vermeiden)
+          if (!lv_is_initialized()) {
+            ESP_LOGW("climate_ui", "LVGL not initialized yet, skipping UI update");
+            return;
+          }
+          
           // HVAC Action -> Arc Glow Effekt
           if (id(ha_climate_18_state_text).has_state()) {
             std::string action = id(ha_climate_18_state_text).state;
