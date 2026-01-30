@@ -35,7 +35,7 @@ lvgl:
           border_width: 1
           border_opa: 30%
           shadow_width: 16
-          shadow_ofs_y: -4
+          shadow_ofs_y: 4
           shadow_color: color_black
           shadow_opa: 40%
           pad_all: 8
