@@ -15,7 +15,7 @@ jobs:
       #### Modify below here to match your project ####
       files: |
         src/main.yaml
-      esphome-version: 2026.1.2
+      esphome-version: 2026.1.3
       #### Modify above here to match your project ####
 
       release-summary: ${{ github.event.release.body }}
