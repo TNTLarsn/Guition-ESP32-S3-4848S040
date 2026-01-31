@@ -10,12 +10,6 @@ lvgl:
     - id: temperature_page
       bg_color: color_bg_dark
       widgets:
-        # Hintergrundbild (dynamisch basierend auf Jahreszeit, Default: Sommer)
-        - image:
-            id: temperature_bg_image
-            align: CENTER
-            src: see_summer_img
-        
         # Hidden placeholder für ha_sensor_label_10-16 (wird nur für Templates benötigt aber in der page nicht verwendet)
         - label:
             id: ha_sensor_label_10
