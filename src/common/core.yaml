@@ -381,6 +381,9 @@ logger:
   logs:
     lvgl: info
   hardware_uart: UART0
+  # Für ESP-IDF dev-Versionen: USB Serial JTAG deaktivieren
+  # Dies verhindert linking-Fehler mit neueren ESP-IDF-Versionen (ESPHome dev)
+  esp32_usb_cdc: false
 
 # API is a requirement of the dashboard import.
 api:
@@ -514,7 +517,7 @@ update:
   - platform: http_request
     id: firmware_update
     name: "Firmware"
-    source: https://github.com/tntlarsn/guition-esp32-s3-4848s040/releases/latest/download/${display_name}.manifest.json
+    source: http://192.168.178.185:8000/manifest.json
     device_class: firmware
     update_interval: 24h
     ota_id: firmware_ota
@@ -574,9 +577,7 @@ script:
           
           // Entsprechendes Bild basierend auf Jahreszeit setzen
           lv_obj_t* images[] = {
-            id(home_bg_image),
-            id(switches_bg_image),
-            id(temperature_bg_image)
+            id(home_bg_image)
           };
           
           esphome::image::Image* img_src = nullptr;
