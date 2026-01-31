@@ -53,9 +53,6 @@ esp32:
       CONFIG_SPIRAM_FETCH_INSTRUCTIONS: y
       CONFIG_SPIRAM_RODATA: y
       CONFIG_ESP_TASK_WDT_TIMEOUT_S: "60"
-      # Workaround für ESPHome dev USB Serial JTAG VFS Linker-Bug (PR #13628)
-      # Kann entfernt werden sobald ESPHome 2026.2.x released ist
-      CONFIG_VFS_SUPPORT_TERMIOS: "y"
 
 # External PSRAM Configuration
 psram:
