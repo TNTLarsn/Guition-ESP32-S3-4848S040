@@ -386,4 +386,10 @@ script:
               lv_obj_set_style_text_color(id(ev_charging_status), lv_color_hex(0x9CA3AF), LV_PART_MAIN);
               lv_obj_set_style_text_color(id(ev_charging_icon), lv_color_hex(0x60A5FA), LV_PART_MAIN);
             }
+          } else {
+            // Fallback, wenn der Sensorwert leer oder nicht verfügbar ist
+            lv_label_set_text(id(ev_power_value), "-- W");
+            lv_label_set_text(id(ev_charging_status), "Nicht verfügbar");
+            lv_obj_set_style_text_color(id(ev_charging_status), lv_color_hex(0x9CA3AF), LV_PART_MAIN);
+            lv_obj_set_style_text_color(id(ev_charging_icon), lv_color_hex(0x60A5FA), LV_PART_MAIN);
           }
