@@ -122,3 +122,8 @@ packages:
     vars:
       num: "21"
       entity_id: number.wallbox_pulsarplus_sn_107049_garten_maximaler_ladestrom
+  ha_ev_sensor_22: !include
+    file: ../templates/ha_sensor.yaml
+    vars:
+      num: "22"
+      entity_id: sensor.wallbox_pulsarplus_sn_107049_garten_statusbeschreibung

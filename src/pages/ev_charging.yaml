@@ -10,6 +10,14 @@ lvgl:
     - id: ev_charging_page
       bg_color: color_bg_dark
       widgets:
+        # Hidden placeholders für ha_sensor Template (Sensor 22 - Statusbeschreibung)
+        - label:
+            id: ha_temp_value_22
+            hidden: true
+        - label:
+            id: ha_sensor_label_22
+            hidden: true
+        
         # Hauptcontainer
         - obj:
             layout:
@@ -399,8 +407,8 @@ script:
           
           // Ladeleistung aktualisieren
           std::string power_str = id(ha_entity_20_state_text).state;
+          float power = 0;
           if (!power_str.empty()) {
-            float power = 0;
             // Parse ohne try/catch (ESP-IDF hat exceptions deaktiviert)
             char* end_ptr = nullptr;
             power = strtof(power_str.c_str(), &end_ptr);
@@ -415,21 +423,91 @@ script:
               snprintf(buf, sizeof(buf), "%.0f W", power);
             }
             lv_label_set_text(id(ev_power_value), buf);
-            
-            // Status-Text basierend auf Leistung
-            if (power > 0) {
-              lv_label_set_text(id(ev_charging_status), "Lädt...");
-              lv_obj_set_style_text_color(id(ev_charging_status), lv_color_hex(0x10B981), LV_PART_MAIN);
-              lv_obj_set_style_text_color(id(ev_charging_icon), lv_color_hex(0x10B981), LV_PART_MAIN);
-            } else {
-              lv_label_set_text(id(ev_charging_status), "Bereit");
-              lv_obj_set_style_text_color(id(ev_charging_status), lv_color_hex(0x9CA3AF), LV_PART_MAIN);
-              lv_obj_set_style_text_color(id(ev_charging_icon), lv_color_hex(0x60A5FA), LV_PART_MAIN);
-            }
           } else {
-            // Fallback, wenn der Sensorwert leer oder nicht verfügbar ist
             lv_label_set_text(id(ev_power_value), "-- W");
-            lv_label_set_text(id(ev_charging_status), "Nicht verfügbar");
-            lv_obj_set_style_text_color(id(ev_charging_status), lv_color_hex(0x9CA3AF), LV_PART_MAIN);
-            lv_obj_set_style_text_color(id(ev_charging_icon), lv_color_hex(0x60A5FA), LV_PART_MAIN);
           }
+          
+          // Status-Text aus Sensor ha_entity_22 (Statusbeschreibung)
+          std::string charger_status = id(ha_entity_22_state_text).state;
+          const char* status_text = "Unbekannt";
+          uint32_t status_color = 0x9CA3AF;  // Grau als Default
+          uint32_t icon_color = 0x60A5FA;    // Blau als Default
+          
+          // Status-Übersetzung Englisch → Deutsch mit Farbcodierung
+          if (charger_status == "Charging") {
+            status_text = "Lädt";
+            status_color = 0x10B981;  // Grün
+            icon_color = 0x10B981;
+          } else if (charger_status == "Discharging") {
+            status_text = "Entlädt";
+            status_color = 0xF59E0B;  // Orange
+            icon_color = 0xF59E0B;
+          } else if (charger_status == "Paused") {
+            status_text = "Pausiert";
+            status_color = 0xF59E0B;  // Orange
+            icon_color = 0xF59E0B;
+          } else if (charger_status == "Scheduled") {
+            status_text = "Geplant";
+            status_color = 0x60A5FA;  // Blau
+            icon_color = 0x60A5FA;
+          } else if (charger_status == "Waiting for car demand") {
+            status_text = "Warte auf Fahrzeug";
+            status_color = 0x60A5FA;  // Blau
+            icon_color = 0x60A5FA;
+          } else if (charger_status == "Waiting") {
+            status_text = "Warte";
+            status_color = 0x60A5FA;  // Blau
+            icon_color = 0x60A5FA;
+          } else if (charger_status == "Disconnected") {
+            status_text = "Nicht verbunden";
+            status_color = 0x9CA3AF;  // Grau
+            icon_color = 0x6B7280;
+          } else if (charger_status == "Error") {
+            status_text = "Fehler";
+            status_color = 0xEF4444;  // Rot
+            icon_color = 0xEF4444;
+          } else if (charger_status == "Ready") {
+            status_text = "Bereit";
+            status_color = 0x10B981;  // Grün
+            icon_color = 0x60A5FA;
+          } else if (charger_status == "Locked") {
+            status_text = "Gesperrt";
+            status_color = 0xF59E0B;  // Orange
+            icon_color = 0xF59E0B;
+          } else if (charger_status == "Locked, car connected") {
+            status_text = "Gesperrt, Fahrzeug verbunden";
+            status_color = 0xF59E0B;  // Orange
+            icon_color = 0xF59E0B;
+          } else if (charger_status == "Updating") {
+            status_text = "Aktualisiert";
+            status_color = 0x60A5FA;  // Blau
+            icon_color = 0x60A5FA;
+          } else if (charger_status == "Waiting in queue by Power Sharing") {
+            status_text = "Warte (Power Sharing)";
+            status_color = 0x60A5FA;  // Blau
+            icon_color = 0x60A5FA;
+          } else if (charger_status == "Waiting in queue by Power Boost") {
+            status_text = "Warte (Power Boost)";
+            status_color = 0x60A5FA;  // Blau
+            icon_color = 0x60A5FA;
+          } else if (charger_status == "Waiting MID failed") {
+            status_text = "Warte (MID Fehler)";
+            status_color = 0xEF4444;  // Rot
+            icon_color = 0xEF4444;
+          } else if (charger_status == "Waiting MID safety margin exceeded") {
+            status_text = "Warte (MID Sicherheit)";
+            status_color = 0xF59E0B;  // Orange
+            icon_color = 0xF59E0B;
+          } else if (charger_status == "Waiting in queue by Eco-Smart") {
+            status_text = "Warte (Eco-Smart)";
+            status_color = 0x10B981;  // Grün (Eco = umweltfreundlich)
+            icon_color = 0x10B981;
+          } else if (charger_status == "Unknown" || charger_status == "unavailable" || charger_status.empty()) {
+            status_text = "Unbekannt";
+            status_color = 0x6B7280;  // Dunkelgrau
+            icon_color = 0x6B7280;
+          }
+          
+          lv_label_set_text(id(ev_charging_status), status_text);
+          lv_obj_set_style_text_color(id(ev_charging_status), lv_color_hex(status_color), LV_PART_MAIN);
+          lv_obj_set_style_text_color(id(ev_charging_icon), lv_color_hex(icon_color), LV_PART_MAIN);
