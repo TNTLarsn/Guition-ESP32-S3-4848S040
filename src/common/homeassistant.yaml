@@ -112,11 +112,13 @@ packages:
     vars:
       num: "19"
       entity_id: lock.wallbox_pulsarplus_sn_107049_garten_schloss
+      on_value_script: ev_charging_update_ui
   ha_ev_sensor_20: !include
     file: ../templates/ha_ev_sensor.yaml
     vars:
       num: "20"
       entity_id: sensor.wallbox_pulsarplus_sn_107049_garten_ladeleistung
+      on_value_script: ev_charging_update_ui
   ha_number_21: !include
     file: ../templates/ha_number.yaml
     vars:
@@ -127,3 +129,4 @@ packages:
     vars:
       num: "22"
       entity_id: sensor.wallbox_pulsarplus_sn_107049_garten_statusbeschreibung
+      on_value_script: ev_charging_update_ui

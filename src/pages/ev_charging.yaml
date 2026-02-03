@@ -329,13 +329,21 @@ script:
   - id: ev_charging_update_ui
     mode: single
     then:
+      - logger.log:
+          level: DEBUG
+          tag: "ev_charging"
+          format: "ev_charging_update_ui script called"
       - lambda: |-
           if (!lv_is_initialized()) {
+            ESP_LOGW("ev_charging", "LVGL not initialized, skipping UI update");
             return;
           }
+          
+          ESP_LOGD("ev_charging", "Updating EV charging UI...");
 
           // Lock Status aktualisieren (mit expliziter Behandlung aller möglichen Stati)
           std::string lock_state = id(ha_entity_19_state_text).state;
+          ESP_LOGD("ev_charging", "Lock state: %s", lock_state.c_str());
           
           // Explizite Behandlung für alle Home Assistant Lock-Stati
           if (lock_state == "locked") {

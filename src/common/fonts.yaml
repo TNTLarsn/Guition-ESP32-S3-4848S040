@@ -355,6 +355,8 @@
     "\U000F1C92", # swing off
     "\U000F1B29", # faucet
     "\U000F0E47", # hand
+    "\U000F02FC", # information (for unavailable status)
+    "\U000F0026", # alert (for error/jammed status)
   ]
 
 - file: "assets/fonts/materialdesignicons-webfont.ttf"
