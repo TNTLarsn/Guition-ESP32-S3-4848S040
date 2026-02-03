@@ -106,3 +106,18 @@ packages:
     vars:
       num: "18"
       entity_id: climate.thermostat_buro
+  ha_lock_19: !include
+    file: ../templates/ha_entity.yaml
+    vars:
+      num: "19"
+      entity_id: lock.wallbox_pulsarplus_sn_107049_garten_schloss
+  ha_entity_20: !include
+    file: ../templates/ha_entity.yaml
+    vars:
+      num: "20"
+      entity_id: sensor.wallbox_pulsarplus_sn_107049_garten_ladeleistung
+  ha_number_21: !include
+    file: ../templates/ha_number.yaml
+    vars:
+      num: "21"
+      entity_id: number.wallbox_pulsarplus_sn_107049_garten_maximaler_ladestrom

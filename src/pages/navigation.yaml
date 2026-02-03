@@ -16,7 +16,7 @@ globals:
   - id: total_pages
     type: int
     restore_value: no
-    initial_value: '4'
+    initial_value: '5'
 
 lvgl:
   top_layer:
@@ -182,12 +182,21 @@ script:
                                   id: page_name_label
                                   text: "Schalter"
                             else:
-                              # Fallback: Zurück zur Home-Seite
-                              - lambda: 'id(current_page_index) = 0;'
-                              - lvgl.page.show: home_page
-                              - lvgl.label.update:
-                                  id: page_name_label
-                                  text: "Home"
+                              - if:
+                                  condition:
+                                    lambda: 'return id(current_page_index) == 4;'
+                                  then:
+                                    - lvgl.page.show: ev_charging_page
+                                    - lvgl.label.update:
+                                        id: page_name_label
+                                        text: "E-Auto Laden"
+                                  else:
+                                    # Fallback: Zurück zur Home-Seite
+                                    - lambda: 'id(current_page_index) = 0;'
+                                    - lvgl.page.show: home_page
+                                    - lvgl.label.update:
+                                        id: page_name_label
+                                        text: "Home"
 # Navigation Bar ein-/ausblenden
   - id: show_navigation
     then:

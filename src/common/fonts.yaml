@@ -249,6 +249,9 @@
   size: 24
   bpp: 4
   glyphs: [
+    "\U000F0045", # arrow-down
+    "\U000F005D", # arrow-up
+    "\U000F0156", # close
     "\U000F07D0", # home assistant
     "\U000F15FA", # windsock
     "\U000F068A", # shield home
@@ -305,6 +308,8 @@
   size: 28
   bpp: 4
   glyphs: [
+    "\U000F033E", # lock
+    "\U000F033F", # lock-open
     "\U000F0238", # heat
     "\U000F0717", # cool
     "\U000F1A79", # heat_cool
@@ -363,6 +368,7 @@
     "\U000F1480", # current
     "\U000F095B", # voltage
     "\U000F0425", # power
+    "\U000F05F1", # ev-station
     "\U000F068A", # shield home
     "\U000F1828", # shield moon
     "\U000F099D", # shield lock
@@ -393,6 +399,9 @@
   size: 52
   bpp: 4
   glyphs: [
+    "\U000F033E", # lock
+    "\U000F033F", # lock-open
+    "\U000F050F", # thermometer
     "\U000F068A", # shield home
     "\U000F1828", # shield moon
     "\U000F099D", # shield lock
@@ -418,7 +427,7 @@
   bpp: 4
   glyphsets:
     - GF_Latin_Kernel
-  glyphs: "äöüÄÖÜß°"
+  glyphs: "äöüÄÖÜßØ°"
 
 - file: "gfonts://Roboto"
   id: roboto24

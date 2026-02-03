@@ -1,0 +1,84 @@
+# Template für Home Assistant Number Entity Integration
+# Erstellt Sensoren für Number-Entities mit Slider-Unterstützung
+# Variablen: num, entity_id
+#
+# Generierte IDs:
+# - ha_number_${num}_value: Numeric Sensor für aktuellen Wert
+# - ha_number_${num}_min: Numeric Sensor für Minimalwert
+# - ha_number_${num}_max: Numeric Sensor für Maximalwert
+# - ha_number_${num}_step: Numeric Sensor für Schrittweite
+# - ha_number_${num}_unit: Text Sensor für Einheit
+# - ha_number_${num}_friendly_name: Text Sensor für Anzeigename
+# - ha_number_${num}_icon: Text Sensor für MDI Icon
+
+defaults:
+  num: "1"
+  entity_id: "number.placeholder"
+
+# Numeric Sensors
+sensor:
+  # Aktueller Wert
+  - platform: homeassistant
+    id: ha_number_${num}_value
+    entity_id: ${entity_id}
+    on_value:
+      then:
+        - lambda: |-
+            ESP_LOGD("ha_number", "Number ${num} value: %.1f", x);
+        - if:
+            condition:
+              lambda: 'return lv_is_initialized();'
+            then:
+              - lvgl.slider.update:
+                  id: ha_number_slider_${num}
+                  value: !lambda "return (int)x;"
+              - lvgl.label.update:
+                  id: ha_number_label_${num}
+                  text: !lambda |-
+                    char buf[32];
+                    snprintf(buf, sizeof(buf), "Max. Ladestrom: %.0f A", x);
+                    return std::string(buf);
+
+  # Minimalwert
+  - platform: homeassistant
+    id: ha_number_${num}_min
+    entity_id: ${entity_id}
+    attribute: min
+    on_value:
+      then:
+        - lambda: |-
+            ESP_LOGD("ha_number", "Number ${num} min: %.1f", x);
+            if (lv_is_initialized()) {
+              lv_slider_set_range(id(ha_number_slider_${num}), (int)x, lv_slider_get_max_value(id(ha_number_slider_${num})));
+            }
+
+  # Maximalwert
+  - platform: homeassistant
+    id: ha_number_${num}_max
+    entity_id: ${entity_id}
+    attribute: max
+    on_value:
+      then:
+        - lambda: |-
+            ESP_LOGD("ha_number", "Number ${num} max: %.1f", x);
+            if (lv_is_initialized()) {
+              lv_slider_set_range(id(ha_number_slider_${num}), lv_slider_get_min_value(id(ha_number_slider_${num})), (int)x);
+            }
+
+  # Schrittweite
+  - platform: homeassistant
+    id: ha_number_${num}_step
+    entity_id: ${entity_id}
+    attribute: step
+
+# Text Sensors
+text_sensor:
+  # Einheit
+  - platform: homeassistant
+    id: ha_number_${num}_unit
+    entity_id: ${entity_id}
+    attribute: unit_of_measurement
+    on_value:
+      then:
+        - lambda: |-
+            ESP_LOGD("ha_number", "Number ${num} unit: %s", x.c_str());
