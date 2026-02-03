@@ -172,21 +172,3 @@ lvgl:
                           return DateTimeHelper::format_date_short(now.day_of_month, now.month, now.year);
                         text_font: roboto24
                         text_color: color_gray_700
-
-script: 
-    # Aktualisierung von Zeit- und Datums-Display
-    - id: update_datetime_display
-      mode: single
-      then:
-        - lvgl.label.update:
-            id: display_time
-            text: !lambda |-
-                auto now = id(sntp_time).now();
-                if (!now.is_valid()) return std::string("--:--");
-                return DateTimeHelper::format_time_simple(now.hour, now.minute);
-        - lvgl.label.update:
-            id: display_date
-            text: !lambda |-
-                auto now = id(sntp_time).now();
-                if (!now.is_valid()) return std::string("---");
-                return DateTimeHelper::format_date_short(now.day_of_month, now.month, now.year);

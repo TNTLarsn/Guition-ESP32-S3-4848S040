@@ -172,9 +172,9 @@ time:
     id: sntp_time
     timezone: "${timezone}"
     servers:
-      - ntp0.ntp-servers.net
-      - ntp1.ntp-servers.net
-      - ntp2.ntp-servers.net
+      - de.pool.ntp.org
+      - europe.pool.ntp.org
+      - pool.ntp.org
     on_time_sync:
       then:
         - logger.log: "Zeit synchronisiert - aktualisiere Display"
@@ -607,6 +607,23 @@ script:
               }
             }
           }
+
+  # Script für Zeit- und Datums-Display Aktualisierung
+  - id: update_datetime_display
+    mode: single
+    then:
+      - lvgl.label.update:
+          id: display_time
+          text: !lambda |-
+            auto now = id(sntp_time).now();
+            if (!now.is_valid()) return std::string("--:--");
+            return DateTimeHelper::format_time_simple(now.hour, now.minute);
+      - lvgl.label.update:
+          id: display_date
+          text: !lambda |-
+            auto now = id(sntp_time).now();
+            if (!now.is_valid()) return std::string("---");
+            return DateTimeHelper::format_date_short(now.day_of_month, now.month, now.year);
 
 # WiFi Configuration
 wifi:
