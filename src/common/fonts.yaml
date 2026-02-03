@@ -427,7 +427,7 @@
   bpp: 4
   glyphsets:
     - GF_Latin_Kernel
-  glyphs: "äöüÄÖÜßØ°" # Ø (Buchstabe U+00D8) absichtlich für zukünftige Temperatur-Statistik-Widgets als Durchschnitts-Symbol hinzugefügt
+  glyphs: "äöüÄÖÜßØ°" # Ø (U+00D8) als Durchschnitts-Symbol für Temperatur-Statistik-Widgets
 
 - file: "gfonts://Roboto"
   id: roboto24

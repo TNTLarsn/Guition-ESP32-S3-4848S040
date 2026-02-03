@@ -334,12 +334,11 @@ script:
             return;
           }
 
-          // Lock Status aktualisieren
+          // Lock Status aktualisieren (mit expliziter Behandlung aller möglichen Stati)
           std::string lock_state = id(ha_entity_19_state_text).state;
-          bool is_locked = (lock_state == "locked");
           
-          // Icon und Farbe basierend auf Lock-Status
-          if (is_locked) {
+          // Explizite Behandlung für alle Home Assistant Lock-Stati
+          if (lock_state == "locked") {
             // Locked = Orange (Hinweis: halten zum Entsperren)
             lv_label_set_text(id(ev_lock_status_text), "Gesperrt (halten)");
             lv_obj_set_style_text_color(id(ev_lock_status_text), lv_color_hex(0xF59E0B), LV_PART_MAIN);
@@ -347,7 +346,8 @@ script:
             lv_obj_set_style_text_color(id(ev_lock_btn_icon), lv_color_hex(0xF59E0B), LV_PART_MAIN);
             lv_obj_set_style_border_color(id(ev_lock_button), lv_color_hex(0xF59E0B), LV_PART_MAIN);
             lv_obj_set_style_shadow_color(id(ev_lock_button), lv_color_hex(0xF59E0B), LV_PART_MAIN);
-          } else {
+            lv_obj_clear_state(id(ev_lock_button), LV_STATE_DISABLED);
+          } else if (lock_state == "unlocked") {
             // Unlocked = Grün (Hinweis: halten zum Sperren)
             lv_label_set_text(id(ev_lock_status_text), "Entsperrt (halten)");
             lv_obj_set_style_text_color(id(ev_lock_status_text), lv_color_hex(0x10B981), LV_PART_MAIN);
@@ -355,6 +355,46 @@ script:
             lv_obj_set_style_text_color(id(ev_lock_btn_icon), lv_color_hex(0x10B981), LV_PART_MAIN);
             lv_obj_set_style_border_color(id(ev_lock_button), lv_color_hex(0x10B981), LV_PART_MAIN);
             lv_obj_set_style_shadow_color(id(ev_lock_button), lv_color_hex(0x10B981), LV_PART_MAIN);
+            lv_obj_clear_state(id(ev_lock_button), LV_STATE_DISABLED);
+          } else if (lock_state == "locking") {
+            // Locking (intermediate state) = Blau
+            lv_label_set_text(id(ev_lock_status_text), "Wird gesperrt...");
+            lv_obj_set_style_text_color(id(ev_lock_status_text), lv_color_hex(0x60A5FA), LV_PART_MAIN);
+            lv_label_set_text(id(ev_lock_btn_icon), "\U000F033E");
+            lv_obj_set_style_text_color(id(ev_lock_btn_icon), lv_color_hex(0x60A5FA), LV_PART_MAIN);
+            lv_obj_set_style_border_color(id(ev_lock_button), lv_color_hex(0x60A5FA), LV_PART_MAIN);
+            lv_obj_set_style_shadow_color(id(ev_lock_button), lv_color_hex(0x60A5FA), LV_PART_MAIN);
+            lv_obj_add_state(id(ev_lock_button), LV_STATE_DISABLED);
+          } else if (lock_state == "unlocking") {
+            // Unlocking (intermediate state) = Blau
+            lv_label_set_text(id(ev_lock_status_text), "Wird entsperrt...");
+            lv_obj_set_style_text_color(id(ev_lock_status_text), lv_color_hex(0x60A5FA), LV_PART_MAIN);
+            lv_label_set_text(id(ev_lock_btn_icon), "\U000F033F");
+            lv_obj_set_style_text_color(id(ev_lock_btn_icon), lv_color_hex(0x60A5FA), LV_PART_MAIN);
+            lv_obj_set_style_border_color(id(ev_lock_button), lv_color_hex(0x60A5FA), LV_PART_MAIN);
+            lv_obj_set_style_shadow_color(id(ev_lock_button), lv_color_hex(0x60A5FA), LV_PART_MAIN);
+            lv_obj_add_state(id(ev_lock_button), LV_STATE_DISABLED);
+          } else if (lock_state == "jammed") {
+            // Jammed (error state) = Rot
+            lv_label_set_text(id(ev_lock_status_text), "Blockiert!");
+            lv_obj_set_style_text_color(id(ev_lock_status_text), lv_color_hex(0xEF4444), LV_PART_MAIN);
+            lv_label_set_text(id(ev_lock_btn_icon), "\U000F0026"); // alert icon
+            lv_obj_set_style_text_color(id(ev_lock_btn_icon), lv_color_hex(0xEF4444), LV_PART_MAIN);
+            lv_obj_set_style_border_color(id(ev_lock_button), lv_color_hex(0xEF4444), LV_PART_MAIN);
+            lv_obj_set_style_shadow_color(id(ev_lock_button), lv_color_hex(0xEF4444), LV_PART_MAIN);
+            lv_obj_add_state(id(ev_lock_button), LV_STATE_DISABLED);
+          } else {
+            // Unknown, unavailable oder andere Stati = Grau
+            const char* status_text = (lock_state == "unavailable") ? "Nicht verfügbar" : 
+                                      (lock_state == "unknown") ? "Status unbekannt" : 
+                                      "Fehler";
+            lv_label_set_text(id(ev_lock_status_text), status_text);
+            lv_obj_set_style_text_color(id(ev_lock_status_text), lv_color_hex(0x6B7280), LV_PART_MAIN);
+            lv_label_set_text(id(ev_lock_btn_icon), "\U000F02FC"); // info icon
+            lv_obj_set_style_text_color(id(ev_lock_btn_icon), lv_color_hex(0x6B7280), LV_PART_MAIN);
+            lv_obj_set_style_border_color(id(ev_lock_button), lv_color_hex(0x6B7280), LV_PART_MAIN);
+            lv_obj_set_style_shadow_color(id(ev_lock_button), lv_color_hex(0x6B7280), LV_PART_MAIN);
+            lv_obj_add_state(id(ev_lock_button), LV_STATE_DISABLED);
           }
           
           // Ladeleistung aktualisieren
