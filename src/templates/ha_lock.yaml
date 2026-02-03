@@ -11,6 +11,7 @@
 defaults:
   num: "19"
   entity_id: "lock.placeholder"
+  on_value_script: ev_charging_update_ui
 
 text_sensor:
   # State Text (locked/unlocked)
@@ -22,7 +23,7 @@ text_sensor:
       then:
         - lambda: |-
             ESP_LOGD("ha_lock", "Lock ${num} state: %s", x.c_str());
-        - script.execute: ev_charging_update_ui
+        - script.execute: ${on_value_script}
 
   # Friendly Name
   - platform: homeassistant

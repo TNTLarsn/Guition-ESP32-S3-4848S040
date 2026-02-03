@@ -427,7 +427,7 @@
   bpp: 4
   glyphsets:
     - GF_Latin_Kernel
-  glyphs: "äöüÄÖÜßØ°"
+  glyphs: "äöüÄÖÜßØ°" # Ø hinzugefügt für zukünftige Temperatur Statistik widgets 
 
 - file: "gfonts://Roboto"
   id: roboto24

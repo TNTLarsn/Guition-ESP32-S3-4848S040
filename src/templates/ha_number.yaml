@@ -7,9 +7,7 @@
 # - ha_number_${num}_min: Numeric Sensor für Minimalwert
 # - ha_number_${num}_max: Numeric Sensor für Maximalwert
 # - ha_number_${num}_step: Numeric Sensor für Schrittweite
-# - ha_number_${num}_unit: Text Sensor für Einheit
-# - ha_number_${num}_friendly_name: Text Sensor für Anzeigename
-# - ha_number_${num}_icon: Text Sensor für MDI Icon
+# - ha_number_${num}_id: Text Sensor für Entity ID
 
 defaults:
   num: "1"
@@ -73,12 +71,9 @@ sensor:
 
 # Text Sensors
 text_sensor:
-  # Einheit
-  - platform: homeassistant
-    id: ha_number_${num}_unit
-    entity_id: ${entity_id}
-    attribute: unit_of_measurement
-    on_value:
-      then:
-        - lambda: |-
-            ESP_LOGD("ha_number", "Number ${num} unit: %s", x.c_str());
+  # Entity ID
+  - platform: template
+    id: ha_number_${num}_id
+    internal: true
+    lambda: |-
+      return {"${entity_id}"};

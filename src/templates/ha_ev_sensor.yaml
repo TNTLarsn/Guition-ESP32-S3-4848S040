@@ -11,6 +11,7 @@
 defaults:
   num: "20"
   entity_id: "sensor.placeholder"
+  on_value_script: ev_charging_update_ui
 
 text_sensor:
   # Unit of Measurement (Einheit aus Home Assistant)
@@ -33,7 +34,7 @@ text_sensor:
       then:
         - lambda: |-
             ESP_LOGD("ha_ev_sensor", "Sensor ${num} state: %s", x.c_str());
-        - script.execute: ev_charging_update_ui
+        - script.execute: ${on_value_script}
 
   # Friendly Name
   - platform: homeassistant

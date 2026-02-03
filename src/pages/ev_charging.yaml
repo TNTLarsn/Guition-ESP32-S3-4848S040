@@ -110,13 +110,13 @@ lvgl:
                                   - homeassistant.action:
                                       action: lock.unlock
                                       data:
-                                        entity_id: lock.wallbox_pulsarplus_sn_107049_garten_schloss
+                                        entity_id: !lambda return id(ha_entity_19_id).state.c_str();
                                 else:
                                   - logger.log: "Locking wallbox (long press)..."
                                   - homeassistant.action:
                                       action: lock.lock
                                       data:
-                                        entity_id: lock.wallbox_pulsarplus_sn_107049_garten_schloss
+                                        entity_id: !lambda return id(ha_entity_19_id).state.c_str();
                         widgets:
                           - label:
                               id: ev_lock_btn_icon
@@ -319,7 +319,7 @@ lvgl:
                             - homeassistant.action:
                                 action: number.set_value
                                 data:
-                                  entity_id: !lambda 'return "number.wallbox_pulsarplus_sn_107049_garten_maximaler_ladestrom";'
+                                  entity_id: !lambda return id(ha_number_21_id).state.c_str();
                                   value: !lambda |-
                                     return (int)lv_slider_get_value(id(ha_number_slider_21));
 
@@ -330,6 +330,10 @@ script:
     mode: single
     then:
       - lambda: |-
+          if (!lv_is_initialized()) {
+            return;
+          }
+
           // Lock Status aktualisieren
           std::string lock_state = id(ha_entity_19_state_text).state;
           bool is_locked = (lock_state == "locked");
