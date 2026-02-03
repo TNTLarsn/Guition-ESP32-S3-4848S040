@@ -1,0 +1,67 @@
+# Template für Home Assistant Sensor Entity auf EV-Charging Seite
+# Spezialisiertes Template für Sensoren ohne Button auf Switches-Seite
+# Variablen: num, entity_id
+#
+# Generierte IDs:
+# - ha_entity_${num}_state_text: Text Sensor für Sensor-Wert
+# - ha_entity_${num}_unit: Text Sensor für Einheit
+# - ha_entity_${num}_friendly_name: Text Sensor für Anzeigename
+# - ha_entity_${num}_icon: Text Sensor für MDI Icon
+
+defaults:
+  num: "20"
+  entity_id: "sensor.placeholder"
+  on_value_script: ev_charging_update_ui
+
+text_sensor:
+  # Unit of Measurement (Einheit aus Home Assistant)
+  - platform: homeassistant
+    id: ha_entity_${num}_unit
+    entity_id: ${entity_id}
+    attribute: unit_of_measurement
+    internal: true
+    on_value:
+      then:
+        - lambda: |-
+            ESP_LOGD("ha_ev_sensor", "Sensor ${num} unit: %s", x.c_str());
+
+  # State Text (Sensor-Wert als String)
+  - platform: homeassistant
+    id: ha_entity_${num}_state_text
+    entity_id: ${entity_id}
+    internal: true
+    on_value:
+      then:
+        - lambda: |-
+            ESP_LOGD("ha_ev_sensor", "Sensor ${num} state: %s", x.c_str());
+        - script.execute: ${on_value_script}
+
+  # Friendly Name
+  - platform: homeassistant
+    id: ha_entity_${num}_friendly_name
+    entity_id: ${entity_id}
+    attribute: friendly_name
+    internal: true
+    on_value:
+      then:
+        - lambda: |-
+            ESP_LOGD("ha_ev_sensor", "Sensor ${num} name: %s", x.c_str());
+
+  # Icon
+  - platform: homeassistant
+    id: ha_entity_${num}_icon
+    entity_id: ${entity_id}
+    attribute: icon
+    internal: true
+
+  # Entity Domain
+  - platform: template
+    id: ha_entity_${num}_domain
+    internal: true
+    lambda: |-
+      std::string entity_id = "${entity_id}";
+      size_t pos = entity_id.find('.');
+      if (pos != std::string::npos) {
+        return entity_id.substr(0, pos);
+      }
+      return std::string("unknown");

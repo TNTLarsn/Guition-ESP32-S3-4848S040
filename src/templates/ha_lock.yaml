@@ -1,0 +1,75 @@
+# Template für Home Assistant Lock Entity Integration
+# Spezialisiertes Template für Lock-Entities ohne Button auf Switches-Seite
+# Variablen: num, entity_id
+#
+# Generierte IDs:
+# - ha_entity_${num}_state_text: Text Sensor für Lock-Status (locked/unlocked)
+# - ha_entity_${num}_friendly_name: Text Sensor für Anzeigename
+# - ha_entity_${num}_icon: Text Sensor für MDI Icon
+# - ha_entity_${num}_domain: Text Sensor für Entity Domain
+
+defaults:
+  num: "19"
+  entity_id: "lock.placeholder"
+  on_value_script: ev_charging_update_ui
+
+text_sensor:
+  # State Text (locked/unlocked)
+  - platform: homeassistant
+    id: ha_entity_${num}_state_text
+    entity_id: ${entity_id}
+    internal: true
+    on_value:
+      then:
+        - lambda: |-
+            ESP_LOGD("ha_lock", "Lock ${num} state: %s", x.c_str());
+        - script.execute: ${on_value_script}
+
+  # Friendly Name
+  - platform: homeassistant
+    id: ha_entity_${num}_friendly_name
+    entity_id: ${entity_id}
+    attribute: friendly_name
+    internal: true
+    on_value:
+      then:
+        - lambda: |-
+            ESP_LOGD("ha_lock", "Lock ${num} name: %s", x.c_str());
+        - if:
+            condition:
+              lambda: 'return lv_is_initialized();'
+            then:
+              - lvgl.label.update:
+                  id: ev_lock_label
+                  text: !lambda |-
+                    std::string name = x;
+                    if (name.length() > 21) {
+                      name = name.substr(0, 18) + "...";
+                    }
+                    return name;
+
+  # Icon
+  - platform: homeassistant
+    id: ha_entity_${num}_icon
+    entity_id: ${entity_id}
+    attribute: icon
+    internal: true
+
+  # Entity ID
+  - platform: template
+    id: ha_entity_${num}_id
+    internal: true
+    lambda: |-
+      return {"${entity_id}"};
+
+  # Entity Domain
+  - platform: template
+    id: ha_entity_${num}_domain
+    internal: true
+    lambda: |-
+      std::string entity_id = "${entity_id}";
+      size_t pos = entity_id.find('.');
+      if (pos != std::string::npos) {
+        return entity_id.substr(0, pos);
+      }
+      return std::string("unknown");

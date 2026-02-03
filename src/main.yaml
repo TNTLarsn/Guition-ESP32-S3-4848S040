@@ -7,6 +7,7 @@ packages:
   switches_page: !include pages/switches.yaml
   temperatures_page: !include pages/temperatures.yaml
   thermostat_page: !include pages/thermostat.yaml
+  ev_charging_page: !include pages/ev_charging.yaml
   ota_page: !include pages/ota.yaml
   navigation: !include pages/navigation.yaml
   theme: !include themes/modern.yaml

@@ -1,0 +1,505 @@
+# ========================================================================
+# EV CHARGING PAGE - Wallbox/Ladestation Steuerung
+# ========================================================================
+# Design-Konzept: Zentrale Ladeleistungs-Anzeige, Lock-Status mit
+# Farbcodierung (orange=locked, grün=unlocked), Slider für Ladestrom
+# ========================================================================
+
+lvgl:
+  pages:
+    - id: ev_charging_page
+      bg_color: color_bg_dark
+      widgets:
+        # Hauptcontainer
+        - obj:
+            layout:
+              type: GRID
+              grid_columns: [FR(1)]
+              grid_rows: [80, FR(1), 140]
+              pad_row: 16
+            width: 100%
+            height: ${content_height}
+            pad_all: 20
+            pad_top: 16
+            bg_opa: TRANSP
+            border_opa: TRANSP
+            scrollbar_mode: "OFF"
+            widgets:
+              # ============================================================
+              # TOP ROW - Lock Status Card
+              # ============================================================
+              - obj:
+                  grid_cell_column_pos: 0
+                  grid_cell_row_pos: 0
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  radius: 20
+                  bg_color: color_gray_800
+                  bg_opa: 60%
+                  border_color: color_gray_600
+                  border_width: 1
+                  border_opa: 25%
+                  shadow_width: 12
+                  shadow_ofs_y: 4
+                  shadow_color: color_black
+                  shadow_opa: 30%
+                  pad_all: 12
+                  scrollbar_mode: "OFF"
+                  layout:
+                    type: GRID
+                    grid_columns: [FR(1), SIZE_CONTENT]
+                    grid_rows: [FR(1)]
+                    pad_column: 12
+                  widgets:
+                    # Lock Info (links)
+                    - obj:
+                        grid_cell_column_pos: 0
+                        grid_cell_row_pos: 0
+                        grid_cell_x_align: START
+                        grid_cell_y_align: CENTER
+                        bg_opa: TRANSP
+                        border_opa: TRANSP
+                        width: SIZE_CONTENT
+                        height: SIZE_CONTENT
+                        layout:
+                          type: FLEX
+                          flex_flow: COLUMN
+                          flex_align_main: CENTER
+                          flex_align_cross: START
+                          pad_row: 2
+                        widgets:
+                          # Lock Label
+                          - label:
+                              id: ev_lock_label
+                              text: "Wallbox"
+                              text_font: roboto24
+                              text_color: color_white
+                          # Lock Status Text (inkl. Hinweis auf Long-Press)
+                          - label:
+                              id: ev_lock_status_text
+                              text: "Gesperrt (halten)"
+                              text_font: roboto16
+                              text_color: color_warning
+                    
+                    # Lock Toggle Button (rechts)
+                    # Long-Press (500ms) für Sicherheit bei kritischen Aktionen
+                    - button:
+                        id: ev_lock_button
+                        grid_cell_column_pos: 1
+                        grid_cell_row_pos: 0
+                        grid_cell_x_align: END
+                        grid_cell_y_align: CENTER
+                        width: 56
+                        height: 56
+                        radius: 16
+                        bg_color: color_gray_700
+                        bg_opa: 70%
+                        border_color: color_warning
+                        border_width: 2
+                        border_opa: 80%
+                        shadow_width: 8
+                        shadow_color: color_warning
+                        shadow_opa: 30%
+                        on_long_press:
+                          then:
+                            - if:
+                                condition:
+                                  lambda: 'return id(ha_entity_19_state_text).state == "locked";'
+                                then:
+                                  - logger.log: "Unlocking wallbox (long press)..."
+                                  - homeassistant.action:
+                                      action: lock.unlock
+                                      data:
+                                        entity_id: !lambda return id(ha_entity_19_id).state.c_str();
+                                else:
+                                  - logger.log: "Locking wallbox (long press)..."
+                                  - homeassistant.action:
+                                      action: lock.lock
+                                      data:
+                                        entity_id: !lambda return id(ha_entity_19_id).state.c_str();
+                        widgets:
+                          - label:
+                              id: ev_lock_btn_icon
+                              align: CENTER
+                              text: "\U000F033E"
+                              text_font: mdi_icons_28
+                              text_color: color_warning
+
+              # ============================================================
+              # CENTER ROW - Ladeleistung Anzeige (Hero Element)
+              # ============================================================
+              - obj:
+                  grid_cell_column_pos: 0
+                  grid_cell_row_pos: 1
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  radius: 24
+                  bg_color: color_gray_800
+                  bg_opa: 55%
+                  border_color: color_gray_600
+                  border_width: 1
+                  border_opa: 20%
+                  shadow_width: 16
+                  shadow_ofs_y: 6
+                  shadow_color: color_black
+                  shadow_opa: 35%
+                  pad_all: 16
+                  scrollbar_mode: "OFF"
+                  layout:
+                    type: GRID
+                    grid_columns: [FR(1)]
+                    grid_rows: [SIZE_CONTENT, FR(1), SIZE_CONTENT]
+                    pad_row: 8
+                  widgets:
+                    # Titel
+                    - label:
+                        grid_cell_column_pos: 0
+                        grid_cell_row_pos: 0
+                        grid_cell_x_align: CENTER
+                        grid_cell_y_align: START
+                        text: "Aktuelle Ladeleistung"
+                        text_font: roboto16
+                        text_color: color_gray_400
+                    
+                    # Großer Leistungswert (Hero)
+                    - obj:
+                        grid_cell_column_pos: 0
+                        grid_cell_row_pos: 1
+                        grid_cell_x_align: STRETCH
+                        grid_cell_y_align: CENTER
+                        bg_opa: TRANSP
+                        border_opa: TRANSP
+                        width: 100%
+                        height: SIZE_CONTENT
+                        layout:
+                          type: GRID
+                          grid_columns: [SIZE_CONTENT, FR(1)]
+                          grid_rows: [FR(1)]
+                          pad_column: 16
+                        widgets:
+                          # EV Charging Icon (links)
+                          - label:
+                              id: ev_charging_icon
+                              grid_cell_column_pos: 0
+                              grid_cell_row_pos: 0
+                              grid_cell_x_align: START
+                              grid_cell_y_align: CENTER
+                              text: "\U000F05F1"
+                              text_font: mdi_icons_40
+                              text_color: color_primary_light
+                          # Leistungswert (rechts)
+                          - label:
+                              id: ev_power_value
+                              grid_cell_column_pos: 1
+                              grid_cell_row_pos: 0
+                              grid_cell_x_align: END
+                              grid_cell_y_align: CENTER
+                              text: "0 W"
+                              text_font: roboto40
+                              text_color: color_white
+                    
+                    # Status-Text (lädt / pausiert / nicht verbunden)
+                    - label:
+                        id: ev_charging_status
+                        grid_cell_column_pos: 0
+                        grid_cell_row_pos: 2
+                        grid_cell_x_align: CENTER
+                        grid_cell_y_align: END
+                        text: "Nicht verbunden"
+                        text_font: roboto16
+                        text_color: color_gray_400
+
+              # ============================================================
+              # BOTTOM ROW - Ladestrom Slider
+              # ============================================================
+              - obj:
+                  grid_cell_column_pos: 0
+                  grid_cell_row_pos: 2
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  radius: 20
+                  bg_color: color_gray_800
+                  bg_opa: 60%
+                  border_color: color_gray_600
+                  border_width: 1
+                  border_opa: 25%
+                  shadow_width: 12
+                  shadow_ofs_y: 4
+                  shadow_color: color_black
+                  shadow_opa: 30%
+                  pad_all: 16
+                  scrollbar_mode: "OFF"
+                  layout:
+                    type: GRID
+                    grid_columns: [FR(1)]
+                    grid_rows: [SIZE_CONTENT, SIZE_CONTENT, FR(1)]
+                    pad_row: 0
+                  widgets:
+                    # Slider Header
+                    - obj:
+                        grid_cell_column_pos: 0
+                        grid_cell_row_pos: 0
+                        grid_cell_x_align: STRETCH
+                        bg_opa: TRANSP
+                        border_opa: TRANSP
+                        height: SIZE_CONTENT
+                        layout:
+                          type: GRID
+                          grid_columns: [FR(1)]
+                          grid_rows: [FR(1)]
+                        widgets:
+                          # Label mit Wert
+                          - label:
+                              id: ha_number_label_21
+                              grid_cell_column_pos: 0
+                              grid_cell_row_pos: 0
+                              grid_cell_x_align: CENTER
+                              grid_cell_y_align: CENTER
+                              text: "Max. Ladestrom: -- A"
+                              text_font: roboto16
+                              text_color: color_gray_400
+                    
+                    # Min/Max Labels
+                    - obj:
+                        grid_cell_column_pos: 0
+                        grid_cell_row_pos: 1
+                        grid_cell_x_align: STRETCH
+                        y: -8
+                        bg_opa: TRANSP
+                        border_opa: TRANSP
+                        height: SIZE_CONTENT
+                        layout:
+                          type: GRID
+                          grid_columns: [FR(1), FR(1)]
+                          grid_rows: [FR(1)]
+                        widgets:
+                          - label:
+                              id: ev_slider_min_label
+                              grid_cell_column_pos: 0
+                              grid_cell_row_pos: 0
+                              grid_cell_x_align: START
+                              text: "6 A"
+                              text_font: roboto16
+                              text_color: color_gray_500
+                          - label:
+                              id: ev_slider_max_label
+                              grid_cell_column_pos: 1
+                              grid_cell_row_pos: 0
+                              grid_cell_x_align: END
+                              text: "32 A"
+                              text_font: roboto16
+                              text_color: color_gray_500
+                    
+                    # Slider
+                    - slider:
+                        id: ha_number_slider_21
+                        grid_cell_column_pos: 0
+                        grid_cell_row_pos: 2
+                        grid_cell_x_align: STRETCH
+                        grid_cell_y_align: CENTER
+                        width: 100%
+                        height: 24
+                        min_value: 6
+                        max_value: 32
+                        value: 16
+                        indicator:
+                          bg_color: color_primary
+                          bg_grad_color: color_primary_light
+                          bg_grad_dir: HOR
+                        knob:
+                          radius: 999
+                          width: 32
+                          height: 32
+                          bg_color: color_white
+                          shadow_width: 8
+                          shadow_color: color_black
+                          shadow_opa: 40%
+                        on_release:
+                          then:
+                            - homeassistant.action:
+                                action: number.set_value
+                                data:
+                                  entity_id: !lambda return id(ha_number_21_id).state.c_str();
+                                  value: !lambda |-
+                                    return (int)lv_slider_get_value(id(ha_number_slider_21));
+
+# Scripts für EV Charging Page
+script:
+  # UI Update Script für EV Charging
+  - id: ev_charging_update_ui
+    mode: single
+    then:
+      - lambda: |-
+          if (!lv_is_initialized()) {
+            return;
+          }
+
+          // Lock Status aktualisieren (mit expliziter Behandlung aller möglichen Stati)
+          std::string lock_state = id(ha_entity_19_state_text).state;
+          
+          // Explizite Behandlung für alle Home Assistant Lock-Stati
+          if (lock_state == "locked") {
+            // Locked = Orange (Hinweis: halten zum Entsperren)
+            lv_label_set_text(id(ev_lock_status_text), "Gesperrt (halten)");
+            lv_obj_set_style_text_color(id(ev_lock_status_text), lv_color_hex(0xF59E0B), LV_PART_MAIN);
+            lv_label_set_text(id(ev_lock_btn_icon), "\U000F033E");
+            lv_obj_set_style_text_color(id(ev_lock_btn_icon), lv_color_hex(0xF59E0B), LV_PART_MAIN);
+            lv_obj_set_style_border_color(id(ev_lock_button), lv_color_hex(0xF59E0B), LV_PART_MAIN);
+            lv_obj_set_style_shadow_color(id(ev_lock_button), lv_color_hex(0xF59E0B), LV_PART_MAIN);
+            lv_obj_clear_state(id(ev_lock_button), LV_STATE_DISABLED);
+          } else if (lock_state == "unlocked") {
+            // Unlocked = Grün (Hinweis: halten zum Sperren)
+            lv_label_set_text(id(ev_lock_status_text), "Entsperrt (halten)");
+            lv_obj_set_style_text_color(id(ev_lock_status_text), lv_color_hex(0x10B981), LV_PART_MAIN);
+            lv_label_set_text(id(ev_lock_btn_icon), "\U000F033F");
+            lv_obj_set_style_text_color(id(ev_lock_btn_icon), lv_color_hex(0x10B981), LV_PART_MAIN);
+            lv_obj_set_style_border_color(id(ev_lock_button), lv_color_hex(0x10B981), LV_PART_MAIN);
+            lv_obj_set_style_shadow_color(id(ev_lock_button), lv_color_hex(0x10B981), LV_PART_MAIN);
+            lv_obj_clear_state(id(ev_lock_button), LV_STATE_DISABLED);
+          } else if (lock_state == "locking") {
+            // Locking (intermediate state) = Blau
+            lv_label_set_text(id(ev_lock_status_text), "Wird gesperrt...");
+            lv_obj_set_style_text_color(id(ev_lock_status_text), lv_color_hex(0x60A5FA), LV_PART_MAIN);
+            lv_label_set_text(id(ev_lock_btn_icon), "\U000F033E");
+            lv_obj_set_style_text_color(id(ev_lock_btn_icon), lv_color_hex(0x60A5FA), LV_PART_MAIN);
+            lv_obj_set_style_border_color(id(ev_lock_button), lv_color_hex(0x60A5FA), LV_PART_MAIN);
+            lv_obj_set_style_shadow_color(id(ev_lock_button), lv_color_hex(0x60A5FA), LV_PART_MAIN);
+            lv_obj_add_state(id(ev_lock_button), LV_STATE_DISABLED);
+          } else if (lock_state == "unlocking") {
+            // Unlocking (intermediate state) = Blau
+            lv_label_set_text(id(ev_lock_status_text), "Wird entsperrt...");
+            lv_obj_set_style_text_color(id(ev_lock_status_text), lv_color_hex(0x60A5FA), LV_PART_MAIN);
+            lv_label_set_text(id(ev_lock_btn_icon), "\U000F033F");
+            lv_obj_set_style_text_color(id(ev_lock_btn_icon), lv_color_hex(0x60A5FA), LV_PART_MAIN);
+            lv_obj_set_style_border_color(id(ev_lock_button), lv_color_hex(0x60A5FA), LV_PART_MAIN);
+            lv_obj_set_style_shadow_color(id(ev_lock_button), lv_color_hex(0x60A5FA), LV_PART_MAIN);
+            lv_obj_add_state(id(ev_lock_button), LV_STATE_DISABLED);
+          } else if (lock_state == "jammed") {
+            // Jammed (error state) = Rot
+            lv_label_set_text(id(ev_lock_status_text), "Blockiert!");
+            lv_obj_set_style_text_color(id(ev_lock_status_text), lv_color_hex(0xEF4444), LV_PART_MAIN);
+            lv_label_set_text(id(ev_lock_btn_icon), "\U000F0026"); // alert icon
+            lv_obj_set_style_text_color(id(ev_lock_btn_icon), lv_color_hex(0xEF4444), LV_PART_MAIN);
+            lv_obj_set_style_border_color(id(ev_lock_button), lv_color_hex(0xEF4444), LV_PART_MAIN);
+            lv_obj_set_style_shadow_color(id(ev_lock_button), lv_color_hex(0xEF4444), LV_PART_MAIN);
+            lv_obj_add_state(id(ev_lock_button), LV_STATE_DISABLED);
+          } else {
+            // Unknown, unavailable oder andere Stati = Grau
+            const char* status_text = (lock_state == "unavailable") ? "Nicht verfügbar" : 
+                                      (lock_state == "unknown") ? "Status unbekannt" : 
+                                      "Fehler";
+            lv_label_set_text(id(ev_lock_status_text), status_text);
+            lv_obj_set_style_text_color(id(ev_lock_status_text), lv_color_hex(0x6B7280), LV_PART_MAIN);
+            lv_label_set_text(id(ev_lock_btn_icon), "\U000F02FC"); // info icon
+            lv_obj_set_style_text_color(id(ev_lock_btn_icon), lv_color_hex(0x6B7280), LV_PART_MAIN);
+            lv_obj_set_style_border_color(id(ev_lock_button), lv_color_hex(0x6B7280), LV_PART_MAIN);
+            lv_obj_set_style_shadow_color(id(ev_lock_button), lv_color_hex(0x6B7280), LV_PART_MAIN);
+            lv_obj_add_state(id(ev_lock_button), LV_STATE_DISABLED);
+          }
+          
+          // Ladeleistung aktualisieren
+          std::string power_str = id(ha_entity_20_state_text).state;
+          float power = 0;
+          if (!power_str.empty()) {
+            // Parse ohne try/catch (ESP-IDF hat exceptions deaktiviert)
+            char* end_ptr = nullptr;
+            power = strtof(power_str.c_str(), &end_ptr);
+            if (end_ptr == power_str.c_str()) {
+              power = 0;  // Parsing fehlgeschlagen
+            }
+            
+            char buf[32];
+            if (power >= 1000) {
+              snprintf(buf, sizeof(buf), "%.1f kW", power / 1000.0);
+            } else {
+              snprintf(buf, sizeof(buf), "%.0f W", power);
+            }
+            lv_label_set_text(id(ev_power_value), buf);
+          } else {
+            lv_label_set_text(id(ev_power_value), "-- W");
+          }
+          
+          // Status-Text aus Sensor ha_entity_22 (Statusbeschreibung)
+          std::string charger_status = id(ha_entity_22_state_text).state;
+          const char* status_text = "Unbekannt";
+          uint32_t status_color = 0x9CA3AF;  // Grau als Default
+          uint32_t icon_color = 0x60A5FA;    // Blau als Default
+          
+          // Status-Übersetzung Englisch → Deutsch mit Farbcodierung
+          if (charger_status == "Charging") {
+            status_text = "Lädt";
+            status_color = 0x10B981;  // Grün
+            icon_color = 0x10B981;
+          } else if (charger_status == "Discharging") {
+            status_text = "Entlädt";
+            status_color = 0xF59E0B;  // Orange
+            icon_color = 0xF59E0B;
+          } else if (charger_status == "Paused") {
+            status_text = "Pausiert";
+            status_color = 0xF59E0B;  // Orange
+            icon_color = 0xF59E0B;
+          } else if (charger_status == "Scheduled") {
+            status_text = "Geplant";
+            status_color = 0x60A5FA;  // Blau
+            icon_color = 0x60A5FA;
+          } else if (charger_status == "Waiting for car demand") {
+            status_text = "Warte auf Fahrzeug";
+            status_color = 0x60A5FA;  // Blau
+            icon_color = 0x60A5FA;
+          } else if (charger_status == "Waiting") {
+            status_text = "Warte";
+            status_color = 0x60A5FA;  // Blau
+            icon_color = 0x60A5FA;
+          } else if (charger_status == "Disconnected") {
+            status_text = "Nicht verbunden";
+            status_color = 0x9CA3AF;  // Grau
+            icon_color = 0x6B7280;
+          } else if (charger_status == "Error") {
+            status_text = "Fehler";
+            status_color = 0xEF4444;  // Rot
+            icon_color = 0xEF4444;
+          } else if (charger_status == "Ready") {
+            status_text = "Bereit";
+            status_color = 0x10B981;  // Grün
+            icon_color = 0x60A5FA;
+          } else if (charger_status == "Locked") {
+            status_text = "Gesperrt";
+            status_color = 0xF59E0B;  // Orange
+            icon_color = 0xF59E0B;
+          } else if (charger_status == "Locked, car connected") {
+            status_text = "Gesperrt, Fahrzeug verbunden";
+            status_color = 0xF59E0B;  // Orange
+            icon_color = 0xF59E0B;
+          } else if (charger_status == "Updating") {
+            status_text = "Aktualisiert";
+            status_color = 0x60A5FA;  // Blau
+            icon_color = 0x60A5FA;
+          } else if (charger_status == "Waiting in queue by Power Sharing") {
+            status_text = "Warte (Power Sharing)";
+            status_color = 0x60A5FA;  // Blau
+            icon_color = 0x60A5FA;
+          } else if (charger_status == "Waiting in queue by Power Boost") {
+            status_text = "Warte (Power Boost)";
+            status_color = 0x60A5FA;  // Blau
+            icon_color = 0x60A5FA;
+          } else if (charger_status == "Waiting MID failed") {
+            status_text = "Warte (MID Fehler)";
+            status_color = 0xEF4444;  // Rot
+            icon_color = 0xEF4444;
+          } else if (charger_status == "Waiting MID safety margin exceeded") {
+            status_text = "Warte (MID Sicherheit)";
+            status_color = 0xF59E0B;  // Orange
+            icon_color = 0xF59E0B;
+          } else if (charger_status == "Waiting in queue by Eco-Smart") {
+            status_text = "Warte (Eco-Smart)";
+            status_color = 0x10B981;  // Grün (Eco = umweltfreundlich)
+            icon_color = 0x10B981;
+          } else if (charger_status == "Unknown" || charger_status == "unavailable" || charger_status.empty()) {
+            status_text = "Unbekannt";
+            status_color = 0x6B7280;  // Dunkelgrau
+            icon_color = 0x6B7280;
+          }
+          
+          lv_label_set_text(id(ev_charging_status), status_text);
+          lv_obj_set_style_text_color(id(ev_charging_status), lv_color_hex(status_color), LV_PART_MAIN);
+          lv_obj_set_style_text_color(id(ev_charging_icon), lv_color_hex(icon_color), LV_PART_MAIN);
