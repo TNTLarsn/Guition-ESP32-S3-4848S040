@@ -10,14 +10,6 @@ lvgl:
     - id: ev_charging_page
       bg_color: color_bg_dark
       widgets:
-        # Hidden placeholders für ha_sensor Template (Sensor 22 - Statusbeschreibung)
-        - label:
-            id: ha_temp_value_22
-            hidden: true
-        - label:
-            id: ha_sensor_label_22
-            hidden: true
-        
         # Hauptcontainer
         - obj:
             layout:
