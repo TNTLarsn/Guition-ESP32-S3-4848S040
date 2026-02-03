@@ -308,6 +308,7 @@ sensor:
     name: "WiFi Signal Prozent"
     id: wifi_signal_percent
     entity_category: "diagnostic"
+    device_class: ""  # Keine device_class, da '%' nicht für signal_strength gültig ist
     update_interval: 30s
     filters:
       - lambda: return min(max(2 * (x + 100.0), 0.0), 100.0);
