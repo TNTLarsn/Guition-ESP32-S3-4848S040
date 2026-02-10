@@ -448,7 +448,7 @@ script:
             status_text = "Belegt";
             status_color = 0xF59E0B;  // Orange
             icon_color = 0xF59E0B;
-          } else if (charger_status == "Unknown" || charger_status.empty()) {
+          } else if (charger_status == "Unknown" || charger_status == "unknown" || charger_status.empty()) {
             status_text = "Unbekannt";
             status_color = 0x6B7280;  // Dunkelgrau
             icon_color = 0x6B7280;
