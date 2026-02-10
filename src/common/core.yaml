@@ -304,15 +304,20 @@ sensor:
     unit_of_measurement: "dBm"
     
   # WI-FI Signal Strength in %
-  - platform: wifi_signal
+  - platform: template
     name: "WiFi Signal Prozent"
     id: wifi_signal_percent
     entity_category: "diagnostic"
-    device_class: ""  # Keine device_class, da '%' nicht für signal_strength gültig ist
-    update_interval: 30s
-    filters:
-      - lambda: return min(max(2 * (x + 100.0), 0.0), 100.0);
     unit_of_measurement: "%"
+    state_class: "measurement"
+    accuracy_decimals: 0
+    update_interval: 30s
+    lambda: |-
+      if (!id(wifi_signal_db).has_state()) {
+        return NAN;
+      }
+      float dbm = id(wifi_signal_db).state;
+      return fminf(fmaxf(2.0f * (dbm + 100.0f), 0.0f), 100.0f);
 
 # Buttons for Restart and Firmware Update
 button:

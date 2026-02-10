@@ -357,6 +357,8 @@
     "\U000F0E47", # hand
     "\U000F02FC", # information (for unavailable status)
     "\U000F0026", # alert (for error/jammed status)
+    "\U000F0F45", # ev-plug-type2
+    "\U000F19DE", # ev-plug-type2-off
   ]
 
 - file: "assets/fonts/materialdesignicons-webfont.ttf"

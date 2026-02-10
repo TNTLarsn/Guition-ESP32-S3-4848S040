@@ -83,6 +83,8 @@ static const MdiIconEntry MDI_ICONS[] = {
     {"door", 0xF081A},
     {"door-closed", 0xF081B},
     {"door-open", 0xF081C},
+    {"ev-plug-type2", 0xF0F45},
+    {"ev-plug-type2-off", 0xF19DE},
     {"eye", 0xF0208},
     {"eye-off", 0xF0209},
     {"fan", 0xF0210},
