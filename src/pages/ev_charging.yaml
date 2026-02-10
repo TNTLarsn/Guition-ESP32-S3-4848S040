@@ -1,8 +1,8 @@
 # ========================================================================
 # EV CHARGING PAGE - Wallbox/Ladestation Steuerung
 # ========================================================================
-# Design-Konzept: Zentrale Ladeleistungs-Anzeige, Lock-Status mit
-# Farbcodierung (orange=locked, grün=unlocked), Slider für Ladestrom
+# Design-Konzept: Zentrale Ladeleistungs-Anzeige, Lade-Freigabe mit
+# Farbcodierung (orange=deaktiviert, grün=aktiviert), Slider für Ladestrom
 # ========================================================================
 
 lvgl:
@@ -68,20 +68,20 @@ lvgl:
                           flex_align_cross: START
                           pad_row: 2
                         widgets:
-                          # Lock Label
+                          # Charge Enable Label
                           - label:
                               id: ev_lock_label
-                              text: "Wallbox"
+                              text: "EV Laden"
                               text_font: roboto24
                               text_color: color_white
-                          # Lock Status Text (inkl. Hinweis auf Long-Press)
+                          # Charge Enable Status Text (inkl. Hinweis auf Long-Press)
                           - label:
                               id: ev_lock_status_text
-                              text: "Gesperrt (halten)"
+                              text: "Deaktiviert (halten)"
                               text_font: roboto16
                               text_color: color_warning
                     
-                    # Lock Toggle Button (rechts)
+                    # Charge Enable Toggle Button (rechts)
                     # Long-Press (500ms) für Sicherheit bei kritischen Aktionen
                     # Verwendet Script mit initialem Delay um LVGL Touch-Event vollständig abzuschließen
                     - button:
@@ -104,12 +104,12 @@ lvgl:
                         shadow_opa: 30%
                         on_long_press:
                           then:
-                            - script.execute: ev_lock_toggle
+                            - script.execute: ev_charge_enable_toggle
                         widgets:
                           - label:
                               id: ev_lock_btn_icon
                               align: CENTER
-                              text: "\U000F033E"
+                              text: "\U000F19DE"
                               text_font: mdi_icons_28
                               text_color: color_warning
 
@@ -313,37 +313,18 @@ lvgl:
 
 # Scripts für EV Charging Page
 script:
-  # Lock Toggle Script - sendet Befehl 2x mit langem Delay für Wallbox Wake-Up
-  - id: ev_lock_toggle
+  # Charge Enable Toggle Script - schaltet input_boolean um
+  - id: ev_charge_enable_toggle
     mode: single
     then:
-      - if:
-          condition:
-            lambda: 'return id(ha_entity_19_state_text).state == "locked";'
-          then:
-            - logger.log: "Unlocking wallbox (wake-up)..."
-            - homeassistant.action:
-                action: lock.unlock
-                data:
-                  entity_id: !lambda 'return id(ha_entity_19_id).state.c_str();'
-            - delay: 1500ms
-            - logger.log: "Unlocking wallbox (execute)..."
-            - homeassistant.action:
-                action: lock.unlock
-                data:
-                  entity_id: !lambda 'return id(ha_entity_19_id).state.c_str();'
-          else:
-            - logger.log: "Locking wallbox (wake-up)..."
-            - homeassistant.action:
-                action: lock.lock
-                data:
-                  entity_id: !lambda 'return id(ha_entity_19_id).state.c_str();'
-            - delay: 1500ms
-            - logger.log: "Locking wallbox (execute)..."
-            - homeassistant.action:
-                action: lock.lock
-                data:
-                  entity_id: !lambda 'return id(ha_entity_19_id).state.c_str();'
+      - homeassistant.service:
+          service: input_boolean.toggle
+          data:
+            entity_id: !lambda 'return id(ha_entity_19_id).state.c_str();'
+      - logger.log:
+          level: INFO
+          tag: "ev_charging"
+          format: "Toggled EV charging enable"
 
   # UI Update Script für EV Charging
   - id: ev_charging_update_ui
@@ -361,61 +342,34 @@ script:
           
           ESP_LOGD("ev_charging", "Updating EV charging UI...");
 
-          // Lock Status aktualisieren (mit expliziter Behandlung aller möglichen Stati)
-          std::string lock_state = id(ha_entity_19_state_text).state;
-          ESP_LOGD("ev_charging", "Lock state: %s", lock_state.c_str());
+          // Charge Enable Status aktualisieren (input_boolean: on/off)
+          std::string charge_state = id(ha_entity_19_state_text).state;
+          ESP_LOGD("ev_charging", "Charge enable state: %s", charge_state.c_str());
           
-          // Explizite Behandlung für alle Home Assistant Lock-Stati
-          if (lock_state == "locked") {
-            // Locked = Orange (Hinweis: halten zum Entsperren)
-            lv_label_set_text(id(ev_lock_status_text), "Gesperrt (halten)");
-            lv_obj_set_style_text_color(id(ev_lock_status_text), lv_color_hex(0xF59E0B), LV_PART_MAIN);
-            lv_label_set_text(id(ev_lock_btn_icon), "\U000F033E");
-            lv_obj_set_style_text_color(id(ev_lock_btn_icon), lv_color_hex(0xF59E0B), LV_PART_MAIN);
-            lv_obj_set_style_border_color(id(ev_lock_button), lv_color_hex(0xF59E0B), LV_PART_MAIN);
-            lv_obj_set_style_shadow_color(id(ev_lock_button), lv_color_hex(0xF59E0B), LV_PART_MAIN);
-            lv_obj_clear_state(id(ev_lock_button), LV_STATE_DISABLED);
-          } else if (lock_state == "unlocked") {
-            // Unlocked = Grün (Hinweis: halten zum Sperren)
-            lv_label_set_text(id(ev_lock_status_text), "Entsperrt (halten)");
+          // Behandlung für input_boolean Stati (on/off)
+          if (charge_state == "on") {
+            // On = Grün (Laden erlaubt, halten zum Deaktivieren)
+            lv_label_set_text(id(ev_lock_status_text), "Erlaubt (halten)");
             lv_obj_set_style_text_color(id(ev_lock_status_text), lv_color_hex(0x10B981), LV_PART_MAIN);
-            lv_label_set_text(id(ev_lock_btn_icon), "\U000F033F");
+            lv_label_set_text(id(ev_lock_btn_icon), "\U000F0F45"); // ev-plug-type2 icon
             lv_obj_set_style_text_color(id(ev_lock_btn_icon), lv_color_hex(0x10B981), LV_PART_MAIN);
             lv_obj_set_style_border_color(id(ev_lock_button), lv_color_hex(0x10B981), LV_PART_MAIN);
             lv_obj_set_style_shadow_color(id(ev_lock_button), lv_color_hex(0x10B981), LV_PART_MAIN);
             lv_obj_clear_state(id(ev_lock_button), LV_STATE_DISABLED);
-          } else if (lock_state == "locking") {
-            // Locking (intermediate state) = Blau
-            lv_label_set_text(id(ev_lock_status_text), "Wird gesperrt...");
-            lv_obj_set_style_text_color(id(ev_lock_status_text), lv_color_hex(0x60A5FA), LV_PART_MAIN);
-            lv_label_set_text(id(ev_lock_btn_icon), "\U000F033E");
-            lv_obj_set_style_text_color(id(ev_lock_btn_icon), lv_color_hex(0x60A5FA), LV_PART_MAIN);
-            lv_obj_set_style_border_color(id(ev_lock_button), lv_color_hex(0x60A5FA), LV_PART_MAIN);
-            lv_obj_set_style_shadow_color(id(ev_lock_button), lv_color_hex(0x60A5FA), LV_PART_MAIN);
-            lv_obj_add_state(id(ev_lock_button), LV_STATE_DISABLED);
-          } else if (lock_state == "unlocking") {
-            // Unlocking (intermediate state) = Blau
-            lv_label_set_text(id(ev_lock_status_text), "Wird entsperrt...");
-            lv_obj_set_style_text_color(id(ev_lock_status_text), lv_color_hex(0x60A5FA), LV_PART_MAIN);
-            lv_label_set_text(id(ev_lock_btn_icon), "\U000F033F");
-            lv_obj_set_style_text_color(id(ev_lock_btn_icon), lv_color_hex(0x60A5FA), LV_PART_MAIN);
-            lv_obj_set_style_border_color(id(ev_lock_button), lv_color_hex(0x60A5FA), LV_PART_MAIN);
-            lv_obj_set_style_shadow_color(id(ev_lock_button), lv_color_hex(0x60A5FA), LV_PART_MAIN);
-            lv_obj_add_state(id(ev_lock_button), LV_STATE_DISABLED);
-          } else if (lock_state == "jammed") {
-            // Jammed (error state) = Rot
-            lv_label_set_text(id(ev_lock_status_text), "Blockiert!");
-            lv_obj_set_style_text_color(id(ev_lock_status_text), lv_color_hex(0xEF4444), LV_PART_MAIN);
-            lv_label_set_text(id(ev_lock_btn_icon), "\U000F0026"); // alert icon
-            lv_obj_set_style_text_color(id(ev_lock_btn_icon), lv_color_hex(0xEF4444), LV_PART_MAIN);
-            lv_obj_set_style_border_color(id(ev_lock_button), lv_color_hex(0xEF4444), LV_PART_MAIN);
-            lv_obj_set_style_shadow_color(id(ev_lock_button), lv_color_hex(0xEF4444), LV_PART_MAIN);
-            lv_obj_add_state(id(ev_lock_button), LV_STATE_DISABLED);
+          } else if (charge_state == "off") {
+            // Off = Orange (Laden nicht erlaubt, halten zum Aktivieren)
+            lv_label_set_text(id(ev_lock_status_text), "Deaktiviert (halten)");
+            lv_obj_set_style_text_color(id(ev_lock_status_text), lv_color_hex(0xF59E0B), LV_PART_MAIN);
+            lv_label_set_text(id(ev_lock_btn_icon), "\U000F19DE"); // ev-plug-type2-off icon
+            lv_obj_set_style_text_color(id(ev_lock_btn_icon), lv_color_hex(0xF59E0B), LV_PART_MAIN);
+            lv_obj_set_style_border_color(id(ev_lock_button), lv_color_hex(0xF59E0B), LV_PART_MAIN);
+            lv_obj_set_style_shadow_color(id(ev_lock_button), lv_color_hex(0xF59E0B), LV_PART_MAIN);
+            lv_obj_clear_state(id(ev_lock_button), LV_STATE_DISABLED);
           } else {
             // Unknown, unavailable oder andere Stati = Grau
-            const char* status_text = (lock_state == "unavailable") ? "Nicht verfügbar" : 
-                                      (lock_state == "unknown") ? "Status unbekannt" : 
-                                      "Fehler";
+            const char* status_text = (charge_state == "unavailable") ? "Nicht verfügbar" : 
+                                      (charge_state == "unknown") ? "Status unbekannt" : 
+                                      "Unbekannt";
             lv_label_set_text(id(ev_lock_status_text), status_text);
             lv_obj_set_style_text_color(id(ev_lock_status_text), lv_color_hex(0x6B7280), LV_PART_MAIN);
             lv_label_set_text(id(ev_lock_btn_icon), "\U000F02FC"); // info icon
@@ -453,76 +407,48 @@ script:
           uint32_t status_color = 0x9CA3AF;  // Grau als Default
           uint32_t icon_color = 0x60A5FA;    // Blau als Default
           
-          // Status-Übersetzung Englisch → Deutsch mit Farbcodierung
-          if (charger_status == "Charging") {
+          // Status-Übersetzung (OCPP) Englisch → Deutsch mit Farbcodierung
+          if (charger_status == "Available") {
+            status_text = "Verfügbar";
+            status_color = 0x10B981;  // Grün
+            icon_color = 0x10B981;
+          } else if (charger_status == "Preparing") {
+            status_text = "Vorbereitung";
+            status_color = 0x60A5FA;  // Blau
+            icon_color = 0x60A5FA;
+          } else if (charger_status == "Charging") {
             status_text = "Lädt";
             status_color = 0x10B981;  // Grün
             icon_color = 0x10B981;
-          } else if (charger_status == "Discharging") {
-            status_text = "Entlädt";
+          } else if (charger_status == "SuspendedEV") {
+            status_text = "Pausiert (EV)";
             status_color = 0xF59E0B;  // Orange
             icon_color = 0xF59E0B;
-          } else if (charger_status == "Paused") {
-            status_text = "Pausiert";
+          } else if (charger_status == "SuspendedEVSE") {
+            status_text = "Pausiert (Wallbox)";
             status_color = 0xF59E0B;  // Orange
             icon_color = 0xF59E0B;
-          } else if (charger_status == "Scheduled") {
-            status_text = "Geplant";
+          } else if (charger_status == "Finishing") {
+            status_text = "Beenden...";
             status_color = 0x60A5FA;  // Blau
             icon_color = 0x60A5FA;
-          } else if (charger_status == "Waiting for car demand") {
-            status_text = "Warte auf Fahrzeug";
-            status_color = 0x60A5FA;  // Blau
-            icon_color = 0x60A5FA;
-          } else if (charger_status == "Waiting") {
-            status_text = "Warte";
-            status_color = 0x60A5FA;  // Blau
-            icon_color = 0x60A5FA;
-          } else if (charger_status == "Disconnected") {
-            status_text = "Nicht verbunden";
+          } else if (charger_status == "Reserved") {
+            status_text = "Reserviert";
+            status_color = 0xF59E0B;  // Orange
+            icon_color = 0xF59E0B;
+          } else if (charger_status == "Unavailable" || charger_status == "unavailable") {
+            status_text = "Nicht verfügbar";
             status_color = 0x9CA3AF;  // Grau
             icon_color = 0x6B7280;
-          } else if (charger_status == "Error") {
+          } else if (charger_status == "Faulted") {
             status_text = "Fehler";
             status_color = 0xEF4444;  // Rot
             icon_color = 0xEF4444;
-          } else if (charger_status == "Ready") {
-            status_text = "Bereit";
-            status_color = 0x10B981;  // Grün
-            icon_color = 0x60A5FA;
-          } else if (charger_status == "Locked") {
-            status_text = "Gesperrt";
+          } else if (charger_status == "Occupied") {
+            status_text = "Belegt";
             status_color = 0xF59E0B;  // Orange
             icon_color = 0xF59E0B;
-          } else if (charger_status == "Locked, car connected") {
-            status_text = "Gesperrt, Fahrzeug verbunden";
-            status_color = 0xF59E0B;  // Orange
-            icon_color = 0xF59E0B;
-          } else if (charger_status == "Updating") {
-            status_text = "Aktualisiert";
-            status_color = 0x60A5FA;  // Blau
-            icon_color = 0x60A5FA;
-          } else if (charger_status == "Waiting in queue by Power Sharing") {
-            status_text = "Warte (Power Sharing)";
-            status_color = 0x60A5FA;  // Blau
-            icon_color = 0x60A5FA;
-          } else if (charger_status == "Waiting in queue by Power Boost") {
-            status_text = "Warte (Power Boost)";
-            status_color = 0x60A5FA;  // Blau
-            icon_color = 0x60A5FA;
-          } else if (charger_status == "Waiting MID failed") {
-            status_text = "Warte (MID Fehler)";
-            status_color = 0xEF4444;  // Rot
-            icon_color = 0xEF4444;
-          } else if (charger_status == "Waiting MID safety margin exceeded") {
-            status_text = "Warte (MID Sicherheit)";
-            status_color = 0xF59E0B;  // Orange
-            icon_color = 0xF59E0B;
-          } else if (charger_status == "Waiting in queue by Eco-Smart") {
-            status_text = "Warte (Eco-Smart)";
-            status_color = 0x10B981;  // Grün (Eco = umweltfreundlich)
-            icon_color = 0x10B981;
-          } else if (charger_status == "Unknown" || charger_status == "unavailable" || charger_status.empty()) {
+          } else if (charger_status == "Unknown" || charger_status.empty()) {
             status_text = "Unbekannt";
             status_color = 0x6B7280;  // Dunkelgrau
             icon_color = 0x6B7280;

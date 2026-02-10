@@ -107,26 +107,26 @@ packages:
       num: "18"
       entity_id: climate.thermostat_buro
   # EV Charging Entities (Wallbox) - Verwenden spezielle Templates ohne Switches-Button
-  ha_lock_19: !include
-    file: ../templates/ha_lock.yaml
+  ha_input_boolean_19: !include
+    file: ../templates/ha_input_boolean.yaml
     vars:
       num: "19"
-      entity_id: lock.wallbox_pulsarplus_sn_107049_garten_schloss
+      entity_id: input_boolean.ev_laden_erlaubt
       on_value_script: ev_charging_update_ui
   ha_ev_sensor_20: !include
     file: ../templates/ha_ev_sensor.yaml
     vars:
       num: "20"
-      entity_id: sensor.wallbox_pulsarplus_sn_107049_garten_ladeleistung
+      entity_id: sensor.wallbox_ladeleistung
       on_value_script: ev_charging_update_ui
   ha_number_21: !include
     file: ../templates/ha_number.yaml
     vars:
       num: "21"
-      entity_id: number.wallbox_pulsarplus_sn_107049_garten_maximaler_ladestrom
+      entity_id: number.charger_maximum_current
   ha_ev_sensor_22: !include
     file: ../templates/ha_ev_sensor.yaml
     vars:
       num: "22"
-      entity_id: sensor.wallbox_pulsarplus_sn_107049_garten_statusbeschreibung
+      entity_id: sensor.charger_status_connector
       on_value_script: ev_charging_update_ui
