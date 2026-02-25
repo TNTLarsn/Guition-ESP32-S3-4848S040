@@ -73,6 +73,7 @@ static const MdiIconEntry MDI_ICONS[] = {
     {"close", 0xF0156},
     {"close-circle", 0xF0159},
     {"cloud", 0xF015F},
+    {"coffee-maker", 0xF109F},
     {"cog", 0xF0493},
     {"cogs", 0xF08D6},
     {"counter", 0xF0199},
@@ -141,6 +142,7 @@ static const MdiIconEntry MDI_ICONS[] = {
     {"radiator", 0xF0438},
     {"radiator-off", 0xF0AD8},
     {"radiobox-blank", 0xF043D},
+    {"record-rec", 0xF044B},
     {"refresh", 0xF0450},
     {"reload", 0xF0453},
     {"robot", 0xF06A9},
@@ -238,8 +240,8 @@ public:
             }
         }
         
-        // Fallback: Lightbulb Icon
-        return codepoint_to_utf8(0xF1802);
+        // Fallback: Lightbulb Icon (0xF0335 - definiert in fonts.yaml)
+        return codepoint_to_utf8(0xF0335);
     }
 
 private:
