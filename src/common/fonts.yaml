@@ -1046,6 +1046,7 @@
     "\U000F0374", # minus
     "\U000F0376", # minus-circle
     "\U000F0377", # minus-circle-outline
+    "\U000F044B", # record-rec
     "\U000F0450", # refresh
     "\U000F0453", # reload
     "\U000F04E6", # sync
