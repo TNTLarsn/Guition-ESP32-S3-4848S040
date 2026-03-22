@@ -284,7 +284,7 @@ lvgl:
                   border_width: 1
                   border_opa: 30%
                   shadow_width: 8
-                  shadow_offset_y: 4
+                  shadow_ofs_y: 4
                   shadow_color: color_black
                   shadow_opa: 40%
                   checkable: false
@@ -313,7 +313,7 @@ lvgl:
                   border_width: 1
                   border_opa: 30%
                   shadow_width: 8
-                  shadow_offset_y: 4
+                  shadow_ofs_y: 4
                   shadow_color: color_black
                   shadow_opa: 40%
                   checkable: false

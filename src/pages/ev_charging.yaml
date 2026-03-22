@@ -40,7 +40,7 @@ lvgl:
                   border_width: 1
                   border_opa: 25%
                   shadow_width: 12
-                  shadow_offset_y: 4
+                  shadow_ofs_y: 4
                   shadow_color: color_black
                   shadow_opa: 30%
                   pad_all: 12
@@ -128,7 +128,7 @@ lvgl:
                   border_width: 1
                   border_opa: 20%
                   shadow_width: 16
-                  shadow_offset_y: 6
+                  shadow_ofs_y: 6
                   shadow_color: color_black
                   shadow_opa: 35%
                   pad_all: 16
@@ -212,7 +212,7 @@ lvgl:
                   border_width: 1
                   border_opa: 25%
                   shadow_width: 12
-                  shadow_offset_y: 4
+                  shadow_ofs_y: 4
                   shadow_color: color_black
                   shadow_opa: 30%
                   pad_all: 16

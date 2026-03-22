@@ -118,8 +118,8 @@ lvgl:
       border_opa: 30%
       text_color: color_text_dark_primary
       shadow_width: 12
-      shadow_offset_x: 0
-      shadow_offset_y: 4
+      shadow_ofs_x: 0
+      shadow_ofs_y: 4
       shadow_color: color_black
       shadow_opa: 40%
       pad_all: 16
@@ -128,7 +128,7 @@ lvgl:
         bg_color: color_gray_700
         bg_opa: 90%
         shadow_width: 8
-        shadow_offset_y: 2
+        shadow_ofs_y: 2
         border_color: color_primary
         border_opa: 60%
       checked:
@@ -232,8 +232,8 @@ lvgl:
       border_width: 1
       border_opa: 20%
       shadow_width: 20
-      shadow_offset_x: 0
-      shadow_offset_y: 8
+      shadow_ofs_x: 0
+      shadow_ofs_y: 8
       shadow_color: color_black
       shadow_opa: 35%
       pad_all: 24
@@ -247,7 +247,7 @@ lvgl:
       border_width: 1
       border_opa: 15%
       shadow_width: 12
-      shadow_offset_y: 4
+      shadow_ofs_y: 4
       shadow_color: color_black
       shadow_opa: 25%
       pad_all: 16
@@ -261,7 +261,7 @@ lvgl:
       border_width: 1
       border_opa: 30%
       shadow_width: 16
-      shadow_offset_y: 4
+      shadow_ofs_y: 4
       shadow_color: color_black
       shadow_opa: 40%
       pad_all: 8
@@ -330,7 +330,7 @@ lvgl:
       border_width: 1
       border_opa: 25%
       shadow_width: 8
-      shadow_offset_y: 2
+      shadow_ofs_y: 2
       shadow_color: color_black
       shadow_opa: 30%
     
