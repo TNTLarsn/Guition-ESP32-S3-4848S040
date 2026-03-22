@@ -609,7 +609,7 @@ script:
           if (img_src != nullptr) {
             for (auto* img_obj : images) {
               if (img_obj != nullptr) {
-                lv_img_set_src(img_obj, img_src->get_lv_img_dsc());
+                esphome::lvgl::lv_img_set_src(img_obj, img_src);
               }
             }
           }
