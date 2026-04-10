@@ -1,5 +1,6 @@
 packages: 
   # Include all of the core configuration
+  substitutions_config: !include common/substitutions.yaml
   core: !include common/core.yaml
   homeassistant: !include common/homeassistant.yaml
   boot_screen: !include pages/boot.yaml
@@ -12,6 +13,5 @@ packages:
   navigation: !include pages/navigation.yaml
   theme: !include themes/modern.yaml
 
-substitutions: !include common/substitutions.yaml
 font: !include common/fonts.yaml
 image: !include common/image.yaml
