@@ -9,16 +9,126 @@
             "type": "promptString",
             "description": "Device IP-Adresse (Enter für Standard aus settings.json)",
             "default": "${config:esphome.deviceIP}"
+        },
+        {
+            "id": "esphomeExactVersion",
+            "type": "promptString",
+            "description": "Exakte ESPHome-Version oder Pip-Spec (z.B. 2026.6.1 oder esphome==2026.6.1)",
+            "default": "${config:esphome.stableVersion}"
         }
     ],
     "tasks": [
+      {
+        "label": "ESPHome: Stable installieren",
+        "type": "shell",
+        "command": "${workspaceFolder}/scripts/dev/esphome-env",
+        "args": ["install", "stable"],
+        "presentation": {
+          "reveal": "always",
+          "panel": "dedicated",
+          "focus": true,
+          "clear": true
+        },
+        "problemMatcher": [],
+        "detail": "Installiert die stabile ESPHome-Version in einer workspace-lokalen venv"
+      },
+      {
+        "label": "ESPHome: Beta installieren",
+        "type": "shell",
+        "command": "${workspaceFolder}/scripts/dev/esphome-env",
+        "args": ["install", "beta"],
+        "presentation": {
+          "reveal": "always",
+          "panel": "dedicated",
+          "focus": true,
+          "clear": true
+        },
+        "problemMatcher": [],
+        "detail": "Installiert die aktuelle ESPHome-Beta in einer workspace-lokalen venv"
+      },
+      {
+        "label": "ESPHome: Dev installieren",
+        "type": "shell",
+        "command": "${workspaceFolder}/scripts/dev/esphome-env",
+        "args": ["install", "dev"],
+        "presentation": {
+          "reveal": "always",
+          "panel": "dedicated",
+          "focus": true,
+          "clear": true
+        },
+        "problemMatcher": [],
+        "detail": "Installiert ESPHome aus dem Dev-Branch in einer workspace-lokalen venv"
+      },
+      {
+        "label": "ESPHome: Exakte Version installieren",
+        "type": "shell",
+        "command": "${workspaceFolder}/scripts/dev/esphome-env",
+        "args": ["install", "stable", "${input:esphomeExactVersion}"],
+        "presentation": {
+          "reveal": "always",
+          "panel": "dedicated",
+          "focus": true,
+          "clear": true
+        },
+        "problemMatcher": [],
+        "detail": "Installiert eine konkrete ESPHome-Version als Stable-Profil"
+      },
+      {
+        "label": "ESPHome: Stable aktivieren",
+        "type": "shell",
+        "command": "${workspaceFolder}/scripts/dev/esphome-env",
+        "args": ["use", "stable"],
+        "presentation": {
+          "reveal": "always",
+          "panel": "shared"
+        },
+        "problemMatcher": [],
+        "detail": "Schaltet alle Tasks und Skripte auf die Stable-Umgebung um"
+      },
+      {
+        "label": "ESPHome: Beta aktivieren",
+        "type": "shell",
+        "command": "${workspaceFolder}/scripts/dev/esphome-env",
+        "args": ["use", "beta"],
+        "presentation": {
+          "reveal": "always",
+          "panel": "shared"
+        },
+        "problemMatcher": [],
+        "detail": "Schaltet alle Tasks und Skripte auf die Beta-Umgebung um"
+      },
+      {
+        "label": "ESPHome: Dev aktivieren",
+        "type": "shell",
+        "command": "${workspaceFolder}/scripts/dev/esphome-env",
+        "args": ["use", "dev"],
+        "presentation": {
+          "reveal": "always",
+          "panel": "shared"
+        },
+        "problemMatcher": [],
+        "detail": "Schaltet alle Tasks und Skripte auf die Dev-Umgebung um"
+      },
+      {
+        "label": "ESPHome: Aktive Version anzeigen",
+        "type": "shell",
+        "command": "${workspaceFolder}/scripts/dev/esphome-env",
+        "args": ["current"],
+        "presentation": {
+          "reveal": "always",
+          "panel": "shared"
+        },
+        "problemMatcher": [],
+        "detail": "Zeigt das aktive ESPHome-Profil und die installierte Version an"
+      },
       // ════════════════════════════════════════════════════════════════
       // 🖥️ SDL SIMULATOR
       // ════════════════════════════════════════════════════════════════
       {
         "label": "🖥️ Simulator starten",
         "type": "shell",
-        "command": "esphome",
+        "command": "${workspaceFolder}/scripts/dev/esphome",
         "args": ["run", "tests/simulator/main.simulator.yaml"],
         "group": {
           "kind": "test",
@@ -36,7 +146,7 @@
       {
         "label": "🖥️ Simulator kompilieren",
         "type": "shell",
-        "command": "esphome",
+        "command": "${workspaceFolder}/scripts/dev/esphome",
         "args": ["compile", "tests/simulator/main.simulator.yaml"],
         "group": "test",
         "presentation": {
