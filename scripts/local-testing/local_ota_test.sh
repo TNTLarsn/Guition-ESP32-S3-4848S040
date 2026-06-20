@@ -25,6 +25,16 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
 STATE_FILE="${PROJECT_DIR}/.local_dev_state"
 HTTP_PORT=8000
+ESPHOME="${ESPHOME_CMD:-$PROJECT_DIR/scripts/dev/esphome}"
+ESPHOME_PROFILE_OVERRIDE="${ESPHOME_PROFILE:-}"
+
+run_esphome() {
+  if [ -n "$ESPHOME_PROFILE_OVERRIDE" ]; then
+    ESPHOME_PROFILE="$ESPHOME_PROFILE_OVERRIDE" "$ESPHOME" "$@"
+  else
+    "$ESPHOME" "$@"
+  fi
+}
 
 echo -e "${BLUE}╔════════════════════════════════════════════════════════════╗${NC}"
 echo -e "${BLUE}║          📦 Local Update - Neue Firmware                   ║${NC}"
@@ -55,12 +65,24 @@ echo ""
 echo -e "${YELLOW}📍 Schritt 1: Firmware kompilieren...${NC}"
 
 cd "$PROJECT_DIR"
-if ! esphome compile src/main.yaml > /tmp/compile.log 2>&1; then
+if ! run_esphome compile src/main.yaml > /tmp/compile.log 2>&1; then
+  if grep -q "esp_hal_ieee802154.*unknown name" /tmp/compile.log && [ -z "$ESPHOME_PROFILE_OVERRIDE" ] && [ -x "$PROJECT_DIR/.esphome-venvs/beta/bin/esphome" ]; then
+    echo -e "${YELLOW}⚠️  Stable-Profil Build-Bug erkannt (esp_hal_ieee802154). Wechsle automatisch auf ESPHome Beta...${NC}"
+    ESPHOME_PROFILE_OVERRIDE="beta"
+    if ! run_esphome compile src/main.yaml > /tmp/compile.log 2>&1; then
+      echo -e "${RED}❌ Build fehlgeschlagen (auch mit Beta-Fallback)${NC}"
+      tail -20 /tmp/compile.log
+      exit 1
+    fi
+    echo -e "${GREEN}✅ Firmware kompiliert (Beta-Fallback aktiv)${NC}"
+  else
     echo -e "${RED}❌ Build fehlgeschlagen${NC}"
     tail -20 /tmp/compile.log
     exit 1
+  fi
+else
+  echo -e "${GREEN}✅ Firmware kompiliert${NC}"
 fi
-echo -e "${GREEN}✅ Firmware kompiliert${NC}"
 echo ""
 
 # ============================================================================

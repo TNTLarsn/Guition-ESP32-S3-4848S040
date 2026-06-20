@@ -1,0 +1,96 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
+VERSION_FILE="${PROJECT_DIR}/.esphome-version"
+VENV_ROOT="${PROJECT_DIR}/.esphome-venvs"
+SELF_PATH="${SCRIPT_DIR}/$(basename "$0")"
+
+find_global_esphome() {
+    local candidate
+    while IFS= read -r candidate; do
+        if [[ -n "$candidate" && "$candidate" != "$SELF_PATH" ]]; then
+            printf '%s\n' "$candidate"
+            return 0
+        fi
+    done < <(which -a esphome 2>/dev/null || true)
+    return 1
+}
+
+resolve_profile() {
+    if [[ -n "${ESPHOME_PROFILE:-}" ]]; then
+        printf '%s\n' "$ESPHOME_PROFILE"
+        return 0
+    fi
+
+    if [[ -f "$VERSION_FILE" ]]; then
+        tr -d '[:space:]' < "$VERSION_FILE"
+        return 0
+    fi
+
+    printf 'stable\n'
+}
+
+resolve_candidate() {
+    local profile="$1"
+
+    case "$profile" in
+        stable|beta|dev)
+            printf '%s\n' "${VENV_ROOT}/${profile}/bin/esphome"
+            ;;
+        /*)
+            printf '%s\n' "$profile"
+            ;;
+        ./*|../*)
+            printf '%s\n' "${PROJECT_DIR}/${profile}"
+            ;;
+        *)
+            if [[ -x "${PROJECT_DIR}/${profile}/bin/esphome" ]]; then
+                printf '%s\n' "${PROJECT_DIR}/${profile}/bin/esphome"
+            else
+                printf '%s\n' "$profile"
+            fi
+            ;;
+    esac
+}
+
+if [[ -n "${ESPHOME_CMD:-}" ]]; then
+    exec "$ESPHOME_CMD" "$@"
+fi
+
+PROFILE="$(resolve_profile)"
+CANDIDATE="$(resolve_candidate "$PROFILE")"
+
+if [[ -x "$CANDIDATE" ]]; then
+    exec "$CANDIDATE" "$@"
+fi
+
+if [[ "$PROFILE" == "stable" && -x "${PROJECT_DIR}/.venv/bin/esphome" ]]; then
+    exec "${PROJECT_DIR}/.venv/bin/esphome" "$@"
+fi
+
+if [[ "$PROFILE" == "beta" && -x "${PROJECT_DIR}/.venv-312-beta/bin/esphome" ]]; then
+    exec "${PROJECT_DIR}/.venv-312-beta/bin/esphome" "$@"
+fi
+
+GLOBAL_CMD="$(find_global_esphome || true)"
+if [[ -n "$GLOBAL_CMD" ]]; then
+    exec "$GLOBAL_CMD" "$@"
+fi
+
+cat <<EOF >&2
+ESPHome konnte fuer das Profil '$PROFILE' nicht gefunden werden.
+
+Erwarteter Pfad:
+  $CANDIDATE
+
+Installiere das Profil mit:
+  scripts/dev/esphome-env install $PROFILE
+
+Oder aktiviere ein anderes Profil mit:
+  scripts/dev/esphome-env use stable
+  scripts/dev/esphome-env use beta
+  scripts/dev/esphome-env use dev
+EOF
+exit 1

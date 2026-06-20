@@ -1,0 +1,190 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
+VERSION_FILE="${PROJECT_DIR}/.esphome-version"
+VENV_ROOT="${PROJECT_DIR}/.esphome-venvs"
+PYTHON_BIN="${PYTHON_BIN:-python3}"
+DEFAULT_STABLE_VERSION="${ESPHOME_STABLE_VERSION:-2026.6.1}"
+DEFAULT_DEV_SPEC="${ESPHOME_DEV_SPEC:-git+https://github.com/esphome/esphome.git@dev}"
+
+usage() {
+    cat <<EOF
+ESPHome Workspace Manager
+
+Usage:
+  scripts/dev/esphome-env install stable [VERSION|PIP_SPEC]
+  scripts/dev/esphome-env install beta [PIP_SPEC]
+  scripts/dev/esphome-env install dev [PIP_SPEC]
+  scripts/dev/esphome-env use <stable|beta|dev>
+  scripts/dev/esphome-env current
+  scripts/dev/esphome-env list
+
+Examples:
+  scripts/dev/esphome-env install stable
+  scripts/dev/esphome-env install stable 2026.6.1
+  scripts/dev/esphome-env install beta
+  scripts/dev/esphome-env use beta
+EOF
+}
+
+profile_path() {
+    printf '%s\n' "${VENV_ROOT}/$1"
+}
+
+ensure_python() {
+    if ! command -v "$PYTHON_BIN" >/dev/null 2>&1; then
+        echo "Python nicht gefunden: $PYTHON_BIN" >&2
+        exit 1
+    fi
+}
+
+normalize_stable_spec() {
+    local raw="${1:-$DEFAULT_STABLE_VERSION}"
+    if [[ "$raw" == esphome* ]]; then
+        printf '%s\n' "$raw"
+    else
+        printf 'esphome==%s\n' "$raw"
+    fi
+}
+
+install_profile() {
+    local profile="$1"
+    local extra_spec="${2:-}"
+    local venv_dir
+    local pip_cmd
+    local esphome_cmd
+
+    ensure_python
+    venv_dir="$(profile_path "$profile")"
+    mkdir -p "$VENV_ROOT"
+
+    if [[ ! -d "$venv_dir" ]]; then
+        "$PYTHON_BIN" -m venv "$venv_dir"
+    fi
+
+    pip_cmd="$venv_dir/bin/pip"
+    esphome_cmd="$venv_dir/bin/esphome"
+
+    "$pip_cmd" install --upgrade pip setuptools wheel
+
+    case "$profile" in
+        stable)
+            "$pip_cmd" install --upgrade "$(normalize_stable_spec "$extra_spec")"
+            ;;
+        beta)
+            if [[ -n "$extra_spec" ]]; then
+                "$pip_cmd" install --upgrade "$extra_spec"
+            else
+                "$pip_cmd" install --upgrade --pre esphome
+            fi
+            ;;
+        dev)
+            "$pip_cmd" install --upgrade "${extra_spec:-$DEFAULT_DEV_SPEC}"
+            ;;
+        *)
+            echo "Unbekanntes Profil: $profile" >&2
+            exit 1
+            ;;
+    esac
+
+    "$pip_cmd" install --upgrade littlefs-python fatfs-ng
+
+    echo "$profile" > "$VERSION_FILE"
+    echo "Profil '$profile' installiert und aktiviert."
+    "$esphome_cmd" version
+}
+
+use_profile() {
+    local profile="$1"
+    local esphome_cmd="$(profile_path "$profile")/bin/esphome"
+
+    case "$profile" in
+        stable|beta|dev)
+            ;;
+        *)
+            echo "Unbekanntes Profil: $profile" >&2
+            exit 1
+            ;;
+    esac
+
+    if [[ ! -x "$esphome_cmd" ]]; then
+        echo "Profil '$profile' ist noch nicht installiert." >&2
+        echo "Installiere es zuerst mit: scripts/dev/esphome-env install $profile" >&2
+        exit 1
+    fi
+
+    echo "$profile" > "$VERSION_FILE"
+    echo "Aktives Profil: $profile"
+    "$esphome_cmd" version
+}
+
+current_profile() {
+    local profile="stable"
+    local esphome_cmd
+
+    if [[ -f "$VERSION_FILE" ]]; then
+        profile="$(tr -d '[:space:]' < "$VERSION_FILE")"
+    fi
+
+    esphome_cmd="$(profile_path "$profile")/bin/esphome"
+
+    echo "Profil: $profile"
+    if [[ -x "$esphome_cmd" ]]; then
+        "$esphome_cmd" version
+    else
+        echo "Nicht installiert"
+    fi
+}
+
+list_profiles() {
+    local profile
+    local marker
+    local version
+    local active="stable"
+
+    if [[ -f "$VERSION_FILE" ]]; then
+        active="$(tr -d '[:space:]' < "$VERSION_FILE")"
+    fi
+
+    for profile in stable beta dev; do
+        marker=" "
+        version="nicht installiert"
+        if [[ "$profile" == "$active" ]]; then
+            marker="*"
+        fi
+        if [[ -x "$(profile_path "$profile")/bin/esphome" ]]; then
+            version="$("$(profile_path "$profile")/bin/esphome" version)"
+        fi
+        printf '%s %s: %s\n' "$marker" "$profile" "$version"
+    done
+}
+
+COMMAND="${1:-}"
+case "$COMMAND" in
+    install)
+        install_profile "${2:-stable}" "${3:-}"
+        ;;
+    use)
+        if [[ -z "${2:-}" ]]; then
+            usage
+            exit 1
+        fi
+        use_profile "$2"
+        ;;
+    current)
+        current_profile
+        ;;
+    list)
+        list_profiles
+        ;;
+    ""|-h|--help|help)
+        usage
+        ;;
+    *)
+        echo "Unbekannter Befehl: $COMMAND" >&2
+        usage
+        exit 1
+        ;;
+esac

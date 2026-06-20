@@ -4,10 +4,23 @@ Lokales CI-Test-Skript für ESPHome-Projekt
 Führt die gleichen Schritte wie .github/workflows/ci.yml aus
 """
 
+import os
 import subprocess
 import sys
 from pathlib import Path
 from typing import List, Tuple
+
+def resolve_esphome_cmd() -> str:
+    configured = Path(__file__).resolve().parent.parent / 'scripts' / 'dev' / 'esphome'
+    env_value = os.environ.get('ESPHOME_CMD')
+    if env_value:
+        return env_value
+    if configured.exists():
+        return str(configured)
+    return 'esphome'
+
+
+ESPHOME_CMD = resolve_esphome_cmd()
 
 # Farben für Terminal-Output
 class Colors:
@@ -57,21 +70,21 @@ def run_command(cmd: List[str], description: str) -> Tuple[bool, str]:
 
 def check_esphome_installed() -> bool:
     """Prüft, ob ESPHome installiert ist"""
-    success, output = run_command(['esphome', 'version'], 'ESPHome Version Check')
+    success, output = run_command([ESPHOME_CMD, 'version'], 'ESPHome Version Check')
     if success:
         version = output.strip()
         print_success(f"ESPHome gefunden: {version}")
         return True
     else:
         print_error("ESPHome nicht gefunden!")
-        print_warning("Installiere mit: pip install esphome")
+        print_warning("Installiere mit: scripts/dev/esphome-env install stable")
         return False
 
 def validate_yaml(yaml_file: str) -> bool:
     """Validiert eine ESPHome YAML-Datei"""
     print(f"\n  Validiere {yaml_file}...")
     success, output = run_command(
-        ['esphome', 'config', yaml_file],
+        [ESPHOME_CMD, 'config', yaml_file],
         f'Validate {yaml_file}'
     )
     
@@ -86,13 +99,13 @@ def validate_yaml(yaml_file: str) -> bool:
 def compile_yaml(yaml_file: str) -> bool:
     """Kompiliert eine ESPHome YAML-Datei"""
     print(f"\n  Kompiliere {yaml_file}...")
-    print(f"  {Colors.YELLOW}Befehl: esphome compile {yaml_file}{Colors.RESET}")
+    print(f"  {Colors.YELLOW}Befehl: {ESPHOME_CMD} compile {yaml_file}{Colors.RESET}")
     
     # Führe Kompilierung mit Live-Ausgabe aus
     try:
         print(f"  {Colors.BLUE}[DEBUG] Starte Kompilierung...{Colors.RESET}")
         result = subprocess.run(
-            ['esphome', 'compile', yaml_file],
+            [ESPHOME_CMD, 'compile', yaml_file],
             text=True,
             check=False
         )

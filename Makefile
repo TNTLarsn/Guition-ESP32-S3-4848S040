@@ -1,7 +1,11 @@
 # Makefile for local ESPHome CI tests
 # Usage: make test, make validate, make compile, make clean
 
-.PHONY: help test validate compile clean flash monitor update localupdate localcleanup local-release-test
+.PHONY: help test validate compile clean flash monitor update localupdate localcleanup local-release-test esphome-current esphome-install-stable esphome-install-beta esphome-install-dev esphome-use-stable esphome-use-beta esphome-use-dev
+
+ESPHOME ?= ./scripts/dev/esphome
+ESPHOME_ENV ?= ./scripts/dev/esphome-env
+USB_PORT ?= /dev/cu.usbserial-110
 
 # Default target
 help:
@@ -22,6 +26,15 @@ help:
 	@echo "  make localupdate             - 📦 Neue Firmware bereitstellen"
 	@echo "  make localcleanup            - 🧹 Zurück zum Normalzustand"
 	@echo ""
+	@echo "ESPHome Versionen (workspace-lokal):"
+	@echo "  make esphome-install-stable  - Stable-Umgebung installieren"
+	@echo "  make esphome-install-beta    - Beta-Umgebung installieren"
+	@echo "  make esphome-install-dev     - Dev-Umgebung installieren"
+	@echo "  make esphome-use-stable      - Stable aktivieren"
+	@echo "  make esphome-use-beta        - Beta aktivieren"
+	@echo "  make esphome-use-dev         - Dev aktivieren"
+	@echo "  make esphome-current         - Aktive ESPHome-Version anzeigen"
+	@echo ""
 
 # Runs all tests (like CI)
 test:
@@ -31,15 +44,15 @@ test:
 # Validation only
 validate:
 	@echo "Validating configurations..."
-	@esphome config src/main.yaml
-	@esphome config src/main.factory.yaml
+	@$(ESPHOME) config src/main.yaml
+	@$(ESPHOME) config src/main.factory.yaml
 	@echo "✓ All configurations are valid"
 
 # Compilation only
 compile:
 	@echo "Compiling firmware..."
-	@esphome compile src/main.yaml
-	@esphome compile src/main.factory.yaml
+	@$(ESPHOME) compile src/main.yaml
+	@$(ESPHOME) compile src/main.factory.yaml
 	@echo "✓ Firmware successfully compiled"
 
 # Delete build artifacts
@@ -51,19 +64,19 @@ clean:
 # Flash firmware
 flash:
 	@echo "Erasing flash via esptool..."
-	@esptool.py --chip esp32s3 --port /dev/cu.usbserial-110 erase_flash
-	@echo "Flashing firmware to /dev/cu.usbserial-110..."
-	@esphome upload src/main.factory.yaml --device /dev/cu.usbserial-110
+	@esptool.py --chip esp32s3 --port $(USB_PORT) erase_flash
+	@echo "Flashing firmware to $(USB_PORT)..."
+	@$(ESPHOME) upload src/main.factory.yaml --device $(USB_PORT)
 
 # Update firmware
 update:
-	@echo "Updating firmware on /dev/cu.usbserial-110..."
-	@esphome run src/main.yaml --device /dev/cu.usbserial-110
+	@echo "Updating firmware on $(USB_PORT)..."
+	@$(ESPHOME) run src/main.yaml --device $(USB_PORT)
 
 # Open serial console
 monitor:
 	@echo "Opening serial console..."
-	@esphome logs src/main.yaml --device /dev/cu.usbserial-110
+	@$(ESPHOME) logs src/main.yaml --device $(USB_PORT)
 
 # ============================================================================
 # Local OTA Testing (scripts in scripts/local-testing/)
@@ -83,6 +96,27 @@ local-release-test:
 localcleanup:
 	@echo "Cleaning up local OTA test..."
 	@bash scripts/local-testing/cleanup_ota_test.sh
+
+esphome-install-stable:
+	@$(ESPHOME_ENV) install stable
+
+esphome-install-beta:
+	@$(ESPHOME_ENV) install beta
+
+esphome-install-dev:
+	@$(ESPHOME_ENV) install dev
+
+esphome-use-stable:
+	@$(ESPHOME_ENV) use stable
+
+esphome-use-beta:
+	@$(ESPHOME_ENV) use beta
+
+esphome-use-dev:
+	@$(ESPHOME_ENV) use dev
+
+esphome-current:
+	@$(ESPHOME_ENV) current
 
 # Catch-all für Device-IP als Argument:
 # Any additional non-target argument (e.g. an IP address) is captured here

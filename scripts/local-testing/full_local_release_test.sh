@@ -33,6 +33,16 @@ DEVICE_IP="${1:-}"
 CORE_YAML="${PROJECT_DIR}/src/common/core.yaml"
 MAIN_YAML="${PROJECT_DIR}/src/main.yaml"
 STATE_FILE="${PROJECT_DIR}/.local_dev_state"
+ESPHOME="${ESPHOME_CMD:-$PROJECT_DIR/scripts/dev/esphome}"
+ESPHOME_PROFILE_OVERRIDE="${ESPHOME_PROFILE:-}"
+
+run_esphome() {
+    if [ -n "$ESPHOME_PROFILE_OVERRIDE" ]; then
+        ESPHOME_PROFILE="$ESPHOME_PROFILE_OVERRIDE" "$ESPHOME" "$@"
+    else
+        "$ESPHOME" "$@"
+    fi
+}
 
 # ============================================================================
 # Sicherheits-Guard: Local Dev Mode nicht erneut starten
@@ -140,22 +150,34 @@ echo ""
 echo -e "${YELLOW}📍 Schritt 4: Firmware kompilieren...${NC}"
 
 cd "$PROJECT_DIR"
-if ! esphome compile src/main.yaml > /tmp/compile.log 2>&1; then
-    echo -e "${RED}❌ Build fehlgeschlagen${NC}"
-    tail -20 /tmp/compile.log
-    exit 1
+if ! run_esphome compile src/main.yaml > /tmp/compile.log 2>&1; then
+    if grep -q "esp_hal_ieee802154.*unknown name" /tmp/compile.log && [ -z "$ESPHOME_PROFILE_OVERRIDE" ] && [ -x "$PROJECT_DIR/.esphome-venvs/beta/bin/esphome" ]; then
+        echo -e "${YELLOW}⚠️  Stable-Profil Build-Bug erkannt (esp_hal_ieee802154). Wechsle automatisch auf ESPHome Beta...${NC}"
+        ESPHOME_PROFILE_OVERRIDE="beta"
+        if ! run_esphome compile src/main.yaml > /tmp/compile.log 2>&1; then
+            echo -e "${RED}❌ Build fehlgeschlagen (auch mit Beta-Fallback)${NC}"
+            tail -20 /tmp/compile.log
+            exit 1
+        fi
+        echo -e "${GREEN}✅ Firmware kompiliert (Beta-Fallback aktiv)${NC}"
+    else
+        echo -e "${RED}❌ Build fehlgeschlagen${NC}"
+        tail -20 /tmp/compile.log
+        exit 1
+    fi
+else
+    echo -e "${GREEN}✅ Firmware kompiliert${NC}"
 fi
-echo -e "${GREEN}✅ Firmware kompiliert${NC}"
 echo ""
 
 # ============================================================================
 # 5. Erstes OTA-Update durchführen
 # ============================================================================
 echo -e "${YELLOW}📍 Schritt 5: Firmware auf Gerät flashen...${NC}"
-echo "   → esphome upload src/main.yaml --device $DEVICE_IP"
+echo "   → $ESPHOME upload src/main.yaml --device $DEVICE_IP"
 echo ""
 
-if ! esphome upload src/main.yaml --device "$DEVICE_IP"; then
+if ! run_esphome upload src/main.yaml --device "$DEVICE_IP"; then
     echo -e "${RED}❌ Flash fehlgeschlagen${NC}"
     exit 1
 fi

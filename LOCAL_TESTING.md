@@ -50,6 +50,51 @@ Im **Run & Debug** Panel (Sidebar) findest du Launch-Konfigurationen:
 - 🧹 Local Cleanup
 - 📺 Monitor (Logs)
 
+### ESPHome-Versionen umschalten
+
+Der Workspace nutzt jetzt einen projektlokalen Wrapper unter `scripts/dev/esphome`.
+Alle VS-Code-Tasks, das Makefile und die lokalen Shell-Skripte laufen damit gegen das aktuell aktive Profil aus `.esphome-version`.
+
+Verfügbare VS-Code-Tasks:
+
+| Task | Beschreibung |
+| ---- | ------------ |
+| ESPHome: Stable installieren | Installiert die stabile Projekt-Version in `.esphome-venvs/stable/` |
+| ESPHome: Beta installieren | Installiert die aktuelle ESPHome-Beta in `.esphome-venvs/beta/` |
+| ESPHome: Dev installieren | Installiert ESPHome aus dem Dev-Branch in `.esphome-venvs/dev/` |
+| ESPHome: Exakte Version installieren | Installiert eine konkrete Stable-Version per Prompt |
+| ESPHome: Stable aktivieren | Schaltet alle Tasks auf `stable` |
+| ESPHome: Beta aktivieren | Schaltet alle Tasks auf `beta` |
+| ESPHome: Dev aktivieren | Schaltet alle Tasks auf `dev` |
+| ESPHome: Aktive Version anzeigen | Zeigt Profil und ESPHome-Version |
+
+Terminal-Äquivalente:
+
+```bash
+# Status anzeigen
+./scripts/dev/esphome-env current
+
+# Profile installieren
+./scripts/dev/esphome-env install stable
+./scripts/dev/esphome-env install beta
+./scripts/dev/esphome-env install dev
+
+# Exakte Stable-Version installieren
+./scripts/dev/esphome-env install stable 2026.6.1
+
+# Zwischen Profilen umschalten
+./scripts/dev/esphome-env use stable
+./scripts/dev/esphome-env use beta
+./scripts/dev/esphome-env use dev
+```
+
+Danach nutzen auch direkte Aufrufe im integrierten VS-Code-Terminal automatisch den Wrapper:
+
+```bash
+esphome version
+esphome config src/main.yaml
+```
+
 ---
 
 ## 🚀 Local Dev Mode
@@ -117,6 +162,7 @@ make localcleanup
 ```bash
 make local-release-test [DEVICE-IP]
 ```
+
 Hinweis: Wenn bereits eine `.local_dev_state` existiert, wird der erneute Start absichtlich verhindert.
 Bitte zuerst `make localcleanup` ausführen.
 
@@ -221,28 +267,32 @@ make monitor
 
 ## 📋 Voraussetzungen
 
-### ESPHome installieren
+### Python bereitstellen
+
+`python3` muss im System vorhanden sein, damit die projektlokalen ESPHome-Umgebungen erstellt werden können.
+
+### ESPHome im Workspace installieren
 
 ```bash
-# Via pip (empfohlen)
-python3 -m venv .venv
-source .venv/bin/activate
-pip install esphome
+# Stable-Profil installieren (empfohlen)
+./scripts/dev/esphome-env install stable
 
-# Oder via Homebrew (macOS)
-brew install esphome
+# Optional weitere Profile
+./scripts/dev/esphome-env install beta
+./scripts/dev/esphome-env install dev
 ```
 
 ### esptool.py installieren
 
 ```bash
-pip install esptool
+# wird automatisch als ESPHome-Abhängigkeit in der jeweiligen venv installiert
 ```
 
 ### Version prüfen
 
 ```bash
-esphome version  # Sollte 2025.12.7 sein
+./scripts/dev/esphome-env current
+esphome version
 ```
 
 ---
