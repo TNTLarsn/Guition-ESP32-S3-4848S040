@@ -27,6 +27,7 @@ STATE_FILE="${PROJECT_DIR}/.local_dev_state"
 CORE_YAML="${PROJECT_DIR}/src/common/core.yaml"
 MAIN_YAML="${PROJECT_DIR}/src/main.yaml"
 HTTP_PORT=8000
+ESPHOME="${ESPHOME_CMD:-$PROJECT_DIR/scripts/dev/esphome}"
 
 echo -e "${BLUE}╔════════════════════════════════════════════════════════════╗${NC}"
 echo -e "${BLUE}║          🧹 Local Dev Cleanup                              ║${NC}"
@@ -89,7 +90,7 @@ echo ""
 echo -e "${YELLOW}📍 Schritt 3: Firmware kompilieren (GitHub-URL)...${NC}"
 
 cd "$PROJECT_DIR"
-if ! esphome compile src/main.yaml > /tmp/compile.log 2>&1; then
+if ! "$ESPHOME" compile src/main.yaml > /tmp/compile.log 2>&1; then
     echo -e "${RED}❌ Build fehlgeschlagen${NC}"
     tail -20 /tmp/compile.log
     exit 1
@@ -102,19 +103,19 @@ echo ""
 # ============================================================================
 if [ -n "$DEVICE_IP" ]; then
     echo -e "${YELLOW}📍 Schritt 4: Firmware auf Gerät flashen...${NC}"
-    echo "   → esphome upload src/main.yaml --device $DEVICE_IP"
+    echo "   → $ESPHOME upload src/main.yaml --device $DEVICE_IP"
     echo ""
     
-    if esphome upload src/main.yaml --device "$DEVICE_IP"; then
+    if "$ESPHOME" upload src/main.yaml --device "$DEVICE_IP"; then
         echo ""
         echo -e "${GREEN}✅ Firmware geflasht${NC}"
     else
         echo -e "${YELLOW}⚠️  Flash fehlgeschlagen, manuell ausführen:${NC}"
-        echo "   esphome upload src/main.yaml --device $DEVICE_IP"
+        echo "   $ESPHOME upload src/main.yaml --device $DEVICE_IP"
     fi
 else
     echo -e "${YELLOW}📍 Schritt 4: Manuelles Flash erforderlich${NC}"
-    echo "   esphome upload src/main.yaml --device <DEVICE_IP>"
+    echo "   $ESPHOME upload src/main.yaml --device <DEVICE_IP>"
 fi
 echo ""
 
