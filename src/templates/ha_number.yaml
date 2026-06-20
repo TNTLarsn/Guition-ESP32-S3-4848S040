@@ -25,7 +25,7 @@ sensor:
             ESP_LOGD("ha_number", "Number ${num} value: %.1f", x);
         - if:
             condition:
-              lambda: 'return lv_is_initialized();'
+              lambda: 'return lv_is_initialized() && id(current_page_index) == 4;'
             then:
               - lvgl.slider.update:
                   id: ha_number_slider_${num}
@@ -46,7 +46,7 @@ sensor:
       then:
         - lambda: |-
             ESP_LOGD("ha_number", "Number ${num} min: %.1f", x);
-            if (lv_is_initialized()) {
+            if (lv_is_initialized() && id(current_page_index) == 4) {
               lv_slider_set_range(id(ha_number_slider_${num}), (int)x, lv_slider_get_max_value(id(ha_number_slider_${num})));
             }
 
@@ -59,7 +59,7 @@ sensor:
       then:
         - lambda: |-
             ESP_LOGD("ha_number", "Number ${num} max: %.1f", x);
-            if (lv_is_initialized()) {
+            if (lv_is_initialized() && id(current_page_index) == 4) {
               lv_slider_set_range(id(ha_number_slider_${num}), lv_slider_get_min_value(id(ha_number_slider_${num})), (int)x);
             }
 

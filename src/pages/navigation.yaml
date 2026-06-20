@@ -35,7 +35,7 @@ lvgl:
           border_width: 1
           border_opa: 30%
           shadow_width: 16
-          shadow_ofs_y: 4
+          shadow_offset_y: 4
           shadow_color: color_black
           shadow_opa: 40%
           pad_all: 8
@@ -197,6 +197,180 @@ script:
                                     - lvgl.label.update:
                                         id: page_name_label
                                         text: "Home"
+      - script.execute: refresh_current_page
+
+  - id: refresh_current_page
+    then:
+      - if:
+          condition:
+            lambda: 'return id(current_page_index) == 0;'
+          then:
+            - script.execute: refresh_home_page
+          else:
+            - if:
+                condition:
+                  lambda: 'return id(current_page_index) == 1;'
+                then:
+                  - script.execute: refresh_temperature_page
+                else:
+                  - if:
+                      condition:
+                        lambda: 'return id(current_page_index) == 2;'
+                      then:
+                        - script.execute: climate_update_ui
+                      else:
+                        - if:
+                            condition:
+                              lambda: 'return id(current_page_index) == 3;'
+                            then:
+                              - script.execute: refresh_switches_page
+                            else:
+                              - if:
+                                  condition:
+                                    lambda: 'return id(current_page_index) == 4;'
+                                  then:
+                                    - script.execute: ev_charging_update_ui
+
+  - id: refresh_home_page
+    then:
+      - lambda: |-
+          if (!lv_is_initialized()) {
+            return;
+          }
+
+          static MdiIconHelper helper;
+          std::string weather_state = id(ha_weather_7_state).state;
+          std::string icon = "mdi:weather-cloudy";
+
+          if (weather_state == "clear-night") icon = "mdi:weather-night";
+          else if (weather_state == "cloudy") icon = "mdi:weather-cloudy";
+          else if (weather_state == "fog") icon = "mdi:weather-fog";
+          else if (weather_state == "hail") icon = "mdi:weather-rainy";
+          else if (weather_state == "lightning") icon = "mdi:weather-lightning";
+          else if (weather_state == "lightning-rainy") icon = "mdi:weather-lightning";
+          else if (weather_state == "partlycloudy") icon = "mdi:weather-partly-cloudy";
+          else if (weather_state == "pouring") icon = "mdi:weather-rainy";
+          else if (weather_state == "rainy") icon = "mdi:weather-rainy";
+          else if (weather_state == "snowy") icon = "mdi:weather-snowy";
+          else if (weather_state == "snowy-rainy") icon = "mdi:weather-snowy";
+          else if (weather_state == "sunny") icon = "mdi:weather-sunny";
+          else if (weather_state == "windy") icon = "mdi:weather-windy";
+          else if (weather_state == "windy-variant") icon = "mdi:weather-windy";
+          else if (weather_state == "exceptional") icon = "mdi:alert-circle";
+
+          lv_label_set_text(id(homeassistant_btn_7_icon), helper.convert_mdi_icon(icon).c_str());
+
+          char weather_buf[64];
+          std::string weather_text = id(weather_7_state_text);
+          if (std::isnan(id(weather_7_temp_value))) {
+            snprintf(weather_buf, sizeof(weather_buf), "-- °C %s", weather_text.empty() ? "--" : weather_text.c_str());
+          } else {
+            snprintf(weather_buf, sizeof(weather_buf), "%.1f °C %s", id(weather_7_temp_value), weather_text.empty() ? "--" : weather_text.c_str());
+          }
+          lv_label_set_text(id(homeassistant_btn_7_label), weather_buf);
+
+          std::string value = id(ha_entity_8_state_text).state;
+          std::string unit = id(ha_entity_8_unit).state;
+          std::string home_temp = value.empty() ? std::string("--") : value;
+          if (!unit.empty()) {
+            home_temp += unit;
+          }
+          lv_label_set_text(id(ha_temp_value_8), home_temp.c_str());
+
+  - id: refresh_temperature_page
+    then:
+      - lambda: |-
+          if (!lv_is_initialized()) {
+            return;
+          }
+
+          auto set_value = [](lv_obj_t *label_obj, const std::string &value, const std::string &unit) {
+            std::string text = value.empty() ? std::string("--") : value;
+            if (!unit.empty()) {
+              text += unit;
+            }
+            lv_label_set_text(label_obj, text.c_str());
+          };
+
+          auto set_temp_icon = [](lv_obj_t *icon_obj, const std::string &value_str) {
+            lv_color_t color = id(color_gray_500);
+            if (!value_str.empty()) {
+              const char *cstr = value_str.c_str();
+              char *endptr = nullptr;
+              float temp = strtof(cstr, &endptr);
+              while (endptr != nullptr && (*endptr == ' ' || *endptr == '\t')) {
+                ++endptr;
+              }
+              if (cstr != endptr && endptr != nullptr && *endptr == '\0') {
+                if (temp < 16.0f) {
+                  color = id(color_info);
+                } else if (temp < 22.0f) {
+                  color = id(color_success);
+                } else if (temp < 26.0f) {
+                  color = id(color_warning);
+                } else {
+                  color = id(color_error);
+                }
+              }
+            }
+            lv_obj_set_style_text_color(icon_obj, color, LV_PART_MAIN);
+          };
+
+          lv_label_set_text(id(ha_sensor_label_9), id(ha_entity_9_room).state.c_str());
+          set_value(id(ha_temp_value_9), id(ha_entity_9_state_text).state, id(ha_entity_9_unit).state);
+          set_value(id(ha_temp_value_10), id(ha_entity_10_state_text).state, id(ha_entity_10_unit).state);
+          set_temp_icon(id(temp_icon_9), id(ha_entity_9_state_text).state);
+
+          lv_label_set_text(id(ha_sensor_label_11), id(ha_entity_11_room).state.c_str());
+          set_value(id(ha_temp_value_11), id(ha_entity_11_state_text).state, id(ha_entity_11_unit).state);
+          set_value(id(ha_temp_value_12), id(ha_entity_12_state_text).state, id(ha_entity_12_unit).state);
+          set_temp_icon(id(temp_icon_11), id(ha_entity_11_state_text).state);
+
+          lv_label_set_text(id(ha_sensor_label_13), id(ha_entity_13_room).state.c_str());
+          set_value(id(ha_temp_value_13), id(ha_entity_13_state_text).state, id(ha_entity_13_unit).state);
+          set_value(id(ha_temp_value_14), id(ha_entity_14_state_text).state, id(ha_entity_14_unit).state);
+          set_temp_icon(id(temp_icon_13), id(ha_entity_13_state_text).state);
+
+          lv_label_set_text(id(ha_sensor_label_15), id(ha_entity_15_room).state.c_str());
+          set_value(id(ha_temp_value_15), id(ha_entity_15_state_text).state, id(ha_entity_15_unit).state);
+          set_value(id(ha_temp_value_16), id(ha_entity_16_state_text).state, id(ha_entity_16_unit).state);
+          set_temp_icon(id(temp_icon_15), id(ha_entity_15_state_text).state);
+
+  - id: refresh_switches_page
+    then:
+      - lambda: |-
+          if (!lv_is_initialized()) {
+            return;
+          }
+
+          static MdiIconHelper helper;
+          auto update_button = [&](lv_obj_t *button_obj, lv_obj_t *icon_obj, lv_obj_t *label_obj,
+                                   const std::string &friendly_name, const std::string &icon_attr,
+                                   const std::string &default_icon, const std::string &domain,
+                                   bool has_state, bool state) {
+            lv_label_set_text(label_obj, friendly_name.empty() ? "-" : friendly_name.c_str());
+            std::string icon = icon_attr.empty() ? default_icon : helper.convert_mdi_icon(icon_attr);
+            lv_label_set_text(icon_obj, icon.c_str());
+
+            if (domain == "button") {
+              lv_obj_clear_flag(button_obj, LV_OBJ_FLAG_CHECKABLE);
+              lv_obj_clear_state(button_obj, LV_STATE_CHECKED);
+            } else {
+              lv_obj_add_flag(button_obj, LV_OBJ_FLAG_CHECKABLE);
+              if (has_state && state) {
+                lv_obj_add_state(button_obj, LV_STATE_CHECKED);
+              } else {
+                lv_obj_clear_state(button_obj, LV_STATE_CHECKED);
+              }
+            }
+          };
+
+          update_button(id(homeassistant_btn_1), id(homeassistant_btn_1_icon), id(homeassistant_btn_1_label), id(ha_entity_1_friendly_name).state, id(ha_entity_1_icon).state, id(ha_entity_1_default_icon).state, id(ha_entity_1_domain).state, id(ha_entity_state_1).has_state(), id(ha_entity_state_1).state);
+          update_button(id(homeassistant_btn_2), id(homeassistant_btn_2_icon), id(homeassistant_btn_2_label), id(ha_entity_2_friendly_name).state, id(ha_entity_2_icon).state, id(ha_entity_2_default_icon).state, id(ha_entity_2_domain).state, id(ha_entity_state_2).has_state(), id(ha_entity_state_2).state);
+          update_button(id(homeassistant_btn_3), id(homeassistant_btn_3_icon), id(homeassistant_btn_3_label), id(ha_entity_3_friendly_name).state, id(ha_entity_3_icon).state, id(ha_entity_3_default_icon).state, id(ha_entity_3_domain).state, id(ha_entity_state_3).has_state(), id(ha_entity_state_3).state);
+          update_button(id(homeassistant_btn_4), id(homeassistant_btn_4_icon), id(homeassistant_btn_4_label), id(ha_entity_4_friendly_name).state, id(ha_entity_4_icon).state, id(ha_entity_4_default_icon).state, id(ha_entity_4_domain).state, id(ha_entity_state_4).has_state(), id(ha_entity_state_4).state);
+          update_button(id(homeassistant_btn_5), id(homeassistant_btn_5_icon), id(homeassistant_btn_5_label), id(ha_entity_5_friendly_name).state, id(ha_entity_5_icon).state, id(ha_entity_5_default_icon).state, id(ha_entity_5_domain).state, id(ha_entity_state_5).has_state(), id(ha_entity_state_5).state);
+          update_button(id(homeassistant_btn_6), id(homeassistant_btn_6_icon), id(homeassistant_btn_6_label), id(ha_entity_6_friendly_name).state, id(ha_entity_6_icon).state, id(ha_entity_6_default_icon).state, id(ha_entity_6_domain).state, id(ha_entity_state_6).has_state(), id(ha_entity_state_6).state);
 # Navigation Bar ein-/ausblenden
   - id: show_navigation
     then:

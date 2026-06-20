@@ -18,6 +18,10 @@ script:
     mode: single
     then:
       - lambda: |-
+          if (!lv_is_initialized() || id(current_page_index) != 3) {
+            return;
+          }
+
           auto obj = id(homeassistant_btn_${num});
           std::string domain = id(ha_entity_${num}_domain).state;
           
@@ -86,7 +90,7 @@ binary_sensor:
               # Nur für toggle-fähige Domains den checked-State aktualisieren
               lambda: |-
                 std::string domain = id(ha_entity_${num}_domain).state;
-                return domain != "button" && domain != "weather" && domain != "sensor" && domain != "scene" && domain != "script";
+                return lv_is_initialized() && id(current_page_index) == 3 && domain != "button" && domain != "weather" && domain != "sensor" && domain != "scene" && domain != "script";
             then:
               - lvgl.widget.update:
                   id: homeassistant_btn_${num}
@@ -102,9 +106,13 @@ text_sensor:
     internal: true
     on_value:
       then:
-        lvgl.label.update:
-          id: homeassistant_btn_${num}_label
-          text: !lambda return x.c_str();
+        - if:
+            condition:
+              lambda: 'return lv_is_initialized() && id(current_page_index) == 3;'
+            then:
+              - lvgl.label.update:
+                  id: homeassistant_btn_${num}_label
+                  text: !lambda return x.c_str();
 
   # Icon für Button (MDI Icons aus Home Assistant)
   # Hinweis: Das icon-Attribut ist nur gesetzt, wenn der Nutzer es manuell überschrieben hat.
@@ -118,16 +126,20 @@ text_sensor:
     internal: true
     on_value:
       then:
-        lvgl.label.update:
-          id: homeassistant_btn_${num}_icon
-          text: !lambda |-
-            static MdiIconHelper helper;
-            // Bei gesetztem Icon-Attribut -> dieses verwenden
-            if (!x.empty()) {
-              return helper.convert_mdi_icon(x);
-            }
-            // Andernfalls Domain-spezifisches Default-Icon verwenden
-            return id(ha_entity_${num}_default_icon).state;
+        - if:
+            condition:
+              lambda: 'return lv_is_initialized() && id(current_page_index) == 3;'
+            then:
+              - lvgl.label.update:
+                  id: homeassistant_btn_${num}_icon
+                  text: !lambda |-
+                    static MdiIconHelper helper;
+                    // Bei gesetztem Icon-Attribut -> dieses verwenden
+                    if (!x.empty()) {
+                      return helper.convert_mdi_icon(x);
+                    }
+                    // Andernfalls Domain-spezifisches Default-Icon verwenden
+                    return id(ha_entity_${num}_default_icon).state;
 
   # Default Icon basierend auf Entity Domain (wird bei Initialisierung gesetzt)
   - platform: template
@@ -173,11 +185,11 @@ text_sensor:
         # Setze Default-Icon initial auf Button (wird von ha_entity_icon überschrieben wenn vorhanden)
         - if:
             condition:
-              lambda: 'return id(ha_entity_${num}_icon).state.empty();'
+              lambda: 'return lv_is_initialized() && id(current_page_index) == 3 && id(ha_entity_${num}_icon).state.empty();'
             then:
-              lvgl.label.update:
-                id: homeassistant_btn_${num}_icon
-                text: !lambda return x.c_str();
+              - lvgl.label.update:
+                  id: homeassistant_btn_${num}_icon
+                  text: !lambda return x.c_str();
 
   # Entity State als Text Sensor (z.B. für Lock Toggle Logic)
   - platform: homeassistant

@@ -147,6 +147,10 @@ display:
 
 # LVGL Configuration
 lvgl:
+  # 480x480 RGB565 entspricht ~460 KB bei 100 % Buffer-Größe.
+  # Mit 12 % bleibt der Buffer klein genug für internen RAM und vermeidet
+  # die fehlschlagende Vollallokation, die zuletzt im Boot-Log sichtbar war.
+  buffer_size: 12%
   on_idle:
     timeout: !lambda "return (id(display_timeout_backlight).state * 60 * 1000);"
     then:
@@ -476,7 +480,6 @@ ota:
       then:
         - lambda: |-
             id(ota_progress) = (int)x;
-            lv_task_handler();
         - lvgl.bar.update:
             id: ota_bar
             value: !lambda "return (int)x;"
@@ -486,7 +489,6 @@ ota:
               char buf[8];
               snprintf(buf, sizeof(buf), "%d %%", (int)x);
               return std::string(buf);
-        - lambda: 'lv_task_handler();'
     on_end:
       then:
         - lambda: 'id(ota_active) = false;'
