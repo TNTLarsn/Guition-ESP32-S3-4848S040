@@ -191,6 +191,7 @@ static const MdiIconEntry MDI_ICONS[] = {
     {"water-alert", 0xF1502},
     {"water-boiler", 0xF0F92},
     {"water-heater", 0xF1A46},
+    {"water-off", 0xF058D},
     {"water-percent", 0xF058E},
     {"water-pump", 0xF058F},
     {"weather-cloudy", 0xF0590},

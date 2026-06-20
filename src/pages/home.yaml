@@ -65,26 +65,26 @@ lvgl:
                         height: SIZE_CONTENT
                         bg_opa: TRANSP
                         border_opa: TRANSP
+                        # FLEX statt GRID: GRID hat in LVGL 9.5 KEINEN min_size_cb
+                        # (lv_grid.c:147 = NULL). Dadurch faellt calc_content_width
+                        # bei width:SIZE_CONTENT auf eine zirkulaere Kind-Koordinaten-
+                        # Berechnung zurueck -> oszilliert -> Task-WDT. FLEX besitzt
+                        # einen min_size_cb (lv_flex.c:105) und konvergiert sofort.
                         layout:
-                          type: GRID
-                          grid_columns: [36, SIZE_CONTENT]
-                          grid_rows: [FR(1)]
+                          type: FLEX
+                          flex_flow: ROW
+                          flex_align_main: START
+                          flex_align_cross: CENTER
                           pad_column: 10
                         widgets:
                           - label:
-                              grid_cell_column_pos: 0
-                              grid_cell_row_pos: 0
-                              grid_cell_x_align: CENTER
-                              grid_cell_y_align: CENTER
                               id: homeassistant_btn_7_icon
+                              width: 36
+                              text_align: CENTER
                               text: "\U000F0599"
                               text_color: color_secondary
                               text_font: weather_icons
                           - label:
-                              grid_cell_column_pos: 1
-                              grid_cell_row_pos: 0
-                              grid_cell_x_align: START
-                              grid_cell_y_align: CENTER
                               id: homeassistant_btn_7_label
                               text: "-- °C --"
                               text_font: roboto24
@@ -100,25 +100,20 @@ lvgl:
                         height: SIZE_CONTENT
                         bg_opa: TRANSP
                         border_opa: TRANSP
+                        # FLEX statt GRID (siehe Begruendung oben): vermeidet den
+                        # SIZE_CONTENT-Layout-WDT, da FLEX einen min_size_cb hat.
                         layout:
-                          type: GRID
-                          grid_columns: [SIZE_CONTENT, SIZE_CONTENT]
-                          grid_rows: [FR(1)]
+                          type: FLEX
+                          flex_flow: ROW
+                          flex_align_main: END
+                          flex_align_cross: CENTER
                           pad_column: 8
                         widgets:
                           - label:
-                              grid_cell_column_pos: 0
-                              grid_cell_row_pos: 0
-                              grid_cell_x_align: END
-                              grid_cell_y_align: CENTER
                               text: "\U000F050F"
                               text_color: color_primary_light
                               text_font: mdi_icons_24
                           - label:
-                              grid_cell_column_pos: 1
-                              grid_cell_row_pos: 0
-                              grid_cell_x_align: START
-                              grid_cell_y_align: CENTER
                               id: ha_temp_value_8
                               text: "-- °C"
                               text_font: roboto24
@@ -139,18 +134,23 @@ lvgl:
                   border_opa: TRANSP
                   scrollbar_mode: "OFF"
                   pad_top: 24
+                  # FLEX statt GRID (siehe Begruendung oben): GRID ohne min_size_cb
+                  # erzeugt bei width/height:SIZE_CONTENT die nicht-konvergierende
+                  # Layout-Schleife (Task-WDT). FLEX ist deterministisch.
+                  # Die feste 90px-Hoehe der Uhrzeit (frueher grid_rows[0]) wandert
+                  # als height aufs Label -> visuell identisch.
                   layout:
-                    type: GRID
-                    grid_columns: [FR(1)]
-                    grid_rows: [90, SIZE_CONTENT]
+                    type: FLEX
+                    flex_flow: COLUMN
+                    flex_align_main: START
+                    flex_align_cross: CENTER
+                    pad_row: 0
                   widgets:
                     # Große Uhrzeit - HERO Element
                     - label:
-                        grid_cell_column_pos: 0
-                        grid_cell_row_pos: 0
-                        grid_cell_x_align: CENTER
-                        grid_cell_y_align: CENTER
                         id: display_time
+                        height: 90
+                        text_align: CENTER
                         text: !lambda |-
                           auto now = id(sntp_time).now();
                           if (!now.is_valid()) return std::string("--:--");
@@ -160,10 +160,7 @@ lvgl:
                     
                     # Datum - Subheading (direkt unter Uhrzeit)
                     - label:
-                        grid_cell_column_pos: 0
-                        grid_cell_row_pos: 1
-                        grid_cell_x_align: CENTER
-                        grid_cell_y_align: START
+                        text_align: CENTER
                         y: -12
                         id: display_date
                         text: !lambda |-

@@ -37,7 +37,7 @@ text_sensor:
             ESP_LOGD("ha_lock", "Lock ${num} name: %s", x.c_str());
         - if:
             condition:
-              lambda: 'return lv_is_initialized();'
+              lambda: 'return lv_is_initialized() && id(current_page_index) == 4;'
             then:
               - lvgl.label.update:
                   id: ev_lock_label

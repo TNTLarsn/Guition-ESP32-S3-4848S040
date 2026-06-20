@@ -51,7 +51,7 @@ text_sensor:
             else icon = "mdi:weather-cloudy"; // Fallback
             
             auto icon_text = helper.convert_mdi_icon(icon);
-            if (lv_is_initialized()) {
+            if (lv_is_initialized() && id(current_page_index) == 0) {
               lv_label_set_text(id(homeassistant_btn_${num}_icon), icon_text.c_str());
             }   
             
@@ -85,7 +85,7 @@ text_sensor:
             } else {
               snprintf(buf, sizeof(buf), "%.1f °C %s", id(weather_${num}_temp_value), translated.c_str());
             }
-            if (lv_is_initialized()) {
+            if (lv_is_initialized() && id(current_page_index) == 0) {
               lv_label_set_text(id(homeassistant_btn_${num}_label), buf);
             }
 
@@ -123,7 +123,7 @@ sensor:
             } else {
               snprintf(buf, sizeof(buf), "%.1f °C %s", x, weather_text.c_str());
             }
-            if (lv_is_initialized()) {
+            if (lv_is_initialized() && id(current_page_index) == 0) {
               lv_label_set_text(id(homeassistant_btn_${num}_label), buf);
             }
 

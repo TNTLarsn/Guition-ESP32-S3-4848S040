@@ -40,7 +40,7 @@ lvgl:
                   border_width: 1
                   border_opa: 25%
                   shadow_width: 12
-                  shadow_ofs_y: 4
+                  shadow_offset_y: 4
                   shadow_color: color_black
                   shadow_opa: 30%
                   pad_all: 12
@@ -128,7 +128,7 @@ lvgl:
                   border_width: 1
                   border_opa: 20%
                   shadow_width: 16
-                  shadow_ofs_y: 6
+                  shadow_offset_y: 6
                   shadow_color: color_black
                   shadow_opa: 35%
                   pad_all: 16
@@ -159,29 +159,25 @@ lvgl:
                         border_opa: TRANSP
                         width: 100%
                         height: SIZE_CONTENT
+                        # FLEX statt GRID: GRID hat in LVGL 9.5 KEINEN min_size_cb,
+                        # daher oszilliert calc_content_height bei height:SIZE_CONTENT
+                        # -> Task-WDT. FLEX (mit min_size_cb) konvergiert sofort.
                         layout:
-                          type: GRID
-                          grid_columns: [SIZE_CONTENT, FR(1)]
-                          grid_rows: [FR(1)]
+                          type: FLEX
+                          flex_flow: ROW
+                          flex_align_main: SPACE_BETWEEN
+                          flex_align_cross: CENTER
                           pad_column: 16
                         widgets:
                           # EV Charging Icon (links)
                           - label:
                               id: ev_charging_icon
-                              grid_cell_column_pos: 0
-                              grid_cell_row_pos: 0
-                              grid_cell_x_align: START
-                              grid_cell_y_align: CENTER
                               text: "\U000F05F1"
                               text_font: mdi_icons_40
                               text_color: color_primary_light
                           # Leistungswert (rechts)
                           - label:
                               id: ev_power_value
-                              grid_cell_column_pos: 1
-                              grid_cell_row_pos: 0
-                              grid_cell_x_align: END
-                              grid_cell_y_align: CENTER
                               text: "0 W"
                               text_font: roboto40
                               text_color: color_white
@@ -212,7 +208,7 @@ lvgl:
                   border_width: 1
                   border_opa: 25%
                   shadow_width: 12
-                  shadow_ofs_y: 4
+                  shadow_offset_y: 4
                   shadow_color: color_black
                   shadow_opa: 30%
                   pad_all: 16
@@ -231,18 +227,16 @@ lvgl:
                         bg_opa: TRANSP
                         border_opa: TRANSP
                         height: SIZE_CONTENT
+                        # FLEX statt GRID (GRID ohne min_size_cb -> height-WDT)
                         layout:
-                          type: GRID
-                          grid_columns: [FR(1)]
-                          grid_rows: [FR(1)]
+                          type: FLEX
+                          flex_flow: ROW
+                          flex_align_main: CENTER
+                          flex_align_cross: CENTER
                         widgets:
                           # Label mit Wert
                           - label:
                               id: ha_number_label_21
-                              grid_cell_column_pos: 0
-                              grid_cell_row_pos: 0
-                              grid_cell_x_align: CENTER
-                              grid_cell_y_align: CENTER
                               text: "Max. Ladestrom: -- A"
                               text_font: roboto16
                               text_color: color_gray_400
@@ -256,24 +250,20 @@ lvgl:
                         bg_opa: TRANSP
                         border_opa: TRANSP
                         height: SIZE_CONTENT
+                        # FLEX statt GRID (GRID ohne min_size_cb -> height-WDT)
                         layout:
-                          type: GRID
-                          grid_columns: [FR(1), FR(1)]
-                          grid_rows: [FR(1)]
+                          type: FLEX
+                          flex_flow: ROW
+                          flex_align_main: SPACE_BETWEEN
+                          flex_align_cross: CENTER
                         widgets:
                           - label:
                               id: ev_slider_min_label
-                              grid_cell_column_pos: 0
-                              grid_cell_row_pos: 0
-                              grid_cell_x_align: START
                               text: "6 A"
                               text_font: roboto16
                               text_color: color_gray_500
                           - label:
                               id: ev_slider_max_label
-                              grid_cell_column_pos: 1
-                              grid_cell_row_pos: 0
-                              grid_cell_x_align: END
                               text: "32 A"
                               text_font: roboto16
                               text_color: color_gray_500
@@ -337,6 +327,11 @@ script:
       - lambda: |-
           if (!lv_is_initialized()) {
             ESP_LOGW("ev_charging", "LVGL not initialized, skipping UI update");
+            return;
+          }
+
+          if (id(current_page_index) != 4) {
+            ESP_LOGD("ev_charging", "EV page hidden, skipping UI update");
             return;
           }
           

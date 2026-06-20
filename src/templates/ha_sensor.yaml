@@ -31,19 +31,27 @@ text_sensor:
         - lambda: |-
             ESP_LOGD("ha_sensor", "Sensor ${num} state: %s", x.c_str());
         # LVGL Label aktualisieren wenn vorhanden
-        - lvgl.label.update:
-            id: ha_temp_value_${num}
-            text: !lambda |-
-              std::string value = id(ha_entity_${num}_state_text).state;
-              std::string unit = id(ha_entity_${num}_unit).state;
-              if (value.empty()) {
-                // Fallback mit Einheit oder Standardwert
-                if (unit.empty()) return std::string("--");
-                return std::string("-- ") + unit;
-              }
-              // Wert mit dynamischer Einheit zurückgeben
-              if (unit.empty()) return value;
-              return value + "" + unit;
+        - if:
+            condition:
+              lambda: |-
+                if (!lv_is_initialized()) {
+                  return false;
+                }
+                return ${num} == 8 ? id(current_page_index) == 0 : id(current_page_index) == 1;
+            then:
+              - lvgl.label.update:
+                  id: ha_temp_value_${num}
+                  text: !lambda |-
+                    std::string value = id(ha_entity_${num}_state_text).state;
+                    std::string unit = id(ha_entity_${num}_unit).state;
+                    if (value.empty()) {
+                      // Fallback mit Einheit oder Standardwert
+                      if (unit.empty()) return std::string("--");
+                      return std::string("-- ") + unit;
+                    }
+                    // Wert mit dynamischer Einheit zurückgeben
+                    if (unit.empty()) return value;
+                    return value + "" + unit;
 
   # Friendly Name
   - platform: homeassistant
@@ -53,9 +61,17 @@ text_sensor:
     internal: true
     on_value:
       then:
-        - lvgl.label.update:
-            id: ha_sensor_label_${num}
-            text: !lambda return x.c_str();
+        - if:
+            condition:
+              lambda: |-
+                if (!lv_is_initialized()) {
+                  return false;
+                }
+                return ${num} == 8 ? id(current_page_index) == 0 : id(current_page_index) == 1;
+            then:
+              - lvgl.label.update:
+                  id: ha_sensor_label_${num}
+                  text: !lambda return x.c_str();
 
   # Domain (extrahiert aus entity_id)
   - platform: template

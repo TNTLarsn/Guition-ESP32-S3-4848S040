@@ -359,6 +359,7 @@
     "\U000F0026", # alert (for error/jammed status)
     "\U000F0F45", # ev-plug-type2
     "\U000F19DE", # ev-plug-type2-off
+    "\U000F058D", # water-off (dry mode)
   ]
 
 - file: "assets/fonts/materialdesignicons-webfont.ttf"
