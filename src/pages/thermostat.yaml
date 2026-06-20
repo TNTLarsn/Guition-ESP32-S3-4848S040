@@ -16,15 +16,24 @@ lvgl:
   pages:
     - id: thermostat_page
       bg_color: color_bg_dark
+      layout:
+        type: GRID
+        grid_columns: [FR(1)]
+        # 5 Reihen: Top-Padding, Header, Content-Stretch, Fan-Modes, Bottom-Safe-Area
+        grid_rows: [8, CONTENT, FR(1), CONTENT, 84]
+        pad_row: 8
       widgets:
         # ============================================================
         # HEADER - HVAC Mode Buttons (kompakt)
         # ============================================================
         - obj:
-            width: 320
+            id: climate_hvac_modes_container
+            grid_cell_column_pos: 0
+            grid_cell_row_pos: 1
+            grid_cell_x_align: CENTER
+            grid_cell_y_align: START
+            width: 400
             height: 52
-            align: TOP_MID
-            y: 8
             bg_color: color_gray_800
             bg_opa: 50%
             border_color: color_gray_600
@@ -35,7 +44,7 @@ lvgl:
             scrollbar_mode: "OFF"
             layout:
               type: GRID
-              grid_columns: [FR(1), FR(1), FR(1), FR(1)]
+              grid_columns: [FR(1), FR(1), FR(1), FR(1), FR(1), FR(1)]
               grid_rows: [FR(1)]
               pad_column: 6
             widgets:
@@ -57,7 +66,7 @@ lvgl:
                       - homeassistant.action:
                           action: climate.set_hvac_mode
                           data:
-                            entity_id: climate.thermostat_buro
+                            entity_id: climate.klimaanlage
                             hvac_mode: heat
                   widgets:
                     - label:
@@ -85,7 +94,7 @@ lvgl:
                       - homeassistant.action:
                           action: climate.set_hvac_mode
                           data:
-                            entity_id: climate.thermostat_buro
+                            entity_id: climate.klimaanlage
                             hvac_mode: cool
                   widgets:
                     - label:
@@ -113,7 +122,7 @@ lvgl:
                       - homeassistant.action:
                           action: climate.set_hvac_mode
                           data:
-                            entity_id: climate.thermostat_buro
+                            entity_id: climate.klimaanlage
                             hvac_mode: auto
                   widgets:
                     - label:
@@ -123,9 +132,9 @@ lvgl:
                         text_font: mdi_icons_28
                         text_color: color_gray_400
               
-              # Off Button
+              # Fan Only Button
               - button:
-                  id: climate_btn_off
+                  id: climate_btn_fan_only
                   grid_cell_column_pos: 3
                   grid_cell_row_pos: 0
                   grid_cell_x_align: STRETCH
@@ -141,7 +150,63 @@ lvgl:
                       - homeassistant.action:
                           action: climate.set_hvac_mode
                           data:
-                            entity_id: climate.thermostat_buro
+                            entity_id: climate.klimaanlage
+                            hvac_mode: fan_only
+                  widgets:
+                    - label:
+                        id: climate_btn_fan_only_icon
+                        align: CENTER
+                        text: "\U000F0210"
+                        text_font: mdi_icons_28
+                        text_color: color_gray_400
+              
+              # Dry Button
+              - button:
+                  id: climate_btn_dry
+                  grid_cell_column_pos: 4
+                  grid_cell_row_pos: 0
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  radius: 12
+                  bg_color: color_gray_700
+                  bg_opa: 60%
+                  border_opa: TRANSP
+                  shadow_opa: TRANSP
+                  checkable: true
+                  on_click:
+                    then:
+                      - homeassistant.action:
+                          action: climate.set_hvac_mode
+                          data:
+                            entity_id: climate.klimaanlage
+                            hvac_mode: dry
+                  widgets:
+                    - label:
+                        id: climate_btn_dry_icon
+                        align: CENTER
+                        text: "\U000F058D"
+                        text_font: mdi_icons_28
+                        text_color: color_gray_400
+              
+              # Off Button
+              - button:
+                  id: climate_btn_off
+                  grid_cell_column_pos: 5
+                  grid_cell_row_pos: 0
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  radius: 12
+                  bg_color: color_gray_700
+                  bg_opa: 60%
+                  border_opa: TRANSP
+                  shadow_opa: TRANSP
+                  checkable: true
+                  on_click:
+                    then:
+                      - homeassistant.action:
+                          action: climate.set_hvac_mode
+                          data:
+                            entity_id: climate.klimaanlage
                             hvac_mode: "off"
                   widgets:
                     - label:
@@ -155,10 +220,13 @@ lvgl:
         # MAIN CONTENT - Temperatur Arc + Controls
         # ============================================================
         - obj:
-            y: 80
+            id: climate_main_content_container
+            grid_cell_column_pos: 0
+            grid_cell_row_pos: 2
+            grid_cell_x_align: STRETCH
+            grid_cell_y_align: STRETCH
             width: 100%
-            height: 300
-            align: TOP_MID
+            height: 100%
             bg_opa: TRANSP
             border_opa: TRANSP
             scrollbar_mode: "OFF"
@@ -273,10 +341,10 @@ lvgl:
               - button:
                   id: climate_btn_minus
                   x: 15
-                  y: 100
+                  y: 0
                   width: 50
                   height: 50
-                  align: TOP_LEFT
+                  align: LEFT_MID
                   radius: 25
                   bg_color: color_gray_800
                   bg_opa: 80%
@@ -284,7 +352,7 @@ lvgl:
                   border_width: 1
                   border_opa: 30%
                   shadow_width: 8
-                  shadow_ofs_y: 4
+                  shadow_offset_y: 4
                   shadow_color: color_black
                   shadow_opa: 40%
                   checkable: false
@@ -302,10 +370,10 @@ lvgl:
               - button:
                   id: climate_btn_plus
                   x: -15
-                  y: 100
+                  y: 0
                   width: 50
                   height: 50
-                  align: TOP_RIGHT
+                  align: RIGHT_MID
                   radius: 25
                   bg_color: color_gray_800
                   bg_opa: 80%
@@ -313,7 +381,7 @@ lvgl:
                   border_width: 1
                   border_opa: 30%
                   shadow_width: 8
-                  shadow_ofs_y: 4
+                  shadow_offset_y: 4
                   shadow_color: color_black
                   shadow_opa: 40%
                   checkable: false
@@ -327,6 +395,164 @@ lvgl:
                         text_font: mdi_icons_40
                         text_color: color_primary_light
 
+        # Fan Mode Buttons (außer bei HVAC off)
+        - obj:
+            id: climate_fan_modes_container
+            grid_cell_column_pos: 0
+            grid_cell_row_pos: 3
+            grid_cell_x_align: CENTER
+            grid_cell_y_align: END
+            width: 390
+            height: 46
+            bg_color: color_gray_800
+            bg_opa: 45%
+            border_color: color_gray_600
+            border_width: 1
+            border_opa: 20%
+            radius: 14
+            pad_all: 4
+            scrollbar_mode: "OFF"
+            layout:
+              type: GRID
+              grid_columns: [FR(1), FR(1), FR(1), FR(1), FR(1)]
+              grid_rows: [FR(1)]
+              pad_column: 4
+            widgets:
+              - button:
+                  id: climate_btn_fan_auto
+                  grid_cell_column_pos: 0
+                  grid_cell_row_pos: 0
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  radius: 10
+                  bg_color: color_gray_700
+                  bg_opa: 60%
+                  border_opa: TRANSP
+                  shadow_opa: TRANSP
+                  checkable: true
+                  on_click:
+                    then:
+                      - homeassistant.action:
+                          action: climate.set_fan_mode
+                          data:
+                            entity_id: climate.klimaanlage
+                            fan_mode: auto
+                  widgets:
+                    - label:
+                        id: climate_btn_fan_auto_label
+                        align: CENTER
+                        text: "Auto"
+                        text_font: roboto16
+                        text_color: color_gray_400
+
+              - button:
+                  id: climate_btn_fan_quiet
+                  grid_cell_column_pos: 1
+                  grid_cell_row_pos: 0
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  radius: 10
+                  bg_color: color_gray_700
+                  bg_opa: 60%
+                  border_opa: TRANSP
+                  shadow_opa: TRANSP
+                  checkable: true
+                  on_click:
+                    then:
+                      - homeassistant.action:
+                          action: climate.set_fan_mode
+                          data:
+                            entity_id: climate.klimaanlage
+                            fan_mode: Quiet
+                  widgets:
+                    - label:
+                        id: climate_btn_fan_quiet_label
+                        align: CENTER
+                        text: "Leise"
+                        text_font: roboto16
+                        text_color: color_gray_400
+
+              - button:
+                  id: climate_btn_fan_low
+                  grid_cell_column_pos: 2
+                  grid_cell_row_pos: 0
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  radius: 10
+                  bg_color: color_gray_700
+                  bg_opa: 60%
+                  border_opa: TRANSP
+                  shadow_opa: TRANSP
+                  checkable: true
+                  on_click:
+                    then:
+                      - homeassistant.action:
+                          action: climate.set_fan_mode
+                          data:
+                            entity_id: climate.klimaanlage
+                            fan_mode: low
+                  widgets:
+                    - label:
+                        id: climate_btn_fan_low_label
+                        align: CENTER
+                        text: "Niedrig"
+                        text_font: roboto16
+                        text_color: color_gray_400
+
+              - button:
+                  id: climate_btn_fan_medium
+                  grid_cell_column_pos: 3
+                  grid_cell_row_pos: 0
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  radius: 10
+                  bg_color: color_gray_700
+                  bg_opa: 60%
+                  border_opa: TRANSP
+                  shadow_opa: TRANSP
+                  checkable: true
+                  on_click:
+                    then:
+                      - homeassistant.action:
+                          action: climate.set_fan_mode
+                          data:
+                            entity_id: climate.klimaanlage
+                            fan_mode: medium
+                  widgets:
+                    - label:
+                        id: climate_btn_fan_medium_label
+                        align: CENTER
+                        text: "Mittel"
+                        text_font: roboto16
+                        text_color: color_gray_400
+
+              - button:
+                  id: climate_btn_fan_high
+                  grid_cell_column_pos: 4
+                  grid_cell_row_pos: 0
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  radius: 10
+                  bg_color: color_gray_700
+                  bg_opa: 60%
+                  border_opa: TRANSP
+                  shadow_opa: TRANSP
+                  checkable: true
+                  on_click:
+                    then:
+                      - homeassistant.action:
+                          action: climate.set_fan_mode
+                          data:
+                            entity_id: climate.klimaanlage
+                            fan_mode: high
+                  widgets:
+                    - label:
+                        id: climate_btn_fan_high_label
+                        align: CENTER
+                        text: "Hoch"
+                        text_font: roboto16
+                        text_color: color_gray_400
+
 # ========================================================================
 # SCRIPTS
 # ========================================================================
@@ -337,6 +563,11 @@ script:
     then:
       - lambda: |-
           ESP_LOGD("climate_ui", "climate_update_ui called, user_adjusting=%s", id(climate_user_adjusting) ? "true" : "false");
+
+          if (id(current_page_index) != 2) {
+            ESP_LOGD("climate_ui", "Thermostat page hidden, skipping UI update");
+            return;
+          }
           
           // Nur updaten wenn nicht gerade vom User angepasst wird
           if (id(climate_user_adjusting)) return;
@@ -346,6 +577,11 @@ script:
             ESP_LOGW("climate_ui", "LVGL not initialized yet, skipping UI update");
             return;
           }
+
+          // Scrollen auf dieser Seite deaktivieren (nur statisches Layout)
+          lv_obj_clear_flag(id(climate_hvac_modes_container), LV_OBJ_FLAG_SCROLLABLE);
+          lv_obj_clear_flag(id(climate_main_content_container), LV_OBJ_FLAG_SCROLLABLE);
+          lv_obj_clear_flag(id(climate_fan_modes_container), LV_OBJ_FLAG_SCROLLABLE);
           
           // HVAC Action -> Arc Glow Effekt
           if (id(ha_climate_18_state_text).has_state()) {
@@ -412,18 +648,24 @@ script:
             lv_obj_clear_state(id(climate_btn_heat), LV_STATE_CHECKED);
             lv_obj_clear_state(id(climate_btn_cool), LV_STATE_CHECKED);
             lv_obj_clear_state(id(climate_btn_auto), LV_STATE_CHECKED);
+            lv_obj_clear_state(id(climate_btn_fan_only), LV_STATE_CHECKED);
+            lv_obj_clear_state(id(climate_btn_dry), LV_STATE_CHECKED);
             lv_obj_clear_state(id(climate_btn_off), LV_STATE_CHECKED);
             
             // Reset all icon colors to gray
             lv_obj_set_style_text_color(id(climate_btn_heat_icon), lv_color_hex(0x9CA3AF), 0);
             lv_obj_set_style_text_color(id(climate_btn_cool_icon), lv_color_hex(0x9CA3AF), 0);
             lv_obj_set_style_text_color(id(climate_btn_auto_icon), lv_color_hex(0x9CA3AF), 0);
+            lv_obj_set_style_text_color(id(climate_btn_fan_only_icon), lv_color_hex(0x9CA3AF), 0);
+            lv_obj_set_style_text_color(id(climate_btn_dry_icon), lv_color_hex(0x9CA3AF), 0);
             lv_obj_set_style_text_color(id(climate_btn_off_icon), lv_color_hex(0x9CA3AF), 0);
             
             // Reset all button backgrounds
             lv_obj_set_style_bg_color(id(climate_btn_heat), lv_color_hex(0x374151), 0); // gray-700
             lv_obj_set_style_bg_color(id(climate_btn_cool), lv_color_hex(0x374151), 0);
             lv_obj_set_style_bg_color(id(climate_btn_auto), lv_color_hex(0x374151), 0);
+            lv_obj_set_style_bg_color(id(climate_btn_fan_only), lv_color_hex(0x374151), 0);
+            lv_obj_set_style_bg_color(id(climate_btn_dry), lv_color_hex(0x374151), 0);
             lv_obj_set_style_bg_color(id(climate_btn_off), lv_color_hex(0x374151), 0);
             
             // Arc color based on mode
@@ -444,6 +686,16 @@ script:
               lv_obj_set_style_text_color(id(climate_btn_auto_icon), lv_color_hex(0x10B981), 0);
               lv_obj_set_style_bg_color(id(climate_btn_auto), lv_color_hex(0x064E3B), 0); // green-900 dark
               arc_color = lv_color_hex(0x10B981); // Grün
+            } else if (mode == "fan_only") {
+              lv_obj_add_state(id(climate_btn_fan_only), LV_STATE_CHECKED);
+              lv_obj_set_style_text_color(id(climate_btn_fan_only_icon), lv_color_hex(0xD1D5DB), 0); // gray-300 (hell)
+              lv_obj_set_style_bg_color(id(climate_btn_fan_only), lv_color_hex(0x4B5563), 0); // gray-600
+              arc_color = lv_color_hex(0xD1D5DB); // Hell-Grau
+            } else if (mode == "dry") {
+              lv_obj_add_state(id(climate_btn_dry), LV_STATE_CHECKED);
+              lv_obj_set_style_text_color(id(climate_btn_dry_icon), lv_color_hex(0xEAB308), 0); // yellow-500
+              lv_obj_set_style_bg_color(id(climate_btn_dry), lv_color_hex(0x713F12), 0); // amber-900 dark
+              arc_color = lv_color_hex(0xEAB308); // Gelb
             } else if (mode == "off") {
               lv_obj_add_state(id(climate_btn_off), LV_STATE_CHECKED);
               lv_obj_set_style_text_color(id(climate_btn_off_icon), lv_color_hex(0x9CA3AF), 0);
@@ -452,6 +704,69 @@ script:
             }
             
             lv_obj_set_style_arc_color(id(climate_arc_active), arc_color, LV_PART_INDICATOR);
+            
+            // Plus/Minus nur bei Temperatur-Modi sichtbar
+            bool temp_control_visible = (mode == "heat" || mode == "cool" || mode == "auto" || mode == "heat_cool");
+            if (temp_control_visible) {
+              lv_obj_clear_flag(id(climate_btn_minus), LV_OBJ_FLAG_HIDDEN);
+              lv_obj_clear_flag(id(climate_btn_plus), LV_OBJ_FLAG_HIDDEN);
+            } else {
+              lv_obj_add_flag(id(climate_btn_minus), LV_OBJ_FLAG_HIDDEN);
+              lv_obj_add_flag(id(climate_btn_plus), LV_OBJ_FLAG_HIDDEN);
+            }
+
+            // Fan-Mode-Buttons in allen Modi außer "off" anzeigen
+            if (mode == "off") {
+              lv_obj_add_flag(id(climate_fan_modes_container), LV_OBJ_FLAG_HIDDEN);
+            } else {
+              lv_obj_clear_flag(id(climate_fan_modes_container), LV_OBJ_FLAG_HIDDEN);
+            }
+
+            // Fan-Mode-Buttons zurücksetzen
+            lv_obj_clear_state(id(climate_btn_fan_auto), LV_STATE_CHECKED);
+            lv_obj_clear_state(id(climate_btn_fan_quiet), LV_STATE_CHECKED);
+            lv_obj_clear_state(id(climate_btn_fan_low), LV_STATE_CHECKED);
+            lv_obj_clear_state(id(climate_btn_fan_medium), LV_STATE_CHECKED);
+            lv_obj_clear_state(id(climate_btn_fan_high), LV_STATE_CHECKED);
+
+            lv_obj_set_style_text_color(id(climate_btn_fan_auto_label), lv_color_hex(0x9CA3AF), 0);
+            lv_obj_set_style_text_color(id(climate_btn_fan_quiet_label), lv_color_hex(0x9CA3AF), 0);
+            lv_obj_set_style_text_color(id(climate_btn_fan_low_label), lv_color_hex(0x9CA3AF), 0);
+            lv_obj_set_style_text_color(id(climate_btn_fan_medium_label), lv_color_hex(0x9CA3AF), 0);
+            lv_obj_set_style_text_color(id(climate_btn_fan_high_label), lv_color_hex(0x9CA3AF), 0);
+
+            lv_obj_set_style_bg_color(id(climate_btn_fan_auto), lv_color_hex(0x374151), 0);
+            lv_obj_set_style_bg_color(id(climate_btn_fan_quiet), lv_color_hex(0x374151), 0);
+            lv_obj_set_style_bg_color(id(climate_btn_fan_low), lv_color_hex(0x374151), 0);
+            lv_obj_set_style_bg_color(id(climate_btn_fan_medium), lv_color_hex(0x374151), 0);
+            lv_obj_set_style_bg_color(id(climate_btn_fan_high), lv_color_hex(0x374151), 0);
+
+            // Aktiven Fan-Mode hervorheben (nur wenn verfügbar)
+            if (id(ha_climate_18_fan_mode).has_state()) {
+              std::string fan_mode = id(ha_climate_18_fan_mode).state;
+
+              if (fan_mode == "auto") {
+                lv_obj_add_state(id(climate_btn_fan_auto), LV_STATE_CHECKED);
+                lv_obj_set_style_text_color(id(climate_btn_fan_auto_label), lv_color_hex(0x60A5FA), 0);
+                lv_obj_set_style_bg_color(id(climate_btn_fan_auto), lv_color_hex(0x1E3A5F), 0);
+              } else if (fan_mode == "Quiet" || fan_mode == "quiet") {
+                lv_obj_add_state(id(climate_btn_fan_quiet), LV_STATE_CHECKED);
+                lv_obj_set_style_text_color(id(climate_btn_fan_quiet_label), lv_color_hex(0x60A5FA), 0);
+                lv_obj_set_style_bg_color(id(climate_btn_fan_quiet), lv_color_hex(0x1E3A5F), 0);
+              } else if (fan_mode == "low") {
+                lv_obj_add_state(id(climate_btn_fan_low), LV_STATE_CHECKED);
+                lv_obj_set_style_text_color(id(climate_btn_fan_low_label), lv_color_hex(0x60A5FA), 0);
+                lv_obj_set_style_bg_color(id(climate_btn_fan_low), lv_color_hex(0x1E3A5F), 0);
+              } else if (fan_mode == "medium") {
+                lv_obj_add_state(id(climate_btn_fan_medium), LV_STATE_CHECKED);
+                lv_obj_set_style_text_color(id(climate_btn_fan_medium_label), lv_color_hex(0x60A5FA), 0);
+                lv_obj_set_style_bg_color(id(climate_btn_fan_medium), lv_color_hex(0x1E3A5F), 0);
+              } else if (fan_mode == "high") {
+                lv_obj_add_state(id(climate_btn_fan_high), LV_STATE_CHECKED);
+                lv_obj_set_style_text_color(id(climate_btn_fan_high_label), lv_color_hex(0x60A5FA), 0);
+                lv_obj_set_style_bg_color(id(climate_btn_fan_high), lv_color_hex(0x1E3A5F), 0);
+              }
+            }
           }
 
   # Temperatur erhöhen
@@ -490,7 +805,7 @@ script:
       - homeassistant.action:
           action: climate.set_temperature
           data:
-            entity_id: climate.thermostat_buro
+            entity_id: climate.klimaanlage
             temperature: !lambda |-
               float step = 0.5f;
               if (id(ha_climate_18_temp_step).has_state()) step = id(ha_climate_18_temp_step).state;
@@ -536,7 +851,7 @@ script:
       - homeassistant.action:
           action: climate.set_temperature
           data:
-            entity_id: climate.thermostat_buro
+            entity_id: climate.klimaanlage
             temperature: !lambda |-
               float step = 0.5f;
               if (id(ha_climate_18_temp_step).has_state()) step = id(ha_climate_18_temp_step).state;

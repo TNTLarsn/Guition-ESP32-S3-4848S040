@@ -105,7 +105,7 @@ packages:
     file: ../templates/ha_climate.yaml
     vars:
       num: "18"
-      entity_id: climate.thermostat_buro
+      entity_id: climate.klimaanlage
   # EV Charging Entities (Wallbox) - Verwenden spezielle Templates ohne Switches-Button
   ha_input_boolean_19: !include
     file: ../templates/ha_input_boolean.yaml
