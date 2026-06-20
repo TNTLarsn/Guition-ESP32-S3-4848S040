@@ -11,14 +11,14 @@
         "name": "🖥️ SDL Simulator starten",
         "type": "node-terminal",
         "request": "launch",
-        "command": "esphome run tests/simulator/main.simulator.yaml",
+        "command": "./scripts/dev/esphome run tests/simulator/main.simulator.yaml",
         "cwd": "${workspaceFolder}"
       },
       {
         "name": "🖥️ SDL Simulator kompilieren",
         "type": "node-terminal",
         "request": "launch",
-        "command": "esphome compile tests/simulator/main.simulator.yaml",
+        "command": "./scripts/dev/esphome compile tests/simulator/main.simulator.yaml",
         "cwd": "${workspaceFolder}"
       },
 

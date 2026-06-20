@@ -2,14 +2,18 @@
 # This is an example and may include too much for your use-case.
 # You can modify this file to suit your needs.
 /.esphome/
+/.esphome-version
 /secrets.yaml
 .github/copilot-instructions.md
 .vscode/*
 !.vscode/launch.json
 !.vscode/tasks.json
+!.vscode/settings.json
+!.vscode/extensions.json
 .venv/*
 .venv-312-beta/*
-
+/.esphome-venvs/
+/.act/
 # CodeQL artifacts
 _codeql_detected_source_root
 .http_server.pid
@@ -18,3 +22,4 @@ src/common/homeassistant_dev.yaml
 
 # Simulator Build-Artefakte
 tests/simulator/.esphome/
+.vscode/settings.json
