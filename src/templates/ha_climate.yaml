@@ -5,6 +5,7 @@
 # Generierte IDs:
 # - ha_climate_${num}_state_text: Text Sensor für HVAC Action (z.B. "heating", "cooling", "idle")
 # - ha_climate_${num}_hvac_mode: Text Sensor für HVAC Modus (heat, cool, off, etc.)
+# - ha_climate_${num}_fan_mode: Text Sensor für Lüftermodus (auto, low, medium, high, ...)
 # - ha_climate_${num}_friendly_name: Text Sensor für Anzeigename
 # - ha_climate_${num}_icon: Text Sensor für MDI Icon
 # - ha_climate_${num}_target_temp: Numeric Sensor für Soll-Temperatur
@@ -31,6 +32,15 @@ text_sensor:
   - platform: homeassistant
     id: ha_climate_${num}_hvac_mode
     entity_id: ${entity_id}
+    on_value:
+      then:
+        - script.execute: climate_update_ui
+
+  # Fan Mode
+  - platform: homeassistant
+    id: ha_climate_${num}_fan_mode
+    entity_id: ${entity_id}
+    attribute: fan_mode
     on_value:
       then:
         - script.execute: climate_update_ui
