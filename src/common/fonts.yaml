@@ -360,6 +360,8 @@
     "\U000F0F45", # ev-plug-type2
     "\U000F19DE", # ev-plug-type2-off
     "\U000F058D", # water-off (dry mode)
+    "\U000F0241", # flash (Strompreis)
+    "\U000F00F0", # calendar-clock (letzte Rücksetzung)
   ]
 
 - file: "assets/fonts/materialdesignicons-webfont.ttf"
@@ -397,6 +399,7 @@
     "\U000F0141", # chevron-left
     "\U000F0142", # chevron-right
     "\U000F0143", # chevron-up
+    "\U000F01AD", # currency-eur (Stromkosten)
   ]
 
 - file: "assets/fonts/materialdesignicons-webfont.ttf"

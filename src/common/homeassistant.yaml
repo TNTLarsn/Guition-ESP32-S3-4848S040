@@ -130,3 +130,22 @@ packages:
       num: "22"
       entity_id: sensor.charger_status_connector
       on_value_script: ev_charging_update_ui
+  # Stromkosten-Gästeseite (Page-Index 5) - datenreine Templates, UI-Update zentral
+  ha_sensor_23: !include
+    file: ../templates/ha_ev_sensor.yaml
+    vars:
+      num: "23"
+      entity_id: sensor.aktuelle_stromkosten
+      on_value_script: refresh_stromkosten_page
+  ha_sensor_24: !include
+    file: ../templates/ha_input_datetime.yaml
+    vars:
+      num: "24"
+      entity_id: input_datetime.stromkosten_letzte_rueckstellung
+      on_value_script: refresh_stromkosten_page
+  ha_sensor_25: !include
+    file: ../templates/ha_input_number.yaml
+    vars:
+      num: "25"
+      entity_id: input_number.strompreis_gaeste
+      on_value_script: refresh_stromkosten_page

@@ -16,7 +16,7 @@ globals:
   - id: total_pages
     type: int
     restore_value: no
-    initial_value: '5'
+    initial_value: '6'
 
 lvgl:
   top_layer:
@@ -191,12 +191,21 @@ script:
                                         id: page_name_label
                                         text: "E-Auto Laden"
                                   else:
-                                    # Fallback: Zurück zur Home-Seite
-                                    - lambda: 'id(current_page_index) = 0;'
-                                    - lvgl.page.show: home_page
-                                    - lvgl.label.update:
-                                        id: page_name_label
-                                        text: "Home"
+                                    - if:
+                                        condition:
+                                          lambda: 'return id(current_page_index) == 5;'
+                                        then:
+                                          - lvgl.page.show: stromkosten_page
+                                          - lvgl.label.update:
+                                              id: page_name_label
+                                              text: "Stromkosten"
+                                        else:
+                                          # Fallback: Zurück zur Home-Seite
+                                          - lambda: 'id(current_page_index) = 0;'
+                                          - lvgl.page.show: home_page
+                                          - lvgl.label.update:
+                                              id: page_name_label
+                                              text: "Home"
       - script.execute: refresh_current_page
 
   - id: refresh_current_page
@@ -230,6 +239,12 @@ script:
                                     lambda: 'return id(current_page_index) == 4;'
                                   then:
                                     - script.execute: ev_charging_update_ui
+                                  else:
+                                    - if:
+                                        condition:
+                                          lambda: 'return id(current_page_index) == 5;'
+                                        then:
+                                          - script.execute: refresh_stromkosten_page
 
   - id: refresh_home_page
     then:

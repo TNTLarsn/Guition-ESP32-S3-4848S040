@@ -1,0 +1,279 @@
+# ========================================================================
+# STROMKOSTEN PAGE - Gäste-Übersicht der aktuellen Stromkosten
+# ========================================================================
+# Design-Konzept: Große Hero-Card mit den aktuellen Stromkosten (Summe seit
+# Rücksetzung), darunter zwei kompakte Info-Cards für Strompreis und das
+# Datum der letzten Rücksetzung. Transparente, klare Gäste-Information.
+#
+# WDT-Sicherheit (LVGL 9.5): Keine GRID-Container mit SIZE_CONTENT.
+# Cards sind STRETCH/STRETCH + width/height 100%, innere Gruppierung via FLEX.
+# Alle UI-Updates laufen zentral in refresh_stromkosten_page, geschützt durch
+# lv_is_initialized() und current_page_index == 5.
+# ========================================================================
+
+lvgl:
+  pages:
+    - id: stromkosten_page
+      bg_color: color_bg_dark
+      widgets:
+        # Hauptcontainer
+        - obj:
+            layout:
+              type: GRID
+              grid_columns: [FR(1)]
+              grid_rows: [FR(1), 130]
+              pad_row: 16
+            width: 100%
+            height: ${content_height}
+            pad_all: 20
+            pad_top: 16
+            pad_bottom: 36
+            bg_opa: TRANSP
+            border_opa: TRANSP
+            scrollbar_mode: "OFF"
+            widgets:
+              # ============================================================
+              # HERO - Aktuelle Stromkosten (hervorgehoben)
+              # ============================================================
+              - obj:
+                  grid_cell_column_pos: 0
+                  grid_cell_row_pos: 0
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  width: 100%
+                  height: 100%
+                  radius: 24
+                  bg_color: color_gray_800
+                  bg_opa: 55%
+                  border_color: color_gray_600
+                  border_width: 1
+                  border_opa: 20%
+                  shadow_width: 16
+                  shadow_offset_y: 6
+                  shadow_color: color_black
+                  shadow_opa: 35%
+                  pad_left: 16
+                  pad_right: 16
+                  pad_top: 14
+                  pad_bottom: 14
+                  scrollbar_mode: "OFF"
+                  layout:
+                    type: FLEX
+                    flex_flow: COLUMN
+                    flex_align_main: CENTER
+                    flex_align_cross: CENTER
+                    pad_row: 6
+                  widgets:
+                    # Titel
+                    - label:
+                        text: "Aktuelle Stromkosten"
+                        text_font: roboto16
+                        text_color: color_gray_400
+                    # Wert-Zeile (Icon + großer Betrag)
+                    - obj:
+                        bg_opa: TRANSP
+                        border_opa: TRANSP
+                        width: SIZE_CONTENT
+                        height: SIZE_CONTENT
+                        scrollbar_mode: "OFF"
+                        # FLEX (mit min_size_cb) statt GRID -> WDT-sicher bei SIZE_CONTENT
+                        layout:
+                          type: FLEX
+                          flex_flow: ROW
+                          flex_align_main: CENTER
+                          flex_align_cross: CENTER
+                          pad_column: 12
+                        widgets:
+                          # Icon currency-eur
+                          - label:
+                              text: "\U000F01AD"
+                              text_font: mdi_icons_40
+                              text_color: color_primary_light
+                          # Betrag (Hero)
+                          - label:
+                              id: ha_strom_kosten_value
+                              text: "-,--"
+                              text_font: roboto40
+                              text_color: color_white
+                    # Sub-Hinweis
+                    - label:
+                        text: "seit letzter Rücksetzung"
+                        text_font: roboto16
+                        text_color: color_gray_500
+
+              # ============================================================
+              # BOTTOM ROW - Strompreis + letzte Rücksetzung (2 Info-Cards)
+              # ============================================================
+              - obj:
+                  grid_cell_column_pos: 0
+                  grid_cell_row_pos: 1
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  width: 100%
+                  height: 100%
+                  bg_opa: TRANSP
+                  border_opa: TRANSP
+                  pad_all: 0
+                  scrollbar_mode: "OFF"
+                  layout:
+                    type: GRID
+                    grid_columns: [FR(1), FR(1)]
+                    grid_rows: [FR(1)]
+                    pad_column: 16
+                  widgets:
+                    # ----- Strompreis -----
+                    - obj:
+                        grid_cell_column_pos: 0
+                        grid_cell_row_pos: 0
+                        grid_cell_x_align: STRETCH
+                        grid_cell_y_align: STRETCH
+                        width: 100%
+                        height: 100%
+                        radius: 20
+                        bg_color: color_gray_800
+                        bg_opa: 60%
+                        border_color: color_gray_600
+                        border_width: 1
+                        border_opa: 25%
+                        shadow_width: 12
+                        shadow_offset_y: 4
+                        shadow_color: color_black
+                        shadow_opa: 30%
+                        pad_all: 12
+                        scrollbar_mode: "OFF"
+                        layout:
+                          type: FLEX
+                          flex_flow: COLUMN
+                          flex_align_main: CENTER
+                          flex_align_cross: CENTER
+                          pad_row: 4
+                        widgets:
+                          - label:
+                              text: "\U000F0241"
+                              text_font: mdi_icons_28
+                              text_color: color_secondary
+                          - label:
+                              text: "Strompreis"
+                              text_font: roboto16
+                              text_color: color_gray_400
+                          - label:
+                              id: ha_strom_preis_value
+                              text: "-- €/kWh"
+                              text_font: roboto24
+                              text_color: color_white
+                              text_align: CENTER
+                    # ----- Letzte Rücksetzung -----
+                    - obj:
+                        grid_cell_column_pos: 1
+                        grid_cell_row_pos: 0
+                        grid_cell_x_align: STRETCH
+                        grid_cell_y_align: STRETCH
+                        width: 100%
+                        height: 100%
+                        radius: 20
+                        bg_color: color_gray_800
+                        bg_opa: 60%
+                        border_color: color_gray_600
+                        border_width: 1
+                        border_opa: 25%
+                        shadow_width: 12
+                        shadow_offset_y: 4
+                        shadow_color: color_black
+                        shadow_opa: 30%
+                        pad_all: 12
+                        scrollbar_mode: "OFF"
+                        layout:
+                          type: FLEX
+                          flex_flow: COLUMN
+                          flex_align_main: CENTER
+                          flex_align_cross: CENTER
+                          pad_row: 4
+                        widgets:
+                          - label:
+                              text: "\U000F00F0"
+                              text_font: mdi_icons_28
+                              text_color: color_info
+                          - label:
+                              text: "Letzte Rücksetzung"
+                              text_font: roboto16
+                              text_color: color_gray_400
+                          - label:
+                              id: ha_strom_reset_value
+                              text: "-,--"
+                              text_font: roboto16
+                              text_color: color_white
+                              text_align: CENTER
+
+# ========================================================================
+# Script: zentrales UI-Update für die Stromkosten-Seite
+# Wird von den Sensor-Templates (Entity 23/24/25) via on_value_script und
+# von der Navigation beim Seitenwechsel aufgerufen.
+# ========================================================================
+script:
+  - id: refresh_stromkosten_page
+    mode: single
+    then:
+      - lambda: |-
+          if (!lv_is_initialized()) {
+            return;
+          }
+          if (id(current_page_index) != 5) {
+            return;
+          }
+
+          // Stale/leere HA-States auf Platzhalter abbilden
+          auto is_invalid = [](const std::string &s) {
+            return s.empty() || s == "unknown" || s == "unavailable" ||
+                   s == "none" || s == "null" || s == "NaN";
+          };
+
+          // --- Aktuelle Stromkosten (Hero) ---
+          {
+            std::string val = id(ha_entity_23_state_text).state;
+            if (is_invalid(val)) {
+              lv_label_set_text(id(ha_strom_kosten_value), "-,--");
+            } else {
+              for (auto &c : val) { if (c == '.') c = ','; }  // deutsche Schreibweise
+              lv_label_set_text(id(ha_strom_kosten_value), val.c_str());
+            }
+          }
+
+          // --- Strompreis ---
+          {
+            float price = id(ha_number_25_value).state;
+            std::string unit = id(ha_entity_25_unit).state;
+            if (std::isnan(price)) {
+              lv_label_set_text(id(ha_strom_preis_value), "-,--");
+            } else {
+              char buf[32];
+              snprintf(buf, sizeof(buf), "%.2f", price);
+              std::string text = buf;
+              for (auto &c : text) { if (c == '.') c = ','; }
+              if (!is_invalid(unit)) {
+                text += " ";
+                text += unit;
+              } else {
+                text += " \u20AC/kWh";
+              }
+              lv_label_set_text(id(ha_strom_preis_value), text.c_str());
+            }
+          }
+
+          // --- Letzte Rücksetzung ---
+          {
+            std::string dt = id(ha_entity_24_state_text).state;
+            int y = 0, mo = 0, d = 0, h = 0, mi = 0, s = 0;
+            int n = sscanf(dt.c_str(), "%d-%d-%d %d:%d:%d", &y, &mo, &d, &h, &mi, &s);
+            if (n >= 5 && y > 0) {
+              std::string text = DateTimeHelper::format_date_numeric(d, mo, y);
+              text += ", ";
+              text += DateTimeHelper::format_time_simple(h, mi);
+              text += " Uhr";
+              lv_label_set_text(id(ha_strom_reset_value), text.c_str());
+            } else if (n >= 3 && y > 0) {
+              lv_label_set_text(id(ha_strom_reset_value),
+                                DateTimeHelper::format_date_numeric(d, mo, y).c_str());
+            } else {
+              lv_label_set_text(id(ha_strom_reset_value), "-,--");
+            }
+          }
