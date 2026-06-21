@@ -223,9 +223,9 @@ OTA_SOURCE=""
 FACTORY_SOURCE=""
 
 for candidate in \
-    "${BUILD_DIR}/firmware.ota.bin" \
     "${BUILD_DIR}/build/firmware.ota.bin" \
-    "${PIOENV_DIR}/firmware.ota.bin"; do
+    "${PIOENV_DIR}/firmware.ota.bin" \
+    "${BUILD_DIR}/firmware.ota.bin"; do
     if [ -f "$candidate" ]; then
         OTA_SOURCE="$candidate"
         break
@@ -233,9 +233,9 @@ for candidate in \
 done
 
 for candidate in \
-    "${BUILD_DIR}/firmware.factory.bin" \
     "${BUILD_DIR}/build/firmware.factory.bin" \
-    "${PIOENV_DIR}/firmware.factory.bin"; do
+    "${PIOENV_DIR}/firmware.factory.bin" \
+    "${BUILD_DIR}/firmware.factory.bin"; do
     if [ -f "$candidate" ]; then
         FACTORY_SOURCE="$candidate"
         break
@@ -243,12 +243,20 @@ for candidate in \
 done
 
 if [ -n "$OTA_SOURCE" ]; then
-    cp "$OTA_SOURCE" "${BUILD_DIR}/firmware.ota.bin"
-    echo "   → firmware.ota.bin kopiert"
+    if [ "$OTA_SOURCE" = "${BUILD_DIR}/firmware.ota.bin" ]; then
+        echo "   → firmware.ota.bin bereits aktuell"
+    else
+        cp "$OTA_SOURCE" "${BUILD_DIR}/firmware.ota.bin"
+        echo "   → firmware.ota.bin kopiert"
+    fi
 fi
 if [ -n "$FACTORY_SOURCE" ]; then
-    cp "$FACTORY_SOURCE" "${BUILD_DIR}/firmware.factory.bin"
-    echo "   → firmware.factory.bin kopiert"
+    if [ "$FACTORY_SOURCE" = "${BUILD_DIR}/firmware.factory.bin" ]; then
+        echo "   → firmware.factory.bin bereits aktuell"
+    else
+        cp "$FACTORY_SOURCE" "${BUILD_DIR}/firmware.factory.bin"
+        echo "   → firmware.factory.bin kopiert"
+    fi
 fi
 
 # Checksummen berechnen
