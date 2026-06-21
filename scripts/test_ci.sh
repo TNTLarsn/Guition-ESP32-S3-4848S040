@@ -34,6 +34,34 @@ print_warning() {
     echo -e "${YELLOW}⚠ $1${NC}"
 }
 
+# lv_task_handler darf nur als OTA-Spezialfall in src/common/core.yaml verwendet werden.
+check_lv_task_handler_usage() {
+    local core_file="src/common/core.yaml"
+    if [ ! -f "$core_file" ]; then
+        print_error "$core_file nicht gefunden!"
+        return 1
+    fi
+
+    local total
+    total=$(grep -n "lv_task_handler()" "$core_file" | wc -l | tr -d ' ')
+    if [ "$total" -eq 0 ]; then
+        print_success "Keine lv_task_handler()-Verwendung gefunden"
+        return 0
+    fi
+
+    local in_ota
+    in_ota=$(grep -n "lv_task_handler()" "$core_file" | grep -E ":48[0-9]:|:49[0-9]:" | wc -l | tr -d ' ')
+    if [ "$total" -ne "$in_ota" ]; then
+        print_error "Unerlaubte lv_task_handler()-Verwendung gefunden"
+        grep -n "lv_task_handler()" "$core_file"
+        print_warning "lv_task_handler() ist nur als OTA-Spezialfall im HTTP-OTA on_progress erlaubt."
+        return 1
+    fi
+
+    print_success "lv_task_handler()-Nutzung ist auf den OTA-Spezialfall begrenzt"
+    return 0
+}
+
 # Prüfe ESPHome
 print_header "ESPHome Version Check"
 if "$ESPHOME" version &> /dev/null; then
@@ -42,6 +70,11 @@ if "$ESPHOME" version &> /dev/null; then
 else
     print_error "ESPHome nicht gefunden!"
     print_warning "Installiere mit: scripts/dev/esphome-env install stable"
+    exit 1
+fi
+
+print_header "Prüfe Spezialregel: lv_task_handler"
+if ! check_lv_task_handler_usage; then
     exit 1
 fi
 
