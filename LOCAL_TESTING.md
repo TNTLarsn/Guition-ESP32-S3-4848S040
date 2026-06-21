@@ -186,8 +186,9 @@ make localupdate
 1. ✅ Prüft ob Local Dev Mode aktiv ist
 2. ✅ Kompiliert Firmware neu
 3. ✅ Kopiert neue Firmware ins HTTP-Server-Verzeichnis
-4. ✅ Aktualisiert `manifest.json` mit neuer Version
-5. ✅ Update ist im Home Assistant Dashboard verfügbar
+4. ✅ Unterstützt das aktuelle ESPHome-Dev-Layout unter `build/` sowie den älteren `.pioenvs/display01/`-Pfad
+5. ✅ Aktualisiert `manifest.json` mit neuer Version
+6. ✅ Update ist im Home Assistant Dashboard verfügbar
 
 #### Schritt 3: Cleanup
 

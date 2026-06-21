@@ -44,6 +44,26 @@ run_esphome() {
     fi
 }
 
+is_valid_ipv4() {
+    local ip="$1"
+    local IFS='.'
+    local -a octets
+
+    # Schnellcheck fuer Format n.n.n.n
+    [[ "$ip" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]] || return 1
+
+    read -r -a octets <<< "$ip"
+    [ "${#octets[@]}" -eq 4 ] || return 1
+
+    for octet in "${octets[@]}"; do
+        # Keine negativen Werte, keine >255
+        [ "$octet" -ge 0 ] 2>/dev/null || return 1
+        [ "$octet" -le 255 ] || return 1
+    done
+
+    return 0
+}
+
 # ============================================================================
 # Sicherheits-Guard: Local Dev Mode nicht erneut starten
 # ============================================================================
@@ -91,16 +111,16 @@ echo -e "${YELLOW}📍 Schritt 2: Device-IP ermitteln...${NC}"
 if [ -z "$DEVICE_IP" ]; then
     # Versuche mDNS
     DEVICE_IP=$(timeout 2 ping -c 1 display01.local 2>/dev/null | grep -Eo '([0-9]{1,3}\.){3}[0-9]{1,3}' | head -1 || true)
-    
-    if [ -z "$DEVICE_IP" ]; then
-        read -p "   Gib die Device-IP ein (z.B. 192.168.178.150): " DEVICE_IP
-    fi
 fi
 
-if [ -z "$DEVICE_IP" ]; then
-    echo -e "${RED}❌ Device-IP erforderlich!${NC}"
-    exit 1
-fi
+# Falls kein valider mDNS-Treffer vorliegt, interaktiv sauber abfragen
+while ! is_valid_ipv4 "$DEVICE_IP"; do
+    if [ -n "$DEVICE_IP" ]; then
+        echo -e "${RED}❌ Ungueltige Device-IP: '$DEVICE_IP'${NC}"
+        echo "   Bitte eine IPv4-Adresse im Format 192.168.x.x eingeben."
+    fi
+    read -p "   Gib die Device-IP ein (z.B. 192.168.178.150): " DEVICE_IP
+done
 
 echo -e "${GREEN}✅ Device-IP: $DEVICE_IP${NC}"
 echo ""
@@ -197,14 +217,37 @@ BUILD_DIR="${PROJECT_DIR}/src/.esphome/build/display01"
 PIOENV_DIR="${BUILD_DIR}/.pioenvs/display01"
 mkdir -p "$BUILD_DIR"
 
-# Firmware-Dateien aus dem PlatformIO Build-Verzeichnis kopieren
-# WICHTIG: Die neuste kompilierte Firmware liegt in .pioenvs/display01/
-if [ -f "${PIOENV_DIR}/firmware.ota.bin" ]; then
-    cp "${PIOENV_DIR}/firmware.ota.bin" "${BUILD_DIR}/firmware.ota.bin"
+# Firmware-Dateien aus dem Build-Verzeichnis kopieren
+# ESPHome nutzt je nach Version entweder build/ oder .pioenvs/display01/
+OTA_SOURCE=""
+FACTORY_SOURCE=""
+
+for candidate in \
+    "${BUILD_DIR}/firmware.ota.bin" \
+    "${BUILD_DIR}/build/firmware.ota.bin" \
+    "${PIOENV_DIR}/firmware.ota.bin"; do
+    if [ -f "$candidate" ]; then
+        OTA_SOURCE="$candidate"
+        break
+    fi
+done
+
+for candidate in \
+    "${BUILD_DIR}/firmware.factory.bin" \
+    "${BUILD_DIR}/build/firmware.factory.bin" \
+    "${PIOENV_DIR}/firmware.factory.bin"; do
+    if [ -f "$candidate" ]; then
+        FACTORY_SOURCE="$candidate"
+        break
+    fi
+done
+
+if [ -n "$OTA_SOURCE" ]; then
+    cp "$OTA_SOURCE" "${BUILD_DIR}/firmware.ota.bin"
     echo "   → firmware.ota.bin kopiert"
 fi
-if [ -f "${PIOENV_DIR}/firmware.factory.bin" ]; then
-    cp "${PIOENV_DIR}/firmware.factory.bin" "${BUILD_DIR}/firmware.factory.bin"
+if [ -n "$FACTORY_SOURCE" ]; then
+    cp "$FACTORY_SOURCE" "${BUILD_DIR}/firmware.factory.bin"
     echo "   → firmware.factory.bin kopiert"
 fi
 
