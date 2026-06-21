@@ -480,6 +480,9 @@ ota:
       then:
         - lambda: |-
             id(ota_progress) = (int)x;
+            // OTA-Ausnahme: Erzwingt UI-Tick waehrend blockierendem OTA-Download.
+            // Nicht als allgemeines LVGL-Muster verwenden.
+            lv_task_handler();
         - lvgl.bar.update:
             id: ota_bar
             value: !lambda "return (int)x;"
@@ -489,6 +492,8 @@ ota:
               char buf[8];
               snprintf(buf, sizeof(buf), "%d %%", (int)x);
               return std::string(buf);
+        # OTA-Ausnahme: zweiter Tick fuer sichtbaren Fortschritt trotz OTA-Blockade.
+        - lambda: 'lv_task_handler();'
     on_end:
       then:
         - lambda: 'id(ota_active) = false;'

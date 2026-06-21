@@ -5,6 +5,7 @@ Führt die gleichen Schritte wie .github/workflows/ci.yml aus
 """
 
 import os
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -122,12 +123,61 @@ def compile_yaml(yaml_file: str) -> bool:
         print_error(f"Fehler beim Ausführen: {str(e)}")
         return False
 
+
+def check_lv_task_handler_usage() -> bool:
+    """Erlaubt lv_task_handler nur im HTTP-OTA on_progress in core.yaml."""
+    core_file = Path('src/common/core.yaml')
+    if not core_file.exists():
+        print_error("src/common/core.yaml nicht gefunden")
+        return False
+
+    content = core_file.read_text(encoding='utf-8')
+    occurrences = [m.start() for m in re.finditer(r'\blv_task_handler\s*\(', content)]
+    if not occurrences:
+        return True
+
+    allowed_block_pattern = re.compile(
+        r'on_progress:\n'
+        r'\s+then:\n'
+        r'(?:\s+- .*\n)*?'
+        r'\s+- lambda: \|-\n'
+        r'(?:\s+.*\n)*?'
+        r'\s+lv_task_handler\(\);\n'
+        r'(?:\s+.*\n)*?'
+        r"\s+- lambda: 'lv_task_handler\(\);'",
+        re.MULTILINE,
+    )
+
+    allowed_regions = [(m.start(), m.end()) for m in allowed_block_pattern.finditer(content)]
+
+    illegal_hits = []
+    for pos in occurrences:
+        if not any(start <= pos < end for start, end in allowed_regions):
+            line_no = content.count('\n', 0, pos) + 1
+            illegal_hits.append(line_no)
+
+    if illegal_hits:
+        print_error("Unerlaubte lv_task_handler()-Verwendung gefunden")
+        for line_no in illegal_hits:
+            print_error(f"src/common/core.yaml:{line_no}")
+        print_warning(
+            "lv_task_handler() ist nur als OTA-Spezialfall im HTTP-OTA on_progress erlaubt."
+        )
+        return False
+
+    print_success("lv_task_handler()-Nutzung ist auf den OTA-Spezialfall begrenzt")
+    return True
+
 def main():
     """Hauptfunktion - führt alle CI-Tests aus"""
     print_header("ESPHome CI Tests (Lokal)")
     
     # Prüfe ob ESPHome installiert ist
     if not check_esphome_installed():
+        sys.exit(1)
+
+    print_header("Prüfe Spezialregel: lv_task_handler")
+    if not check_lv_task_handler_usage():
         sys.exit(1)
     
     # YAML-Dateien aus ci.yml
