@@ -163,8 +163,8 @@ make localupdate
 ```
 src/.esphome/build/display01/
 ├── manifest.json                    ← Auto-generiert
-├── firmware.ota.bin                 ← OTA-Firmware
-├── firmware.factory.bin             ← Factory-Firmware
+├── build/firmware.ota.bin           ← OTA-Firmware
+├── build/firmware.factory.bin       ← Factory-Firmware
 └── .active_release                  ← Aktuelles Release
 
 .local_releases/
@@ -184,6 +184,7 @@ src/common/
 ### `local_ota_test.sh`
 - Hauptscript für OTA-Setup
 - Bauprozess, Checksummen-Berechnung, Server-Start
+- Akzeptiert sowohl das aktuelle ESPHome-Dev-Layout unter `build/` als auch das ältere `.pioenvs/display01/`
 - Erstellt auch automatisch `cleanup_ota_test.sh`
 
 ### `local_release_manager.sh`

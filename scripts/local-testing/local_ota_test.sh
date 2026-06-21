@@ -94,19 +94,42 @@ BUILD_DIR="${PROJECT_DIR}/src/.esphome/build/display01"
 PIOENV_DIR="${BUILD_DIR}/.pioenvs/display01"
 mkdir -p "$BUILD_DIR"
 
-# Firmware-Dateien aus dem PlatformIO Build-Verzeichnis kopieren
-# WICHTIG: Die neuste kompilierte Firmware liegt in .pioenvs/display01/
-if [ -f "${PIOENV_DIR}/firmware.ota.bin" ]; then
-    cp "${PIOENV_DIR}/firmware.ota.bin" "${BUILD_DIR}/firmware.ota.bin"
-    echo "   → firmware.ota.bin aktualisiert"
+# Firmware-Dateien aus dem Build-Verzeichnis kopieren
+# ESPHome nutzt je nach Version entweder build/ oder .pioenvs/display01/
+OTA_SOURCE=""
+FACTORY_SOURCE=""
+
+for candidate in \
+  "${BUILD_DIR}/firmware.ota.bin" \
+  "${BUILD_DIR}/build/firmware.ota.bin" \
+  "${PIOENV_DIR}/firmware.ota.bin"; do
+  if [ -f "$candidate" ]; then
+    OTA_SOURCE="$candidate"
+    break
+  fi
+done
+
+for candidate in \
+  "${BUILD_DIR}/firmware.factory.bin" \
+  "${BUILD_DIR}/build/firmware.factory.bin" \
+  "${PIOENV_DIR}/firmware.factory.bin"; do
+  if [ -f "$candidate" ]; then
+    FACTORY_SOURCE="$candidate"
+    break
+  fi
+done
+
+if [ -n "$OTA_SOURCE" ]; then
+  cp "$OTA_SOURCE" "${BUILD_DIR}/firmware.ota.bin"
+  echo "   → firmware.ota.bin aktualisiert"
 else
-    echo -e "${RED}❌ firmware.ota.bin nicht gefunden!${NC}"
-    exit 1
+  echo -e "${RED}❌ firmware.ota.bin nicht gefunden!${NC}"
+  exit 1
 fi
 
-if [ -f "${PIOENV_DIR}/firmware.factory.bin" ]; then
-    cp "${PIOENV_DIR}/firmware.factory.bin" "${BUILD_DIR}/firmware.factory.bin"
-    echo "   → firmware.factory.bin aktualisiert"
+if [ -n "$FACTORY_SOURCE" ]; then
+  cp "$FACTORY_SOURCE" "${BUILD_DIR}/firmware.factory.bin"
+  echo "   → firmware.factory.bin aktualisiert"
 fi
 
 # Checksummen berechnen
