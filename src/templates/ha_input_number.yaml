@@ -1,0 +1,40 @@
+# Template für Home Assistant Input Number Entity (datenrein, ohne UI-Bindung)
+# Speichert nur Wert + Einheit und triggert ein zentrales Update-Script.
+# Die eigentliche LVGL-Aktualisierung erfolgt im Seiten-Refresh-Script.
+#
+# Variablen: num, entity_id, on_value_script
+#
+# Generierte IDs:
+# - ha_number_${num}_value: Numeric Sensor für den aktuellen Wert
+# - ha_entity_${num}_unit: Text Sensor für die Einheit (unit_of_measurement)
+
+defaults:
+  num: "25"
+  entity_id: "input_number.placeholder"
+  on_value_script: refresh_stromkosten_page
+
+sensor:
+  # Aktueller Wert
+  - platform: homeassistant
+    id: ha_number_${num}_value
+    entity_id: ${entity_id}
+    on_value:
+      then:
+        - lambda: |-
+            ESP_LOGD("ha_input_number", "Input Number ${num} value: %.3f", x);
+        - script.execute: ${on_value_script}
+
+text_sensor:
+  # Unit of Measurement (Einheit aus Home Assistant, z. B. "€/kWh")
+  - platform: homeassistant
+    id: ha_entity_${num}_unit
+    entity_id: ${entity_id}
+    attribute: unit_of_measurement
+    internal: true
+
+  # Entity ID (für eventuelle Service-Calls)
+  - platform: template
+    id: ha_entity_${num}_id
+    internal: true
+    lambda: |-
+      return {"${entity_id}"};

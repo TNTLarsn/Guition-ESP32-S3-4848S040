@@ -1,0 +1,32 @@
+# Template für Home Assistant Input DateTime Entity (datenrein, ohne UI-Bindung)
+# Speichert nur den State und triggert ein zentrales Update-Script.
+# Die eigentliche LVGL-Aktualisierung erfolgt im Seiten-Refresh-Script.
+#
+# Variablen: num, entity_id, on_value_script
+#
+# Generierte IDs:
+# - ha_entity_${num}_state_text: Text Sensor für State (Format "YYYY-MM-DD HH:MM:SS")
+
+defaults:
+  num: "24"
+  entity_id: "input_datetime.placeholder"
+  on_value_script: refresh_stromkosten_page
+
+text_sensor:
+  # State Text (z. B. "2026-06-21 14:30:00")
+  - platform: homeassistant
+    id: ha_entity_${num}_state_text
+    entity_id: ${entity_id}
+    internal: true
+    on_value:
+      then:
+        - lambda: |-
+            ESP_LOGD("ha_input_datetime", "Input DateTime ${num} state: %s", x.c_str());
+        - script.execute: ${on_value_script}
+
+  # Entity ID (für eventuelle Service-Calls)
+  - platform: template
+    id: ha_entity_${num}_id
+    internal: true
+    lambda: |-
+      return {"${entity_id}"};
