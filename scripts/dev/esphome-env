@@ -6,7 +6,7 @@ PROJECT_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
 VERSION_FILE="${PROJECT_DIR}/.esphome-version"
 VENV_ROOT="${PROJECT_DIR}/.esphome-venvs"
 PYTHON_BIN="${PYTHON_BIN:-python3}"
-DEFAULT_STABLE_VERSION="${ESPHOME_STABLE_VERSION:-2026.6.1}"
+DEFAULT_STABLE_VERSION="${ESPHOME_STABLE_VERSION:-2026.7.4}"
 DEFAULT_DEV_SPEC="${ESPHOME_DEV_SPEC:-git+https://github.com/esphome/esphome.git@dev}"
 
 usage() {
@@ -23,7 +23,7 @@ Usage:
 
 Examples:
   scripts/dev/esphome-env install stable
-  scripts/dev/esphome-env install stable 2026.6.1
+  scripts/dev/esphome-env install stable 2026.7.4
   scripts/dev/esphome-env install beta
   scripts/dev/esphome-env use beta
 EOF

@@ -7,6 +7,7 @@
 #### `make localupdate` - Vollständiger OTA-Test
 
 **Was es tut:**
+
 1. ✅ Kompiliert Firmware mit `main.yaml`
 2. ✅ Berechnet MD5 & SHA256 Checksummen
 3. ✅ Erstellt `manifest.json` automatisch
@@ -15,11 +16,13 @@
 6. ✅ Startet HTTP-Server (Port 8000)
 
 **Verwendung:**
+
 ```bash
 make localupdate
 ```
 
 **Output:**
+
 ```
 ╔════════════════════════════════════════════════════════════╗
 ║              🎉 Alles bereit zum OTA-Test! 🎉              ║
@@ -34,11 +37,13 @@ make localupdate
 #### `make localcleanup` - Aufräumen nach dem Test
 
 **Was es tut:**
+
 1. ✅ Stoppt HTTP-Server
 2. ✅ Restauriert `core.yaml` aus Backup
 3. ✅ Bereinigt temporäre Dateien
 
 **Verwendung:**
+
 ```bash
 make localcleanup
 ```
@@ -56,12 +61,13 @@ make releases-list
 ```
 
 **Output Beispiel:**
+
 ```
 ═══════════════════════════════════════════════════
   Lokale Firmware-Releases
 ═══════════════════════════════════════════════════
 
-✓ 2026.2.0-local (AKTIV)
+✓ 2026.2.0-local
   └─ Erstellt: 2026-01-20T14:32:10Z
   └─ MD5: 9d9896a0a45a7c8627...
   └─ Notizen: Version mit neuer LVGL UI
@@ -78,6 +84,7 @@ make releases-create
 ```
 
 **Workflow:**
+
 ```
 Erstelle Release: 2026.2.0-local
 Berechne Checksummen...
@@ -96,10 +103,11 @@ Gib Release-Notizen ein (optional, oder Enter zum Überspringen):
 Aktiviere ein bestehendes Release für Tests.
 
 ```bash
-bash local_release_manager.sh use 2026.1.3-local
+bash local_release_manager.sh use 2026.7.4-local
 ```
 
 **Was passiert:**
+
 - manifest.json wird mit Checksummen des Releases aktualisiert
 - Versionsnummer wird auf das alte Release gesetzt
 - Bereit für OTA-Tests mit dieser alten Version
@@ -111,6 +119,7 @@ make releases-current
 ```
 
 **Output:**
+
 ```
 Aktuelles aktives Release:
 2026.2.0-local
@@ -148,12 +157,12 @@ make releases-create
 make localupdate
 
 # 6. Im Dashboard: Erneut Update starten
-# ... Gerät upgraded auf 2026.2.0-local ...
+# ... Gerät upgraded auf 2026.7.4-local ...
 
 # 7. Falls zu Problem führt: Zurück zur alten Version
-bash local_release_manager.sh use 2026.1.3-local
+bash local_release_manager.sh use 2026.7.4-local
 make localupdate
-# Dashboard → Update → Upgrade auf 2026.1.3-local
+# Dashboard → Update → Upgrade auf 2026.7.4-local
 ```
 
 ---
@@ -167,11 +176,6 @@ src/.esphome/build/display01/
 ├── build/firmware.factory.bin       ← Factory-Firmware
 └── .active_release                  ← Aktuelles Release
 
-.local_releases/
-├── release-2026.1.3-local.json
-├── release-2026.2.0-local.json
-└── ...
-
 src/common/
 ├── core.yaml                        ← Angepasst mit lokaler URL
 └── core.yaml.ota-backup            ← Backup für Cleanup
@@ -182,17 +186,20 @@ src/common/
 ## 🛠️ Unter der Haube
 
 ### `local_ota_test.sh`
+
 - Hauptscript für OTA-Setup
 - Bauprozess, Checksummen-Berechnung, Server-Start
 - Akzeptiert sowohl das aktuelle ESPHome-Dev-Layout unter `build/` als auch das ältere `.pioenvs/display01/`
 - Erstellt auch automatisch `cleanup_ota_test.sh`
 
 ### `local_release_manager.sh`
+
 - Verwaltet lokale Release-Versionen
 - Speichert Metadaten (Timestamp, Notes, Checksummen)
 - Aktualisiert automatisch manifest.json bei Release-Aktivierung
 
 ### `cleanup_ota_test.sh` (Auto-generiert)
+
 - Stoppt HTTP-Server
 - Restauriert `core.yaml` aus Backup
 - Bereinigt Temp-Dateien
@@ -206,7 +213,7 @@ src/common/
 ```bash
 # Teste unterschiedliche Versionen ohne GitHub
 make releases-list
-make releases-use 2026.1.3-local
+make releases-use 2026.7.4-local
 make localupdate
 # ... Update durchführen ...
 make localcleanup
@@ -252,12 +259,14 @@ lsof -i :8000
    - Falls something goes wrong: `cp src/common/core.yaml.ota-backup src/common/core.yaml`
 
 2. **Firewall**: macOS Firewall kann HTTP-Zugriff blockieren
+
    ```bash
    sudo /usr/libexec/ApplicationFirewall/socketfilterfw --setglobalstate off
    # Nach Test: --setglobalstate on
    ```
 
 3. **HTTP-Server Port 8000**: Prüfe Verfügbarkeit
+
    ```bash
    lsof -i :8000
    # Falls belegt: Ändere PORT in local_ota_test.sh

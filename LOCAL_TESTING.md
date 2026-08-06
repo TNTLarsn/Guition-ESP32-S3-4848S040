@@ -80,7 +80,7 @@ Terminal-Äquivalente:
 ./scripts/dev/esphome-env install dev
 
 # Exakte Stable-Version installieren
-./scripts/dev/esphome-env install stable 2026.6.1
+./scripts/dev/esphome-env install stable 2026.7.4
 
 # Zwischen Profilen umschalten
 ./scripts/dev/esphome-env use stable

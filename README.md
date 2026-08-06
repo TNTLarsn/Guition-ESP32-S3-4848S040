@@ -287,7 +287,7 @@ Gesteuert durch `sensor.jahreszeit` aus Home Assistant.
 ## 📝 Release-Prozess
 
 1. Version in [substitutions.yaml](src/common/substitutions.yaml) erhöhen
-2. Tag erstellen: `git tag v2026.1.7 && git push --tags`
+2. Tag erstellen: `git tag v2026.7.4 && git push --tags`
 3. GitHub Actions baut automatisch die Firmware
 4. Manifest-Datei wird zum Release hochgeladen
 5. Web-Installation aktualisiert sich automatisch
@@ -336,7 +336,7 @@ Probleme oder Feature-Requests? Bitte öffne ein
 ---
 
 **Hinweis**: Dieses Projekt nutzt das ESP-IDF Framework (nicht Arduino).
-Empfohlene ESPHome-Version: 2026.1.1 oder neuer.
+Empfohlene ESPHome-Version: 2026.7.4 oder neuer.
 
 <!-- markdownlint-disable-next-line MD013 -->
 [ci-badge]: https://github.com/TNTLarsn/Guition-ESP32-S3-4848S040/actions/workflows/ci.yml/badge.svg

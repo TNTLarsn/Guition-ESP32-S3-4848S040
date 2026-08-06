@@ -13,7 +13,7 @@
         {
             "id": "esphomeExactVersion",
             "type": "promptString",
-            "description": "Exakte ESPHome-Version oder Pip-Spec (z.B. 2026.6.1 oder esphome==2026.6.1)",
+            "description": "Exakte ESPHome-Version oder Pip-Spec (z.B. 2026.7.4 oder esphome==2026.7.4)",
             "default": "${config:esphome.stableVersion}"
         }
     ],
